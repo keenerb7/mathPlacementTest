@@ -1,5 +1,10 @@
 This is a test to see how Git works
 Please put your name here if you can download and upload changes:
 1. Randy Was here
+<<<<<<< HEAD
 2. 
 3. Matteo was here
+=======
+2. Mille was here
+3. 
+>>>>>>> 9017a15c7165c4b3feae69ace9a285c951cb0a1c
