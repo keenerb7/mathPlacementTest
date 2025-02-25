@@ -1,7 +1,7 @@
 CREATE DATABASE MathTestPlacementDB;
 USE MathTestPlacementDB;
 
-DROP DATABASE MathTestPlacementDB;
+# DROP DATABASE MathTestPlacementDB;
 
 CREATE TABLE Question_Categories (
     category_id INT PRIMARY KEY AUTO_INCREMENT,
