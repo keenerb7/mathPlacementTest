@@ -1,0 +1,11 @@
+-Main Page
+  Login Page for Professors
+
+-Add/Modify Question Page
+  After choosing the category of the question, a table with all the currently inputted questions of the category will come up. If the user right click on one of the questions they will be able to modify or delete it. In case they choose modify, the question will appear inside the text-box and all the answers will be displayed underneath it. In case they will select delete a pop up will di displayed and the user will be able to confirm the deleting. If a professor wants to add a question they will be able to do it by just write the question on the empty text-box and add answers right underneath it. The answers will be displayed as a radio button menu so the professor can select which one is the right one. Two buttons are displayed, "Clear" button will clear the text-box (and of course the "Answers section"), "Add Question" will add the question to the database.
+
+-Make Test Page
+  A list of current made tests will come up and user can decide if Modify a selected test, delete it or make a new one. If they modify the scratched interface will come out, and all the values will be in place (number of questions, sections list and number of questions professor wants for each section and the table that shows all the questions). When right clicking on question the professor will be able to [-Change with random question of the same section - Change with random question of different section (and then will be prompted to choose the section) -Change manually (By manually selection the question from all the questions that the database has) -Delete (if they delete the number of questions will decrease by one)]. When they press "Add", after inputting number of questions and number of questions for each section, the test will randomly made and it will show up on screen, from this point the professor will be able to right click on question that they don't like and change them or delete them. Once the professor is happy with the result, they will be able to download the script and upload that on canvas. 
+
+-Monitor Answers Page
+  Work In Progress
