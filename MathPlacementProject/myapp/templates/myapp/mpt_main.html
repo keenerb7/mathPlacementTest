@@ -1,0 +1,47 @@
+<!-- Main Page of the math placement website -->
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+        <meta charset="utf-8" />
+	    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+        <title>Math Replacement Test</title>
+
+        <link href="{% static 'myapp/css/mpt_style.css' %}" rel="stylesheet" />
+        <link href="{% static 'myapp/css/mpt_mainPageForm.css' %}" rel="stylesheet" /> 
+
+        <script src="{% static 'myapp/javaScript/mpt_initialForm.js' %}"></script>
+    </head>
+    <body>
+        <h1>Log In</h1>
+        <div id="mainDiv">
+            <form>
+                <fieldset>
+                    <div style="margin: auto; text-align: center;">
+                        <div id="cell">
+                            <label>Email</label>
+                            <input id="email" type="text" placeholder="youremail@findlay.edu" />
+                        </div>
+                    
+                        <br>
+                        <div id="cell">
+                            <label>Password</label>
+                            <input id="password" type="password" placeholder="password" />
+                        </div>
+                    </div>
+
+                    <br>
+                    <br>
+
+                    <div id="buttsDiv">
+                        <input type="reset" value="Cancel" class="buttons"/>
+                        <button onclick="logIn()" class="buttons">Submit</button>
+                    </div>
+                </fieldset>
+            </form>
+        </div>
+    </body>
+</html>

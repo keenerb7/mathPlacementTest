@@ -1,0 +1,39 @@
+@charset "utf-8";
+/*  Style page 
+
+    Math Placement Test Project
+
+    Designed by: 
+        Bruce Keener
+        Matteo Filippi
+        Mille Berg
+*/
+
+/*Page Format*/
+html
+{
+	font-family: Century Gothic,CenturyGothic,AppleGothic,sans-serif; 
+	background-color: #F5F5F5;
+	height: 100%;
+	max-height: 1080px;
+    min-height: 400px;
+	max-width: 1920px;
+    min-width: 500px;
+}
+/*
+body 
+{
+	min-width: 500px;
+	max-width: 90%; 
+	min-height: 100%;
+	margin: 0px auto;
+	box-shadow: 3px 3px 20px black;
+	border-radius: 4px;
+}*/
+
+body#main
+{
+    min-width: 500px;
+	max-width: 100%; 
+	min-height: 100%;
+}

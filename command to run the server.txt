@@ -1,0 +1,7 @@
+locate inside MathPlacementProject and then type (in cmd or powershell)
+
+python manage.py startapp myapp
+
+this should give you a link if it doesn't just go on google and type
+
+http://localhost:8000/
