@@ -1,5 +1,8 @@
+from tkinter.ttk import Combobox
+
 import mysql.connector
 from tkinter import *
+from tkinter import ttk
 
 
 def get_db_connection():
@@ -15,3 +18,11 @@ def create_back_button(parent, command):
     btn.grid(row=1, column=0, columnspan=1, pady=10, padx=10, ipadx=50)
     return btn
 
+
+# Create a Dropdown with a Variable Length
+def create_dropdown(parent, options, var, row, col):
+    """Creates a dropdown menu (Combobox) using a loop."""
+    Label(parent, text="Select an option:").grid(row=row, column=col, padx=5, pady=5)
+    dropdown = Combobox(parent, textvariable=var, values=options)
+    dropdown.grid(row=row, column=col + 1, padx=5, pady=5)
+    return dropdown

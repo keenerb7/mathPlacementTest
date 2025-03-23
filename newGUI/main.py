@@ -116,6 +116,10 @@ def backQuestionAdd():
 def questionAdd():
     # Create a Function to Add a Question to the Question Table
     def addQuestion():
+        # Validate that there is a question in the form
+        if not question.get().strip():
+            messagebox.showerror("Error", "There is no question being submitted.")
+            return
         # Connect to Database
         cnx = get_db_connection()
 
@@ -128,6 +132,11 @@ def questionAdd():
         records = c.fetchall()
         newID = records[-1][0] + 1
 
+        # Find Category ID for the selection Category
+        c.execute("SELECT category_id FROM Question_Categories WHERE category_name= %s", (var.get(),))
+        qcatResults = c.fetchone()
+        cat_id = qcatResults[0]
+
         # SOME TYPE OF INPUT VALIDATION FOR AT LEAST LATEX PURPOSES AND INTEGERS
         # USE THE MESSAGE BOXES TO SEND BACK TO FORM BEFORE CLEARING
 
@@ -135,7 +144,7 @@ def questionAdd():
         c.execute(
             """INSERT INTO Questions (question_id, question, category_id, question_difficulty) 
                VALUES (%s, %s, %s, %s)""",
-            (newID, question.get(), category.get(), difficulty.get())
+            (newID, question.get(), cat_id, difficulty.get())
         )
 
         # Commit Changes
@@ -146,7 +155,6 @@ def questionAdd():
 
         # Clear Text Boxes
         question.delete(0, END)
-        category.delete(0, END)
         difficulty.delete(0, END)
 
         return
@@ -162,9 +170,26 @@ def questionAdd():
     Label(qaddFrame, text="Question").grid(row=0, column=0, pady=10)
     question = Entry(qaddFrame, width=100)
     question.grid(row=0, column=1, padx=10, pady=10)
+
+    # Create Dropdown Box for Question Categories
+    # Connect to Database
+    cnx = get_db_connection()
+    # Create a Cursor
+    c = cnx.cursor()
+    c.execute("SELECT * FROM Question_Categories")
+    results = c.fetchall()
+    question_categories = []
+    var = StringVar()
+    for row in results:
+        question_categories.append(row[1])
+
+    qCatDropdown = create_dropdown(qaddFrame, question_categories, var, 1, 1)
+    # Commit Changes
+    cnx.commit()
+    # Close Connection
+    cnx.close()
+
     Label(qaddFrame, text="Category ID").grid(row=1, column=0, pady=10)
-    category = Entry(qaddFrame, width=30)
-    category.grid(row=1, column=1, padx=10, pady=10)
     Label(qaddFrame, text="Question Difficulty").grid(row=2, column=0, pady=10)
     difficulty = Entry(qaddFrame, width=30)
     difficulty.grid(row=2, column=1, padx=10, pady=10)
