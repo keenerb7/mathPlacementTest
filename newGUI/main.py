@@ -50,11 +50,12 @@ def backQuestionView():
     back_btn_qview.grid_forget()
     return
 
+
 # Get answers for the selected question ID
 def get_answers(question_id):
     # Connect to Database
     cnx = mysql.connector.connect(user='sql5764680', password='yK8gNIyhZm', host='sql5.freesqldatabase.com',
-                                      database='sql5764680')
+                                  database='sql5764680')
     # Create a Cursor
     c = cnx.cursor()
 
@@ -130,7 +131,7 @@ def questionView():
     selected_qid.set(question_ids[0])
 
     text = "Select question ID to display answers:"
-    question_dropdown = create_dropdown(qviewFrame, question_ids, selected_qid, 10, 0, text)
+    question_dropdown = create_dropdown_hor(qviewFrame, question_ids, selected_qid, 10, 0, text)
 
     def update_answers(event=None):
         # Get the selected question ID
@@ -196,7 +197,7 @@ def questionAdd():
         # Validate that each answer is not empty
         for i in range(5):
             if not answers[i].get().strip():
-                messagebox.showerror("Error", f"Answer {i+1} is not submitted.")
+                messagebox.showerror("Error", f"Answer {i + 1} is not submitted.")
                 return
 
         # Connect to Database
