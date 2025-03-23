@@ -1,32 +1,44 @@
+from PIL import ImageTk, Image
 import mysql.connector
 from tkinter import *
-from tkinter import messagebox
+from tkinter import messagebox, ttk
+from mainHelper import *
 
 # Connect to Database
-cnx = mysql.connector.connect(user='sql5764680', password='yK8gNIyhZm', host='sql5.freesqldatabase.com',
-                              database='sql5764680')
-
+cnx = get_db_connection()
 # Create a Cursor
 c = cnx.cursor()
-
 # Commit Changes
 cnx.commit()
-
 # Close Connection
 cnx.close()
 
 # Create the main window
 root = Tk()
 root.title("University of Findlay Math Department")
+root.iconbitmap(r"C:\university_findlay_logo_32d_icon.ico")
 root.geometry("1000x500")
 
 
-# Create a Function to Return to Original View
+# Create a Main Menu Display Functions for Show and Hide
+def show_main_menu():
+    viewQuest_btn.grid(row=0, column=0, padx=10, pady=10, ipadx=50)
+    addQuest_btn.grid(row=0, column=1, padx=10, pady=10, ipadx=50)
+    modifyQuest_btn.grid(row=0, column=2, padx=10, pady=10, ipadx=50)
+    deleteQuest_btn.grid(row=0, column=3, padx=10, pady=10, ipadx=50)
+
+
+def hide_main_menu():
+    # Hide Current Buttons
+    viewQuest_btn.grid_forget()
+    addQuest_btn.grid_forget()
+    modifyQuest_btn.grid_forget()
+    deleteQuest_btn.grid_forget()
+
+
+# Create a Function to Return to Original View from Question View Page
 def backQuestionView():
-    viewQuest_btn.grid(row=0, column=0, columnspan=1, pady=10, padx=10, ipadx=50)
-    addQuest_btn.grid(row=0, column=1, columnspan=1, pady=10, padx=10, ipadx=50)
-    modifyQuest_btn.grid(row=0, column=2, columnspan=1, pady=10, padx=10, ipadx=50)
-    deleteQuest_btn.grid(row=0, column=3, columnspan=1, pady=10, padx=10, ipadx=50)
+    show_main_menu()
     qviewFrame.grid_forget()
     back_btn_qview.grid_forget()
     return
@@ -34,11 +46,7 @@ def backQuestionView():
 
 # Create Question View Function To Query From Questions Table
 def questionView():
-    # Hide Current Buttons
-    viewQuest_btn.grid_forget()
-    addQuest_btn.grid_forget()
-    modifyQuest_btn.grid_forget()
-    deleteQuest_btn.grid_forget()
+    hide_main_menu()
 
     # Create a Frame this option
     global qviewFrame
@@ -85,17 +93,13 @@ def questionView():
 
     # Create a Back Button to Hide Current View and Reshow Original View
     global back_btn_qview
-    back_btn_qview = Button(root, text="Back", command=backQuestionView)
-    back_btn_qview.grid(row=1, column=0, columnspan=1, pady=10, padx=10, ipadx=50)
+    back_btn_qview = create_back_button(root, backQuestionView)
     return
 
 
 # Create a Function to Return to Original View
 def backQuestionAdd():
-    viewQuest_btn.grid(row=0, column=0, columnspan=1, pady=10, padx=10, ipadx=50)
-    addQuest_btn.grid(row=0, column=1, columnspan=1, pady=10, padx=10, ipadx=50)
-    modifyQuest_btn.grid(row=0, column=2, columnspan=1, pady=10, padx=10, ipadx=50)
-    deleteQuest_btn.grid(row=0, column=3, columnspan=1, pady=10, padx=10, ipadx=50)
+    show_main_menu()
     qaddFrame.grid_forget()
     back_btn_qadd.grid_forget()
     return
@@ -141,11 +145,7 @@ def questionAdd():
 
         return
 
-    # Hide Current Buttons
-    viewQuest_btn.grid_forget()
-    addQuest_btn.grid_forget()
-    modifyQuest_btn.grid_forget()
-    deleteQuest_btn.grid_forget()
+    hide_main_menu()
 
     # Create a Frame this option
     global qaddFrame
@@ -171,9 +171,7 @@ def questionAdd():
 
     # Create a Back Button to Hide Current View and Reshow Original View
     global back_btn_qadd
-    back_btn_qadd = Button(root, text="Back", command=backQuestionAdd)
-    back_btn_qadd.grid(row=1, column=0, columnspan=1, pady=10, padx=10, ipadx=50)
-
+    back_btn_qadd = create_back_button(root, backQuestionAdd)
     return
 
 
@@ -184,10 +182,7 @@ def questionModify():
 
 # Create a Function to Return to Original View
 def backQuestionDelete():
-    viewQuest_btn.grid(row=0, column=0, columnspan=1, pady=10, padx=10, ipadx=50)
-    addQuest_btn.grid(row=0, column=1, columnspan=1, pady=10, padx=10, ipadx=50)
-    modifyQuest_btn.grid(row=0, column=2, columnspan=1, pady=10, padx=10, ipadx=50)
-    deleteQuest_btn.grid(row=0, column=3, columnspan=1, pady=10, padx=10, ipadx=50)
+    show_main_menu()
     qdeleteFrame.grid_forget()
     back_btn_qdelete.grid_forget()
     return
@@ -195,11 +190,7 @@ def backQuestionDelete():
 
 # Create Question Delete Function to Delete a Record in Question Table
 def questionDelete():
-    # Hide Current Buttons
-    viewQuest_btn.grid_forget()
-    addQuest_btn.grid_forget()
-    modifyQuest_btn.grid_forget()
-    deleteQuest_btn.grid_forget()
+    hide_main_menu()
 
     # Create a Frame this option
     global qdeleteFrame
@@ -209,8 +200,6 @@ def questionDelete():
     # Create a Labels for the Columns of the Question Table
     Label(qdeleteFrame, text="Question ID").grid(row=0, column=0, ipadx=5)
     Label(qdeleteFrame, text="Question", anchor='w').grid(row=0, column=1, ipadx=215)
-    # Label(qdeleteFrame, text="Category ID").grid(row=0, column=2, ipadx=5)
-    # Label(qdeleteFrame, text="Question Difficulty").grid(row=0, column=3, ipadx=5)
 
     def showQuestionsForDelete():
         # Connect to Database
@@ -257,14 +246,10 @@ def questionDelete():
 
             # Close Connection
             cnx.close()
-
-            # This is a temporary fix to force refresh the
-            # backQuestionDelete()
         else:
             return
 
         showQuestionsForDelete()
-
 
     showQuestionsForDelete()
     Label(qdeleteFrame, text="Question ID to Delete: ").grid(row=3, column=0)
@@ -275,9 +260,7 @@ def questionDelete():
 
     # Create a Back Button to Hide Current View and Reshow Original View
     global back_btn_qdelete
-    back_btn_qdelete = Button(root, text="Back", command=backQuestionDelete)
-    back_btn_qdelete.grid(row=1, column=0, columnspan=1, pady=10, padx=10, ipadx=50)
-
+    back_btn_qdelete = create_back_button(root, backQuestionDelete)
     return
 
 
@@ -296,6 +279,53 @@ modifyQuest_btn.grid(row=0, column=2, columnspan=1, pady=10, padx=10, ipadx=50)
 # Create Delete Question Button
 deleteQuest_btn = Button(root, text="Delete Questions", command=questionDelete)
 deleteQuest_btn.grid(row=0, column=3, columnspan=1, pady=10, padx=10, ipadx=50)
+
+
+################################### This Section is the Test Section ###################################################
+# Create Function to View a Test
+def testView():
+    return
+
+
+# Create Function to Make a Test
+def testMake():
+    return
+
+
+# Create Function to Modify a Test
+def testModify():
+    return
+
+
+# Create Function to Delete a Test
+def testDelete():
+    return
+
+
+# Create Function to Extract a Test
+def testExtract():
+    return
+
+
+# Create View Test Button
+viewTest_btn = Button(root, text="View Test", command=testView)
+viewTest_btn.grid(row=2, column=0, columnspan=1, pady=10, padx=10, ipadx=50)
+
+# Create Add Test Button
+makeTest_btn = Button(root, text="Make Test", command=testMake)
+makeTest_btn.grid(row=2, column=1, columnspan=1, pady=10, padx=10, ipadx=50)
+
+# Create Modify Test Button
+modifyTest_btn = Button(root, text="Modify Test", command=testModify)
+modifyTest_btn.grid(row=2, column=2, columnspan=1, pady=10, padx=10, ipadx=50)
+
+# Create Delete Test Button
+deleteTest_btn = Button(root, text="Delete Test", command=testDelete)
+deleteTest_btn.grid(row=2, column=3, columnspan=1, pady=10, padx=10, ipadx=50)
+
+# Create Extract Test Button
+extractTest_btn = Button(root, text="Extract Test", command=testExtract)
+extractTest_btn.grid(row=3, column=2, columnspan=2, pady=10, padx=10, ipadx=50)
 
 # Run the main event loop
 root.mainloop()
