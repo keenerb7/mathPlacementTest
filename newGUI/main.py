@@ -26,6 +26,11 @@ def show_main_menu():
     addQuest_btn.grid(row=0, column=1, padx=10, pady=10, ipadx=50)
     modifyQuest_btn.grid(row=0, column=2, padx=10, pady=10, ipadx=50)
     deleteQuest_btn.grid(row=0, column=3, padx=10, pady=10, ipadx=50)
+    viewTest_btn.grid(row=2, column=0, columnspan=1, pady=10, padx=10, ipadx=50)
+    makeTest_btn.grid(row=2, column=1, columnspan=1, pady=10, padx=10, ipadx=50)
+    modifyTest_btn.grid(row=2, column=2, columnspan=1, pady=10, padx=10, ipadx=50)
+    deleteTest_btn.grid(row=2, column=3, columnspan=1, pady=10, padx=10, ipadx=50)
+    extractTest_btn.grid(row=3, column=1, columnspan=2, pady=10, padx=10, ipadx=50)
 
 
 def hide_main_menu():
@@ -34,6 +39,11 @@ def hide_main_menu():
     addQuest_btn.grid_forget()
     modifyQuest_btn.grid_forget()
     deleteQuest_btn.grid_forget()
+    viewTest_btn.grid_forget()
+    makeTest_btn.grid_forget()
+    modifyTest_btn.grid_forget()
+    deleteTest_btn.grid_forget()
+    extractTest_btn.grid_forget()
 
 
 # Create a Function to Return to Original View from Question View Page
@@ -325,7 +335,7 @@ deleteTest_btn.grid(row=2, column=3, columnspan=1, pady=10, padx=10, ipadx=50)
 
 # Create Extract Test Button
 extractTest_btn = Button(root, text="Extract Test", command=testExtract)
-extractTest_btn.grid(row=3, column=2, columnspan=2, pady=10, padx=10, ipadx=50)
+extractTest_btn.grid(row=3, column=1, columnspan=2, pady=10, padx=10, ipadx=50)
 
 # Run the main event loop
 root.mainloop()
