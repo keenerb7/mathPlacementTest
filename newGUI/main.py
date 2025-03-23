@@ -50,6 +50,32 @@ def backQuestionView():
     back_btn_qview.grid_forget()
     return
 
+# Get answers for the selected question ID
+def get_answers(question_id):
+    # Connect to Database
+    cnx = mysql.connector.connect(user='sql5764680', password='yK8gNIyhZm', host='sql5.freesqldatabase.com',
+                                      database='sql5764680')
+    # Create a Cursor
+    c = cnx.cursor()
+
+    answer_ids = ['a', 'b', 'c', 'd', 'e']
+    answers = []
+
+    #
+    for answer_id in answer_ids:
+        concatenated_id = f"{question_id}{answer_id}"  # Concatenate question ID
+        # Query Question_Choices table for choice IDs
+        c.execute("SELECT choice_text FROM Question_Choices WHERE choice_id = %s", (concatenated_id,))
+        answer = c.fetchone()
+
+        if answer:
+            answers.append(answer[0])  # Add answer to the list
+
+    # Close Connection
+    cnx.close()
+
+    return answers
+
 
 # Create Question View Function To Query From Questions Table
 def questionView():
@@ -91,6 +117,37 @@ def questionView():
     ctd_label.grid(row=2, column=2, columnspan=1)
     qd_label = Label(qviewFrame, text=print_qd, anchor='w')
     qd_label.grid(row=2, column=3, columnspan=1)
+
+    ###NEW STUFF###
+    q = cnx.cursor()
+    q.execute("SELECT question_id FROM Questions")
+    question_ids = [row[0] for row in q.fetchall()]
+
+    question_ids = sorted(question_ids)
+
+    selected_qid = StringVar()
+    # Set first question ID as default
+    selected_qid.set(question_ids[0])
+
+    text = "Select question ID to display answers:"
+    question_dropdown = create_dropdown(qviewFrame, question_ids, selected_qid, 10, 0, text)
+
+    def update_answers(event=None):
+        # Get the selected question ID
+        selected_question_id = selected_qid.get()
+        # Get answers for the selected question
+        answers = get_answers(selected_question_id)
+        # Display answers
+        answers_text = "\n".join(answers)
+        answers_label.config(text=answers_text)
+
+    question_dropdown.bind("<<ComboboxSelected>>", update_answers)
+
+    global answers_label
+    answers_label = Label(qviewFrame, text="", anchor='w', justify='left')
+    answers_label.grid(row=12, column=0, columnspan=4, pady=10)
+
+    update_answers()
 
     # Commit Changes
     cnx.commit()
