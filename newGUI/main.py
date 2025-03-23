@@ -76,27 +76,12 @@ def questionView():
     # Query Questions Table for all Questions
     c.execute("SELECT * FROM Questions")
     records = c.fetchall()
-
     print_qid, print_q, print_ctd, print_qd = '', '', '', ''
     for row in records:
         print_qid += str(row[0]) + "\n"
         print_q += str(row[1]) + "\n"
         print_ctd += str(row[2]) + "\n"
         print_qd += str(row[3]) + "\n"
-
-    ###NEW STUFF###
-    q = cnx.cursor()
-    q.execute("SELECT question_id FROM Questions")
-    question_ids = [row[0] for row in q.fetchall()]
-    selected_qid = StringVar()
-    text = "Select question ID to display answers:"
-    selected_qid.set(question_ids[0]) # Set first question ID as default
-    question_dropdown = create_dropdown(qviewFrame, question_ids, selected_qid, 10, 0, text)
-
-
-    get_answers(cnx, selected_qid)
-
-    ###NEW STUFF END###
 
     qid_label = Label(qviewFrame, text=print_qid, anchor='w')
     qid_label.grid(row=2, column=0, columnspan=1)
@@ -151,6 +136,12 @@ def questionAdd():
             messagebox.showerror("Error", "Please enter an integer for Question Difficulty.")
             return
 
+        # Validate that each answer is not empty
+        for i in range(5):
+            if not answers[i].get().strip():
+                messagebox.showerror("Error", f"Answer {i+1} is not submitted.")
+                return
+
         # Connect to Database
         cnx = get_db_connection()
 
@@ -198,9 +189,9 @@ def questionAdd():
     qaddFrame.grid(row=0, pady=10, padx=20)
 
     # Create Labels for the Text Input
-    Label(qaddFrame, text="Question").grid(row=0, column=0, pady=10)
+    Label(qaddFrame, text="Question:").grid(row=0, column=1)
     question = Entry(qaddFrame, width=100)
-    question.grid(row=0, column=1, padx=10, pady=10)
+    question.grid(row=0, column=2)
 
     # Create Dropdown Box for Question Categories
     # Connect to Database
@@ -214,20 +205,35 @@ def questionAdd():
     for row in results:
         question_categories.append(row[1])
 
-    qCatDropdown = create_dropdown(qaddFrame, question_categories, var, 1, 1)
+    create_dropdown_ver(qaddFrame, question_categories, var, 2, 0, text="Question Category")
     # Commit Changes
     cnx.commit()
     # Close Connection
     cnx.close()
 
-    Label(qaddFrame, text="Question Category").grid(row=1, column=0, pady=10)
-    Label(qaddFrame, text="Question Difficulty").grid(row=2, column=0, pady=10)
+    # Label(qaddFrame, text="Question Category").grid(row=1, column=0, pady=10)
+    Label(qaddFrame, text="Question Difficulty").grid(row=4, column=0, pady=10)
     difficulty = Entry(qaddFrame, width=30)
-    difficulty.grid(row=2, column=1, padx=10, pady=10)
+    difficulty.grid(row=5, column=0, padx=10, pady=10)
+
+    # ANSWER SECTION
+    # Create Labels for the Answer Choices and note the first one is always correct
+    Label(qaddFrame, text="(Correct) Answer Number 1:").grid(row=2, column=1)
+    Label(qaddFrame, text="Answer Number 2:").grid(row=3, column=1)
+    Label(qaddFrame, text="Answer Number 3:").grid(row=4, column=1)
+    Label(qaddFrame, text="Answer Number 4:").grid(row=5, column=1)
+    Label(qaddFrame, text="Answer Number 5:").grid(row=6, column=1)
+
+    # Create Text Boxes for Each Answer
+    answers = []
+    for i in range(5):
+        entry = Entry(qaddFrame, width=100)
+        entry.grid(row=2 + i, column=2)
+        answers.append(entry)
 
     # Create Add Button to Trigger the Addition of the new Record
     add_btn = Button(qaddFrame, text="Add Question", command=addQuestion)
-    add_btn.grid(row=4, column=1, padx=10, pady=10)
+    add_btn.grid(row=6, column=0, padx=10, pady=10)
 
     # Create a Back Button to Hide Current View and Reshow Original View
     global back_btn_qadd
