@@ -124,6 +124,8 @@ def questionView():
     q.execute("SELECT question_id FROM Questions")
     question_ids = [row[0] for row in q.fetchall()]
 
+    question_ids = sorted(question_ids)
+
     selected_qid = StringVar()
     # Set first question ID as default
     selected_qid.set(question_ids[0])
