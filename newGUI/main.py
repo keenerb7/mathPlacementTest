@@ -3,6 +3,7 @@ import mysql.connector
 from tkinter import *
 from tkinter import messagebox, ttk
 from mainHelper import *
+from test2qti import *
 
 # Connect to Database
 cnx = get_db_connection()
@@ -120,8 +121,7 @@ def questionAdd():
     # Create a Function to Add a Question to the Question Table
     def addQuestion():
         # Connect to Database
-        cnx = mysql.connector.connect(user='sql5764680', password='yK8gNIyhZm', host='sql5.freesqldatabase.com',
-                                      database='sql5764680')
+        cnx = get_db_connection()
 
         # Create a Cursor
         c = cnx.cursor()
@@ -298,6 +298,7 @@ def backTestView():
     back_btn_tview.grid_forget()
     return
 
+
 # Create Function to View a Test
 def testView():
     hide_main_menu()
@@ -309,7 +310,6 @@ def testView():
 
     global back_btn_tview
     back_btn_tview = create_back_button(root, backTestView)
-
     return
 
 def backTestMake():
@@ -317,6 +317,7 @@ def backTestMake():
     tmakeFrame.grid_forget()
     back_btn_tmake.grid_forget()
     return
+
 
 # Create Function to Make a Test
 def testMake():
@@ -329,14 +330,15 @@ def testMake():
 
     global back_btn_tmake
     back_btn_tmake = create_back_button(root, backTestMake)
-
     return
+
 
 def backTestModify():
     show_main_menu()
     tmodifyFrame.grid_forget()
     back_btn_tmodify.grid_forget()
     return
+
 
 # Create Function to Modify a Test
 def testModify():
@@ -352,11 +354,13 @@ def testModify():
 
     return
 
+
 def backTestDelete():
     show_main_menu()
     tdeleteFrame.grid_forget()
     back_btn_tdelete.grid_forget()
     return
+
 
 # Create Function to Delete a Test
 def testDelete():
@@ -372,23 +376,67 @@ def testDelete():
 
     return
 
+
+# Create a Function to Return to Original View
 def backTestExtract():
     show_main_menu()
-    textractFrame.grid_forget()
-    back_btn_textract.grid_forget()
+    testExtractFrame.grid_forget()
+    back_btn_testExtract.grid_forget()
     return
+
 
 # Create Function to Extract a Test
 def testExtract():
     hide_main_menu()
 
-    # Create a Frame this option
-    global textractFrame
-    textractFrame = Frame(root, bd=2)
-    textractFrame.grid(row=0, pady=10, padx=20)
+    # Display a list of Test and Their Names
+    # Connect to Database
+    cnx = get_db_connection()
+    # Create a Cursor
+    c = cnx.cursor()
 
-    global back_btn_textract
-    back_btn_textract = create_back_button(root, backTestExtract)
+    c.execute("SELECT test_id, test_title, test_type FROM Test")
+    results = c.fetchall()
+
+    # Create a Frame this option
+    global testExtractFrame
+    testExtractFrame = Frame(root, bd=2)
+    testExtractFrame.grid(row=0, pady=10, padx=20)
+
+    # Create a Labels for the Columns of the Question Table
+    Label(testExtractFrame, text="Test ID").grid(row=0, column=0, ipadx=5)
+    Label(testExtractFrame, text="Test Title", anchor='w').grid(row=0, column=1, ipadx=100)
+    Label(testExtractFrame, text="Test Type").grid(row=0, column=2, ipadx=5)
+
+    # Display the Current Tests Available
+    print_tid, print_t, print_tt = '', '', ''
+    for row in results:
+        print_tid += str(row[0]) + "\n"
+        print_t += str(row[1]) + "\n"
+        print_tt += str(row[2]) + "\n"
+
+    tid_label = Label(testExtractFrame, text=print_tid, anchor='w')
+    tid_label.grid(row=2, column=0, columnspan=1)
+    t_label = Label(testExtractFrame, text=print_t, anchor='w')
+    t_label.grid(row=2, column=1, columnspan=1)
+    tt_label = Label(testExtractFrame, text=print_tt, anchor='w')
+    tt_label.grid(row=2, column=2, columnspan=1)
+
+    # Commit Changes
+    cnx.commit()
+    # Close Connection
+    cnx.close()
+
+    # Create a Selection Section for the Test
+    Label(testExtractFrame, text="Test ID for QTI Extraction: ").grid(row=3, column=0)
+    select_box = Entry(testExtractFrame, width=10)
+    select_box.grid(row=3, column=1)
+    extract_btn = Button(testExtractFrame, text="Extract QTI File for Test", command=lambda: test2qti(select_box.get()))
+    extract_btn.grid(row=4, column=1)
+
+    # Create a Back Button to Hide Current View and Reshow Original View
+    global back_btn_testExtract
+    back_btn_testExtract = create_back_button(root, backTestExtract)
 
     return
 

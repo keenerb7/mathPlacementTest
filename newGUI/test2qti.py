@@ -2,97 +2,107 @@ import mysql.connector
 import subprocess
 from collections import defaultdict
 from mainHelper import *
+from tkinter import messagebox
 
-cnx = get_db_connection()
 
-cursor = cnx.cursor()
+def test2qti(createTest):
+    if messagebox.askokcancel("Confirmation", f"Would you like to Extract a QTI file for Test ID: {createTest}?"):
+        cnx = get_db_connection()
 
-# Determine the Test that we want to pull from the database
-# Note this value will be hardcoded now but should be able to be changed from
-# the professor GUI most likely
-createTest = 1
+        cursor = cnx.cursor()
 
-f = open("sampleTest.txt", "w")
+        cursor.execute("SELECT test_title FROM Test WHERE test_id = %s", (createTest,))
+        result = cursor.fetchall()
 
-cursor.execute("SELECT test_title FROM Test WHERE test_id = %s", (createTest,))
-result = cursor.fetchall()
+        if len(result) == 0:
+            messagebox.showerror("Error", f"{createTest} is not a valid Test ID.")
+            return
 
-# Making the Test Title in the text file
-for row in result:
-    f.write(f"Quiz Title: {row[0]}\n")
+        text_file_name = str(result[0][0]).strip()
+        f = open(text_file_name + ".txt", "w")
+        text_file_path = text_file_name.strip() + ".txt"
 
-# This section is for quiz options
-# Should have a way from GUI to change these values
-f.write(f"shuffle answers: true\n")
-f.write(f"show correct answers: true\n")
-f.write(f"one question at a time: true\n")
-f.write(f"can't go back: true\n")
+        # Making the Test Title in the text file
+        for row in result:
+            f.write(f"Quiz Title: {row[0]}\n")
 
-# Find all the question ids for the test
-cursor.execute("SELECT question_id FROM Test_Questions WHERE test_id = %s", (createTest,))
-result = cursor.fetchall()
-testQuestions = []
-tempQs = []
-for row in result:
-    tempQs.append(row)
+        # This section is for quiz options
+        # Should have a way from GUI to change these values
+        f.write(f"shuffle answers: true\n")
+        f.write(f"show correct answers: true\n")
+        f.write(f"one question at a time: true\n")
+        f.write(f"can't go back: true\n")
 
-testQuestions = [item[0] for item in tempQs]
+        # Find all the question ids for the test
+        cursor.execute("SELECT question_id FROM Test_Questions WHERE test_id = %s", (createTest,))
+        result = cursor.fetchall()
+        testQuestions = []
+        tempQs = []
+        for row in result:
+            tempQs.append(row)
 
-# Find all the actual questions for the test
-tempQ = []
-temp = []
-questionsText = []
-for x in testQuestions:
-    cursor.execute("SELECT question_id, question FROM Questions WHERE question_id = %s", (x,))
-    result = cursor.fetchall()
-    for row in result:
-        temp.append(row)
-        tempQ.append(temp)
+        testQuestions = [item[0] for item in tempQs]
+
+        # Find all the actual questions for the test
+        tempQ = []
         temp = []
+        questionsText = []
+        for x in testQuestions:
+            cursor.execute("SELECT question_id, question FROM Questions WHERE question_id = %s", (x,))
+            result = cursor.fetchall()
+            for row in result:
+                temp.append(row)
+                tempQ.append(temp)
+                temp = []
 
-questionsText = [list(item) for sublist in tempQ for item in sublist]
+        questionsText = [list(item) for sublist in tempQ for item in sublist]
 
-# Find all the answer choices for each of the questions
-tempAs = []
-temp = []
-questionAnswers = []
-for x in testQuestions:
-    cursor.execute("SELECT choice_id, choice_text, is_correct FROM Question_Choices WHERE question_id = %s", (x,))
-    result = cursor.fetchall()
-    for row in result:
-        temp.append(row)
-        tempAs.append(temp)
+        # Find all the answer choices for each of the questions
+        tempAs = []
         temp = []
+        questionAnswers = []
+        for x in testQuestions:
+            cursor.execute("SELECT choice_id, choice_text, is_correct FROM Question_Choices WHERE question_id = %s",
+                           (x,))
+            result = cursor.fetchall()
+            for row in result:
+                temp.append(row)
+                tempAs.append(temp)
+                temp = []
 
-questionAnswers = [list(item) for sublist in tempAs for item in sublist]
+        questionAnswers = [list(item) for sublist in tempAs for item in sublist]
 
-# Write out the questions to the text file
-grouped_answers = defaultdict(list)
-for ans in questionAnswers:
-    q_num = int(ans[0][0])  # Extract the question number
-    grouped_answers[q_num].append(ans)
+        # Write out the questions to the text file
+        grouped_answers = defaultdict(list)
+        for ans in questionAnswers:
+            q_num = int(ans[0][0])  # Extract the question number
+            grouped_answers[q_num].append(ans)
 
-# Formatting
-for q in questionsText:
-    q_num, q_text = q
-    f.write(f"{q_num}. {q_text}\n")
+        # Formatting
+        for q in questionsText:
+            q_num, q_text = q
+            f.write(f"{q_num}. {q_text}\n")
 
-    for ans in grouped_answers[q_num]:
-        ans_label = ans[0][1]  # extract the letter
-        ans_text = ans[1]  # answer text
-        is_correct = "*" if ans[2] == 1 else ""  # mark correct answers
+            for ans in grouped_answers[q_num]:
+                ans_label = ans[0][1]  # extract the letter
+                ans_text = ans[1]  # answer text
+                is_correct = "*" if ans[2] == 1 else ""  # mark correct answers
 
-        f.write(f"{is_correct}{ans_label}) {ans_text}\n")
+                f.write(f"{is_correct}{ans_label}) {ans_text}\n")
 
-    # f.write("\n") # For spacing maybe
+            # f.write("\n") # For spacing maybe
 
-# Close the connections
-cnx.close()
-f.close()
+        # Close the connections
+        cnx.close()
+        f.close()
 
-# Open and read the file after appending
-# f = open("sampleTest.txt", "r")
-# print(f.read())
+        # Create Solution File Name
+        solution_file_path = text_file_name.strip() + " Solutions.pdf"
 
-# Runs the text2qti form the command line to create a QTI file and solutions PDF
-subprocess.run(['text2qti', 'sampleTest.txt', '--solutions', 'sampleTestSolutions.pdf'])
+        # Runs the text2qti form the command line to create a QTI file and solutions PDF
+        subprocess.run(['text2qti', text_file_path, '--solutions', solution_file_path])
+
+        messagebox.showinfo("Sucess", "Successful QTI File Extraction!")
+        return
+    else:
+        return
