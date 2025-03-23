@@ -76,12 +76,27 @@ def questionView():
     # Query Questions Table for all Questions
     c.execute("SELECT * FROM Questions")
     records = c.fetchall()
+
     print_qid, print_q, print_ctd, print_qd = '', '', '', ''
     for row in records:
         print_qid += str(row[0]) + "\n"
         print_q += str(row[1]) + "\n"
         print_ctd += str(row[2]) + "\n"
         print_qd += str(row[3]) + "\n"
+
+    ###NEW STUFF###
+    q = cnx.cursor()
+    q.execute("SELECT question_id FROM Questions")
+    question_ids = [row[0] for row in q.fetchall()]
+    selected_qid = StringVar()
+    text = "Select question ID to display answers:"
+    selected_qid.set(question_ids[0]) # Set first question ID as default
+    question_dropdown = create_dropdown(qviewFrame, question_ids, selected_qid, 10, 0, text)
+
+
+    get_answers(cnx, selected_qid)
+
+    ###NEW STUFF END###
 
     qid_label = Label(qviewFrame, text=print_qid, anchor='w')
     qid_label.grid(row=2, column=0, columnspan=1)
