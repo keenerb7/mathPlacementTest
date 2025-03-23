@@ -118,8 +118,24 @@ def questionAdd():
     def addQuestion():
         # Validate that there is a question in the form
         if not question.get().strip():
-            messagebox.showerror("Error", "There is no question being submitted.")
+            messagebox.showerror("Error", "There is no Question submitted.")
             return
+
+        # Validates that there is a selection in the dropdown box
+        if len(var.get()) == 0:
+            messagebox.showerror("Error", "There is no Question Category Selected.")
+            return
+
+        # Validate that there is a difficulty input
+        if not difficulty.get().strip():
+            messagebox.showerror("Error", "There is no Question Difficulty submitted.")
+            return
+
+        # Validate that Difficulty is a number
+        if difficulty.get().isalpha():
+            messagebox.showerror("Error", "Please enter an integer for Question Difficulty.")
+            return
+
         # Connect to Database
         cnx = get_db_connection()
 
@@ -189,7 +205,7 @@ def questionAdd():
     # Close Connection
     cnx.close()
 
-    Label(qaddFrame, text="Category ID").grid(row=1, column=0, pady=10)
+    Label(qaddFrame, text="Question Category").grid(row=1, column=0, pady=10)
     Label(qaddFrame, text="Question Difficulty").grid(row=2, column=0, pady=10)
     difficulty = Entry(qaddFrame, width=30)
     difficulty.grid(row=2, column=1, padx=10, pady=10)
