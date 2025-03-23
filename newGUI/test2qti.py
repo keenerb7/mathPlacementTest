@@ -1,8 +1,8 @@
-import mysql.connector
 import subprocess
 from collections import defaultdict
-from mainHelper import *
 from tkinter import messagebox
+
+from mainHelper import *
 
 
 def test2qti(createTest):
@@ -36,7 +36,6 @@ def test2qti(createTest):
         # Find all the question ids for the test
         cursor.execute("SELECT question_id FROM Test_Questions WHERE test_id = %s", (createTest,))
         result = cursor.fetchall()
-        testQuestions = []
         tempQs = []
         for row in result:
             tempQs.append(row)
@@ -46,7 +45,6 @@ def test2qti(createTest):
         # Find all the actual questions for the test
         tempQ = []
         temp = []
-        questionsText = []
         for x in testQuestions:
             cursor.execute("SELECT question_id, question FROM Questions WHERE question_id = %s", (x,))
             result = cursor.fetchall()
@@ -60,7 +58,6 @@ def test2qti(createTest):
         # Find all the answer choices for each of the questions
         tempAs = []
         temp = []
-        questionAnswers = []
         for x in testQuestions:
             cursor.execute("SELECT choice_id, choice_text, is_correct FROM Question_Choices WHERE question_id = %s",
                            (x,))
@@ -102,7 +99,7 @@ def test2qti(createTest):
         # Runs the text2qti form the command line to create a QTI file and solutions PDF
         subprocess.run(['text2qti', text_file_path, '--solutions', solution_file_path])
 
-        messagebox.showinfo("Sucess", "Successful QTI File Extraction!")
+        messagebox.showinfo("Success", "Successful QTI File Extraction!")
         return
     else:
         return

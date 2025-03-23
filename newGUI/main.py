@@ -1,8 +1,4 @@
-from PIL import ImageTk, Image
 import mysql.connector
-from tkinter import *
-from tkinter import messagebox, ttk
-from mainHelper import *
 from test2qti import *
 
 # Connect to Database
@@ -163,8 +159,6 @@ def questionAdd():
     qaddFrame.grid(row=0, pady=10, padx=20)
 
     # Create Labels for the Text Input
-    # NOT SURE IF THEY SHOULD HAVE CONTROL OVER QUESTION ID
-    # I AM CURRENTLY ASSUMING NO
     Label(qaddFrame, text="Question").grid(row=0, column=0, pady=10)
     question = Entry(qaddFrame, width=100)
     question.grid(row=0, column=1, padx=10, pady=10)
@@ -185,8 +179,25 @@ def questionAdd():
     return
 
 
+# Create Function to Return to Original View
+def backQuestionModify():
+    show_main_menu()
+    qmodifyFrame.grid_forget()
+    back_btn_qmodify.grid_forget()
+    return
+
+
 # Create Question Modify Function to Update Records in Question Table
 def questionModify():
+    hide_main_menu()
+
+    # Create a Frame this option
+    global qmodifyFrame
+    qmodifyFrame = Frame(root, bd=2)
+    qmodifyFrame.grid(row=0, pady=10, padx=20)
+
+    global back_btn_qmodify
+    back_btn_qmodify = create_back_button(root, backQuestionModify)
     return
 
 
@@ -213,12 +224,9 @@ def questionDelete():
 
     def showQuestionsForDelete():
         # Connect to Database
-        cnx = mysql.connector.connect(user='sql5764680', password='yK8gNIyhZm', host='sql5.freesqldatabase.com',
-                                      database='sql5764680')
-
+        cnx = get_db_connection()
         # Create a Cursor
         c = cnx.cursor()
-
         # Query Questions Table for all Questions
         c.execute("SELECT * FROM Questions")
         records = c.fetchall()
@@ -240,20 +248,25 @@ def questionDelete():
 
     # Create a Function to Delete the Typed Question ID From the Question Table
     def deleteQuestion():
+        question_id = delete_box.get()
         if messagebox.askyesno("Question",
-                               "Are you sure you would like to delete Question ID: " + str(delete_box.get())):
+                               "Are you sure you would like to delete Question ID: " + str(question_id)):
             # Connect to Database
-            cnx = mysql.connector.connect(user='sql5764680', password='yK8gNIyhZm', host='sql5.freesqldatabase.com',
-                                          database='sql5764680')
-
+            cnx = get_db_connection()
             # Create a Cursor
             c = cnx.cursor()
 
-            c.execute("DELETE from Questions WHERE question_id= %s", (delete_box.get(),))
+            # Data Validation to Ensure Proper Question ID
+            c.execute("SELECT * FROM Questions WHERE question_id= %s", (question_id,))
+            results = c.fetchall()
+            if len(results) == 0:
+                messagebox.showerror("Error", f"{question_id} is not a valid Question ID.")
+                return
 
+            # Delete Proper Question ID From Questions Table
+            c.execute("DELETE from Questions WHERE question_id= %s", (delete_box.get(),))
             # Commit Changes
             cnx.commit()
-
             # Close Connection
             cnx.close()
         else:
@@ -311,6 +324,7 @@ def testView():
     global back_btn_tview
     back_btn_tview = create_back_button(root, backTestView)
     return
+
 
 def backTestMake():
     show_main_menu()
