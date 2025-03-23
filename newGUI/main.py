@@ -292,28 +292,104 @@ deleteQuest_btn.grid(row=0, column=3, columnspan=1, pady=10, padx=10, ipadx=50)
 
 
 ################################### This Section is the Test Section ###################################################
-# Create Function to View a Test
-def testView():
+def backTestView():
+    show_main_menu()
+    tviewFrame.grid_forget()
+    back_btn_tview.grid_forget()
     return
 
+# Create Function to View a Test
+def testView():
+    hide_main_menu()
+
+    # Create a Frame this option
+    global tviewFrame
+    tviewFrame = Frame(root, bd=2)
+    tviewFrame.grid(row=0, pady=10, padx=20)
+
+    global back_btn_tview
+    back_btn_tview = create_back_button(root, backTestView)
+
+    return
+
+def backTestMake():
+    show_main_menu()
+    tmakeFrame.grid_forget()
+    back_btn_tmake.grid_forget()
+    return
 
 # Create Function to Make a Test
 def testMake():
+    hide_main_menu()
+
+    # Create a Frame this option
+    global tmakeFrame
+    tmakeFrame = Frame(root, bd=2)
+    tmakeFrame.grid(row=0, pady=10, padx=20)
+
+    global back_btn_tmake
+    back_btn_tmake = create_back_button(root, backTestMake)
+
     return
 
+def backTestModify():
+    show_main_menu()
+    tmodifyFrame.grid_forget()
+    back_btn_tmodify.grid_forget()
+    return
 
 # Create Function to Modify a Test
 def testModify():
+    hide_main_menu()
+
+    # Create a Frame this option
+    global tmodifyFrame
+    tmodifyFrame = Frame(root, bd=2)
+    tmodifyFrame.grid(row=0, pady=10, padx=20)
+
+    global back_btn_tmodify
+    back_btn_tmodify = create_back_button(root, backTestModify)
+
     return
 
+def backTestDelete():
+    show_main_menu()
+    tdeleteFrame.grid_forget()
+    back_btn_tdelete.grid_forget()
+    return
 
 # Create Function to Delete a Test
 def testDelete():
+    hide_main_menu()
+
+    # Create a Frame this option
+    global tdeleteFrame
+    tdeleteFrame = Frame(root, bd=2)
+    tdeleteFrame.grid(row=0, pady=10, padx=20)
+
+    global back_btn_tdelete
+    back_btn_tdelete = create_back_button(root, backTestDelete)
+
     return
 
+def backTestExtract():
+    show_main_menu()
+    textractFrame.grid_forget()
+    back_btn_textract.grid_forget()
+    return
 
 # Create Function to Extract a Test
 def testExtract():
+    hide_main_menu()
+
+    # Create a Frame this option
+    global textractFrame
+    textractFrame = Frame(root, bd=2)
+    textractFrame.grid(row=0, pady=10, padx=20)
+
+    global back_btn_textract
+    back_btn_textract = create_back_button(root, backTestExtract)
+
     return
 
 
