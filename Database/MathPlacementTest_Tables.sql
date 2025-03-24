@@ -68,7 +68,7 @@ CREATE TABLE sql5764680.User_Answers (
     PRIMARY KEY (attempt_id, question_id),
     FOREIGN KEY (attempt_id) REFERENCES sql5764680.User_Attempts(attempt_id),
     FOREIGN KEY (question_id) REFERENCES sql5764680.Questions(question_id)
-);
+);category_name
 
 CREATE TABLE sql5764680.User_Test_Assignment (
     user_id INT,
@@ -79,5 +79,6 @@ CREATE TABLE sql5764680.User_Test_Assignment (
     FOREIGN KEY (user_id) REFERENCES sql5764680.Users(user_id),
     FOREIGN KEY (test_id) REFERENCES sql5764680.Test(test_id),
     FOREIGN KEY (attempt_id) REFERENCES sql5764680.User_Attempts(attempt_id)
-);
+);Test
+
 

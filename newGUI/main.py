@@ -13,7 +13,8 @@ cnx.close()
 # Create the main window
 root = Tk()
 root.title("University of Findlay Math Department")
-root.iconbitmap(r"C:\university_findlay_logo_32d_icon.ico")
+#root.iconbitmap(r"C:\university_findlay_logo_32d_icon.ico")
+root.iconbitmap(r"university_findlay_logo_32d_icon.ico")
 root.geometry("1100x500")
 
 
@@ -572,7 +573,14 @@ deleteQuest_btn = Button(root, text="Delete Questions", command=questionDelete)
 deleteQuest_btn.grid(row=0, column=3, columnspan=1, pady=10, padx=10, ipadx=50)
 
 
-################################### This Section is the Test Section ###################################################
+
+
+#################################################################################################################
+################################### This Section is the Test Section ############################################
+
+
+
+
 def backTestView():
     show_main_menu()
     tviewFrame.grid_forget()
@@ -599,6 +607,27 @@ def countQuestions(t_id):
     cnx.close()
 
     return num_questions
+
+def countTests():
+    # Connect to Database
+    cnx = get_db_connection()
+
+    # Create a Cursor
+    c = cnx.cursor()
+
+    # Query Test table for count of Test ID
+    c.execute("SELECT COUNT(test_id) AS num_tests FROM Test")
+
+    # Get the result
+    result = c.fetchone()
+
+    # Get the count if any test were found, else set to 0
+    num_tests = result[0] if result else 0
+
+    # Close the connection
+    cnx.close()
+
+    return num_tests
 
 # Create Function to View a Test
 def testView():
@@ -659,15 +688,115 @@ def backTestMake():
 
 # Create Function to Make a Test
 def testMake():
+    def addTest():
+        # Validate inputs
+        if not ttype_entry.get().strip():
+            messagebox.showerror("Error", "Please enter a Test Type.")
+            return
+
+        if not ttitle_entry.get().strip():
+            messagebox.showerror("Error", "Please enter a Test Title.")
+            return
+
+        try:
+            test_time = float(ttime_entry.get())
+            num_questions = int(tnumquestion_entry.get())
+        except ValueError:
+            messagebox.showerror("Error", "Time and Number of Questions must be numeric values.")
+            return
+
+        # Connect to Database
+        cnx = get_db_connection()
+        c = cnx.cursor()
+
+        try:
+            # Find the last Test ID and increment
+            c.execute("SELECT MAX(test_id) FROM Test")
+            last_test_id = c.fetchone()[0]
+            new_test_id = last_test_id + 1 if last_test_id else 1
+
+            # Insert New Test
+            c.execute(
+                """INSERT INTO Test (test_id, test_type, test_title, test_time) 
+                   VALUES (%s, %s, %s, %s)""",
+                (new_test_id, ttype_entry.get(), ttitle_entry.get(), test_time)
+            )
+
+            # Randomly select questions for the test based on the specified number
+            c.execute("""
+                SELECT question_id FROM Questions 
+                ORDER BY RAND() 
+                LIMIT %s
+            """, (num_questions,))
+            
+            selected_questions = c.fetchall()
+
+            # Insert selected questions into Test_Questions
+            for question in selected_questions:
+                c.execute(
+                    """INSERT INTO Test_Questions (test_id, question_id) 
+                       VALUES (%s, %s)""",
+                    (new_test_id, question[0])
+                )
+
+            # Commit Changes
+            cnx.commit()
+            messagebox.showinfo("Success", f"Test {new_test_id} created successfully!")
+
+            # Clear input fields
+            ttype_entry.delete(0, END)
+            ttitle_entry.delete(0, END)
+            ttime_entry.delete(0, END)
+            tnumquestion_entry.delete(0, END)
+
+        except Exception as e:
+            messagebox.showerror("Database Error", str(e))
+            cnx.rollback()
+        finally:
+            cnx.close()
+
     hide_main_menu()
 
-    # Create a Frame this option
+    # Create a Frame for this option
     global tmakeFrame
     tmakeFrame = Frame(root, bd=2)
     tmakeFrame.grid(row=0, pady=10, padx=20)
 
+    # Labels for Test Creation
+    Label(tmakeFrame, text="Test ID").grid(row=0, column=0, ipadx=5)
+    Label(tmakeFrame, text="Type", anchor='w').grid(row=0, column=1, ipadx=5)
+    Label(tmakeFrame, text="Title").grid(row=0, column=2, ipadx=100)
+    Label(tmakeFrame, text="Time (minutes)").grid(row=0, column=3, ipadx=5)
+    Label(tmakeFrame, text="# of Questions").grid(row=0, column=4, ipadx=5)
+
+    # New Test ID will be current number of tests + 1
+    tid_label = Label(tmakeFrame, text=(countTests() + 1), anchor='w')
+    tid_label.grid(row=2, column=0, columnspan=1)
+
+    # Test type input
+    ttype_entry = Entry(tmakeFrame, width=8)
+    ttype_entry.grid(row=2, column=1)
+
+    # Test Name input
+    ttitle_entry = Entry(tmakeFrame, width=50)
+    ttitle_entry.grid(row=2, column=2)
+
+    # Test Time input
+    ttime_entry = Entry(tmakeFrame, width=8)
+    ttime_entry.grid(row=2, column=3)
+
+    # Number of questions input
+    tnumquestion_entry = Entry(tmakeFrame, width=8)
+    tnumquestion_entry.grid(row=2, column=4)
+
+    # Add Test Button
+    add_test_btn = Button(tmakeFrame, text="Create Test", command=addTest)
+    add_test_btn.grid(row=4, column=2, pady=10)
+
+    # Back Button
     global back_btn_tmake
     back_btn_tmake = create_back_button(root, backTestMake)
+
     return
 
 
