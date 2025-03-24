@@ -376,6 +376,7 @@ def questionDelete():
         q_label.grid(row=2, column=1, columnspan=1)
 
     # Create a Function to Delete the Typed Question ID From the Question Table
+    # and to Delete all the Questions Answers in Question Choices
     def deleteQuestion():
         question_id = delete_box.get()
         if messagebox.askyesno("Question",
@@ -392,8 +393,11 @@ def questionDelete():
                 messagebox.showerror("Error", f"{question_id} is not a valid Question ID.")
                 return
 
+            # Delete Answers for the same Question ID
+            c.execute("DELETE FROM Question_Choices WHERE question_id= %s", (delete_box.get(),))
             # Delete Proper Question ID From Questions Table
             c.execute("DELETE from Questions WHERE question_id= %s", (delete_box.get(),))
+
             # Commit Changes
             cnx.commit()
             # Close Connection
