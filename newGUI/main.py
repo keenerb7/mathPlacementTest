@@ -13,7 +13,6 @@ cnx.close()
 # Create the main window
 root = Tk()
 root.title("University of Findlay Math Department")
-#root.iconbitmap(r"C:\university_findlay_logo_32d_icon.ico")
 root.iconbitmap(r"university_findlay_logo_32d_icon.ico")
 root.geometry("1100x500")
 
@@ -50,6 +49,7 @@ def backQuestionView():
     qviewFrame.grid_forget()
     back_btn_qview.grid_forget()
     return
+
 
 # Create Question View Function To Query From Questions Table
 def questionView():
@@ -101,10 +101,10 @@ def questionView():
     question_ids = sorted(question_ids)
 
     selected_qid = StringVar()
-    selected_qid.set(question_ids[0])   # Set first question ID as default
+    selected_qid.set(question_ids[0])  # Set first question ID as default
 
     text = "Select question ID to display answers:"
-    question_dropdown = create_dropdown_ver(qviewFrame, question_ids, selected_qid, num_rows+2, 0, text)
+    question_dropdown = create_dropdown_ver(qviewFrame, question_ids, selected_qid, num_rows + 2, 0, text)
 
     # Get answers for selected question ID
     def getAnswers(event=None):
@@ -138,11 +138,11 @@ def questionView():
     question_dropdown.bind("<<ComboboxSelected>>", getAnswers)
 
     # Display Labels for answers
-    Label(qviewFrame, text="(Correct) Answer Number 1:").grid(row=num_rows+4, column=0)
-    Label(qviewFrame, text="Answer Number 2:").grid(row=num_rows+5, column=0)
-    Label(qviewFrame, text="Answer Number 3:").grid(row=num_rows+6, column=0)
-    Label(qviewFrame, text="Answer Number 4:").grid(row=num_rows+7, column=0)
-    Label(qviewFrame, text="Answer Number 5:").grid(row=num_rows+8, column=0)
+    Label(qviewFrame, text="(Correct) Answer Number 1:").grid(row=num_rows + 4, column=0)
+    Label(qviewFrame, text="Answer Number 2:").grid(row=num_rows + 5, column=0)
+    Label(qviewFrame, text="Answer Number 3:").grid(row=num_rows + 6, column=0)
+    Label(qviewFrame, text="Answer Number 4:").grid(row=num_rows + 7, column=0)
+    Label(qviewFrame, text="Answer Number 5:").grid(row=num_rows + 8, column=0)
 
     # Show answers for the first question as default
     getAnswers()
@@ -327,7 +327,6 @@ def questionModify():
     Label(qmodifyFrame, text="Question ID").grid(row=0, column=1, sticky="")
     Label(qmodifyFrame, text="Questions", anchor='w').grid(row=0, column=2, sticky="")
 
-
     # Connect to Database
     cnx = get_db_connection()
     # Create a Cursor
@@ -384,7 +383,8 @@ def questionModify():
     for row in results:
         question_categories.append(row[1])
 
-    cate_dropdown = create_dropdown_ver(qmodifyFrame, question_categories, var, num_rows + 2, 0, text="Question Category")
+    cate_dropdown = create_dropdown_ver(qmodifyFrame, question_categories, var, num_rows + 2, 0,
+                                        text="Question Category")
     # Commit Changes
     cnx.commit()
     # Close Connection
@@ -573,12 +573,8 @@ deleteQuest_btn = Button(root, text="Delete Questions", command=questionDelete)
 deleteQuest_btn.grid(row=0, column=3, columnspan=1, pady=10, padx=10, ipadx=50)
 
 
-
-
 #################################################################################################################
 ################################### This Section is the Test Section ############################################
-
-
 
 
 def backTestView():
@@ -586,6 +582,7 @@ def backTestView():
     tviewFrame.grid_forget()
     back_btn_tview.grid_forget()
     return
+
 
 def countQuestions(t_id):
     # Connect to Database
@@ -608,6 +605,7 @@ def countQuestions(t_id):
 
     return num_questions
 
+
 def countTests():
     # Connect to Database
     cnx = get_db_connection()
@@ -628,6 +626,7 @@ def countTests():
     cnx.close()
 
     return num_tests
+
 
 # Create Function to View a Test
 def testView():
@@ -653,7 +652,7 @@ def testView():
     # Query Questions Table for all Questions
     c.execute("SELECT * FROM Test")
     records = c.fetchall()
-    print_tid, print_ttype, print_ttitle, print_ttime, print_qnum= '', '', '', '', ''
+    print_tid, print_ttype, print_ttitle, print_ttime, print_qnum = '', '', '', '', ''
     num_rows = 0
 
     def countQuestions(t_id):
@@ -727,10 +726,12 @@ def testView():
         # Display questions
         j = num_rows + 4
         for question in questions:
-            Label(tviewFrame, text=question[0], anchor ='center').grid(row=j, column=0, sticky="ew")
-            Label(tviewFrame, text=question[1], anchor='w', justify='left', wraplength=400).grid(row=j, column=1, columnspan=3, rowspan=1, sticky="w")
-            Label(tviewFrame, text=question[2], anchor ='center').grid(row=j, column=4, sticky="ew")
-            Label(tviewFrame, text=question[3], anchor ='center').grid(row=j, column=5, sticky="ew")
+            Label(tviewFrame, text=question[0], anchor='center').grid(row=j, column=0, sticky="ew")
+            Label(tviewFrame, text=question[1], anchor='w', justify='left', wraplength=400).grid(row=j, column=1,
+                                                                                                 columnspan=3,
+                                                                                                 rowspan=1, sticky="w")
+            Label(tviewFrame, text=question[2], anchor='center').grid(row=j, column=4, sticky="ew")
+            Label(tviewFrame, text=question[3], anchor='center').grid(row=j, column=5, sticky="ew")
             j += 1
 
         # Close connection and cursor
@@ -802,7 +803,7 @@ def testMake():
                 ORDER BY RAND() 
                 LIMIT %s
             """, (num_questions,))
-            
+
             selected_questions = c.fetchall()
 
             # Insert selected questions into Test_Questions

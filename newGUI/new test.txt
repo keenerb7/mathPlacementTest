@@ -1,0 +1,17 @@
+Quiz Title: new test
+shuffle answers: true
+show correct answers: true
+one question at a time: true
+can't go back: true
+3. In a calculus class, 15 of the students play soccer. Find the total number of students in the class if 3 out of every 5 play soccer.
+*a) $25$
+b) $9$
+c) $45/8$
+d) $40$
+e) $21$
+4. Hello
+*a) a
+b) b
+c) c
+d) d
+e) e
