@@ -107,10 +107,10 @@ def questionView():
 
     # Update answers for selected question ID
     def updateAnswers(event=None):
-        # Reconnect to Database
-        cnx = get_db_connection()  # Re-open the connection
+        # Reconnect to the database
+        cnx = get_db_connection()
 
-        # Create a Cursor
+        # Create cursor
         c = cnx.cursor()
 
         # Get the selected question ID
@@ -130,7 +130,8 @@ def questionView():
             Label(qviewFrame, text=answer, anchor='w', justify='left').grid(row=j, column=1, sticky="w")
             j += 1
 
-        # Close Database connection
+        # Close connection and cursor
+        c.close()
         cnx.close()
 
     question_dropdown.bind("<<ComboboxSelected>>", updateAnswers)
@@ -145,13 +146,14 @@ def questionView():
     # Show answers for the first question as default
     updateAnswers()
 
-    # Close Connection
-    cnx.close()
-
     # Create a Back Button to Hide Current View and Reshow Original View
     global back_btn_qview
     back_btn_qview = create_back_button(root, backQuestionView)
     return
+
+    #Close the connection and cursor
+    c.close()
+    cnx.close()
 
 
 # Create a Function to Return to Original View
