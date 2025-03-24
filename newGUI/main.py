@@ -227,6 +227,18 @@ def questionAdd():
             (newID, question.get(), cat_id, difficulty.get())
         )
 
+        # Insert New Question Choices into Question Choices Table
+        letter = ['a', 'b', 'c', 'd', 'e']
+        for i in range(5):
+            if i == 0:
+                c.execute("""INSERT INTO Question_Choices (choice_id, question_id, choice_text, is_correct)
+                    VALUES (%s, %s, %s, %s)""",
+                          (str(f"{newID}{letter[i]}"), newID, answers[i].get(), '1'))
+            else:
+                c.execute("""INSERT INTO Question_Choices (choice_id, question_id, choice_text, is_correct)
+                                    VALUES (%s, %s, %s, %s)""",
+                          (str(f"{newID}{letter[i]}"), newID, answers[i].get(), '0'))
+
         # Commit Changes
         cnx.commit()
 
