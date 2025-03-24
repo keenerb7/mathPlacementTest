@@ -138,6 +138,7 @@ def questionView():
         # Get answers for the selected question
         answers = get_answers(selected_question_id)
 
+        # Clear previous answers
         for i in range(5):
             for answer in qviewFrame.grid_slaves(row=num_rows + 4 + i, column=1):
                 answer.grid_forget()
