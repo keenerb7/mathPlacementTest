@@ -245,6 +245,8 @@ def questionAdd():
         # Clear Text Boxes
         question.delete(0, END)
         difficulty.delete(0, END)
+        for i in range(5):
+            answers[i].delete(0, END)
 
         return
 
