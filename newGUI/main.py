@@ -587,7 +587,6 @@ def backTestView():
     back_btn_tview.grid_forget()
     return
 
-<<<<<<< HEAD
 def countQuestions(t_id):
     # Connect to Database
     cnx = get_db_connection()
@@ -630,8 +629,6 @@ def countTests():
 
     return num_tests
 
-=======
->>>>>>> 4f2c504a958d8088b7a2d4a1b987e5ec62fb9f8a
 # Create Function to View a Test
 def testView():
     hide_main_menu()
