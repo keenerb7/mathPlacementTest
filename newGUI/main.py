@@ -14,7 +14,7 @@ cnx.close()
 root = Tk()
 root.title("University of Findlay Math Department")
 root.iconbitmap(r"C:\university_findlay_logo_32d_icon.ico")
-root.geometry("1000x500")
+root.geometry("1100x500")
 
 
 # Create a Main Menu Display Functions for Show and Hide
@@ -50,34 +50,6 @@ def backQuestionView():
     back_btn_qview.grid_forget()
     return
 
-
-# Get answers for the selected question ID
-def get_answers(question_id):
-    # Connect to Database
-    cnx = get_db_connection()
-    # Create a Cursor
-    c = cnx.cursor()
-
-    answer_ids = ['a', 'b', 'c', 'd', 'e']
-    answers = []
-
-    # HI MILLE, BRUCE HERE I THINK THERE IS ANY EASIER APPROACH
-    # JUST QUERY BASED ON QUESTION ID AND THAT WILL GET ALL 5 ANSWERS
-    for answer_id in answer_ids:
-        concatenated_id = f"{question_id}{answer_id}"  # Concatenate question ID
-        # Query Question_Choices table for choice IDs
-        c.execute("SELECT choice_text FROM Question_Choices WHERE choice_id = %s", (concatenated_id,))
-        answer = c.fetchone()
-
-        if answer:
-            answers.append(answer[0])  # Add answer to the list
-
-    # Close Connection
-    cnx.close()
-
-    return answers
-
-
 # Create Question View Function To Query From Questions Table
 def questionView():
     hide_main_menu()
@@ -87,7 +59,7 @@ def questionView():
     qviewFrame = Frame(root, bd=2)
     qviewFrame.grid(row=0, pady=10, padx=20)
 
-    # Create a Labels for the Columns of the Question Table
+    # Create Labels for the Columns of the Question Table
     Label(qviewFrame, text="Question ID").grid(row=0, column=0, ipadx=5)
     Label(qviewFrame, text="Question", anchor='w').grid(row=0, column=1, ipadx=215)
     Label(qviewFrame, text="Category ID").grid(row=0, column=2, ipadx=5)
@@ -101,12 +73,15 @@ def questionView():
     # Query Questions Table for all Questions
     c.execute("SELECT * FROM Questions")
     records = c.fetchall()
+
     print_qid, print_q, print_ctd, print_qd = '', '', '', ''
+    num_rows = 0
     for row in records:
         print_qid += str(row[0]) + "\n"
         print_q += str(row[1]) + "\n"
         print_ctd += str(row[2]) + "\n"
         print_qd += str(row[3]) + "\n"
+        num_rows += 1
 
     qid_label = Label(qviewFrame, text=print_qid, anchor='w')
     qid_label.grid(row=2, column=0, columnspan=1)
@@ -117,46 +92,68 @@ def questionView():
     qd_label = Label(qviewFrame, text=print_qd, anchor='w')
     qd_label.grid(row=2, column=3, columnspan=1)
 
-    q = cnx.cursor()
-    q.execute("SELECT question_id FROM Questions")
-    question_ids = [row[0] for row in q.fetchall()]
+    # Get all question IDs
+    c.execute("SELECT question_id FROM Questions")
+    question_ids = [row[0] for row in c.fetchall()]
 
+    # Sort IDs in ascending order
     question_ids = sorted(question_ids)
 
     selected_qid = StringVar()
-    # Set first question ID as default
-    selected_qid.set(question_ids[0])
+    selected_qid.set(question_ids[0])   # Set first question ID as default
 
     text = "Select question ID to display answers:"
-    question_dropdown = create_dropdown_hor(qviewFrame, question_ids, selected_qid, 10, 0, text)
+    question_dropdown = create_dropdown_ver(qviewFrame, question_ids, selected_qid, num_rows+2, 0, text)
 
-    def update_answers(event=None):
+    # Update answers for selected question ID
+    def updateAnswers(event=None):
+        # Reconnect to the database
+        cnx = get_db_connection()
+
+        # Create cursor
+        c = cnx.cursor()
+
         # Get the selected question ID
         selected_question_id = selected_qid.get()
-        # Get answers for the selected question
-        answers = get_answers(selected_question_id)
+
+        c.execute("SELECT choice_text FROM Question_Choices WHERE question_id = %s", (selected_question_id,))
+        answers = [answer[0] for answer in c.fetchall()]
+
+        # Clear previous answers
+        for i in range(5):
+            for answer in qviewFrame.grid_slaves(row=num_rows + 4 + i, column=1):
+                answer.grid_forget()
+
         # Display answers
-        answers_text = "\n".join(answers)
-        answers_label.config(text=answers_text)
+        j = num_rows + 4
+        for answer in answers:
+            Label(qviewFrame, text=answer, anchor='w', justify='left').grid(row=j, column=1, sticky="w")
+            j += 1
 
-    question_dropdown.bind("<<ComboboxSelected>>", update_answers)
+        # Close connection and cursor
+        c.close()
+        cnx.close()
 
-    global answers_label
-    answers_label = Label(qviewFrame, text="", anchor='w', justify='left')
-    answers_label.grid(row=12, column=0, columnspan=4, pady=10)
+    question_dropdown.bind("<<ComboboxSelected>>", updateAnswers)
 
-    update_answers()
+    # Display Labels for answers
+    Label(qviewFrame, text="(Correct) Answer Number 1:").grid(row=num_rows+4, column=0)
+    Label(qviewFrame, text="Answer Number 2:").grid(row=num_rows+5, column=0)
+    Label(qviewFrame, text="Answer Number 3:").grid(row=num_rows+6, column=0)
+    Label(qviewFrame, text="Answer Number 4:").grid(row=num_rows+7, column=0)
+    Label(qviewFrame, text="Answer Number 5:").grid(row=num_rows+8, column=0)
 
-    # Commit Changes
-    cnx.commit()
-
-    # Close Connection
-    cnx.close()
+    # Show answers for the first question as default
+    updateAnswers()
 
     # Create a Back Button to Hide Current View and Reshow Original View
     global back_btn_qview
     back_btn_qview = create_back_button(root, backQuestionView)
     return
+
+    #Close the connection and cursor
+    c.close()
+    cnx.close()
 
 
 # Create a Function to Return to Original View
@@ -582,6 +579,26 @@ def backTestView():
     back_btn_tview.grid_forget()
     return
 
+def countQuestions(t_id):
+    # Connect to Database
+    cnx = get_db_connection()
+
+    # Create a Cursor
+    c = cnx.cursor()
+
+    # Query Test Questions table for count of questions
+    c.execute("SELECT COUNT(question_id) AS num_questions FROM Test_Questions WHERE test_id = %s", (t_id,))
+
+    # Get the result
+    result = c.fetchone()
+
+    # Get the count if any questions were found, else set to 0
+    num_questions = result[0] if result else 0
+
+    # Close the connection
+    cnx.close()
+
+    return num_questions
 
 # Create Function to View a Test
 def testView():
@@ -591,6 +608,42 @@ def testView():
     global tviewFrame
     tviewFrame = Frame(root, bd=2)
     tviewFrame.grid(row=0, pady=10, padx=20)
+
+    # Create a Labels for the Columns of the Question Table
+    Label(tviewFrame, text="Test ID").grid(row=0, column=0, ipadx=5)
+    Label(tviewFrame, text="Type", anchor='w').grid(row=0, column=1, ipadx=5)
+    Label(tviewFrame, text="Title").grid(row=0, column=2, ipadx=100)
+    Label(tviewFrame, text="Time").grid(row=0, column=3, ipadx=5)
+    Label(tviewFrame, text="# of Questions").grid(row=0, column=4, ipadx=5)
+
+    # Connect to Database
+    cnx = get_db_connection()
+    # Create a Cursor
+    c = cnx.cursor()
+
+    # Query Questions Table for all Questions
+    c.execute("SELECT * FROM Test")
+    records = c.fetchall()
+    print_tid, print_ttype, print_ttitle, print_ttime, print_qnum= '', '', '', '', ''
+    num_rows = 0
+    for row in records:
+        print_tid += str(row[0]) + "\n"
+        print_ttype += str(row[1]) + "\n"
+        print_ttitle += str(row[2]) + "\n"
+        print_ttime += str(row[3]) + "\n"
+        print_qnum += str(countQuestions(row[0])) + "\n"
+        num_rows += 1
+
+    tid_label = Label(tviewFrame, text=print_tid, anchor='w')
+    tid_label.grid(row=2, column=0, columnspan=1)
+    ttype_label = Label(tviewFrame, text=print_ttype, anchor='w')
+    ttype_label.grid(row=2, column=1, columnspan=1)
+    ttitle_label = Label(tviewFrame, text=print_ttitle, anchor='w')
+    ttitle_label.grid(row=2, column=2, columnspan=1)
+    ttime_label = Label(tviewFrame, text=print_ttime, anchor='w')
+    ttime_label.grid(row=2, column=3, columnspan=1)
+    qnum_label = Label(tviewFrame, text=print_qnum, anchor='w')
+    qnum_label.grid(row=2, column=4, columnspan=1)
 
     global back_btn_tview
     back_btn_tview = create_back_button(root, backTestView)
