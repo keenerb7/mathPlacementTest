@@ -217,9 +217,6 @@ def questionAdd():
         qcatResults = c.fetchone()
         cat_id = qcatResults[0]
 
-        # SOME TYPE OF INPUT VALIDATION FOR AT LEAST LATEX PURPOSES AND INTEGERS
-        # USE THE MESSAGE BOXES TO SEND BACK TO FORM BEFORE CLEARING
-
         # Insert New Question into Questions Table
         c.execute(
             """INSERT INTO Questions (question_id, question, category_id, question_difficulty) 
