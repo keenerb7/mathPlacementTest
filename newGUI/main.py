@@ -59,7 +59,7 @@ def questionView():
     qviewFrame = Frame(root, bd=2)
     qviewFrame.grid(row=0, pady=10, padx=20)
 
-    # Create a Labels for the Columns of the Question Table
+    # Create Labels for the Columns of the Question Table
     Label(qviewFrame, text="Question ID").grid(row=0, column=0, ipadx=5)
     Label(qviewFrame, text="Question", anchor='w').grid(row=0, column=1, ipadx=215)
     Label(qviewFrame, text="Category ID").grid(row=0, column=2, ipadx=5)
@@ -73,6 +73,7 @@ def questionView():
     # Query Questions Table for all Questions
     c.execute("SELECT * FROM Questions")
     records = c.fetchall()
+
     print_qid, print_q, print_ctd, print_qd = '', '', '', ''
     num_rows = 0
     for row in records:
@@ -91,30 +92,32 @@ def questionView():
     qd_label = Label(qviewFrame, text=print_qd, anchor='w')
     qd_label.grid(row=2, column=3, columnspan=1)
 
+    # Get all question IDs
     c.execute("SELECT question_id FROM Questions")
     question_ids = [row[0] for row in c.fetchall()]
 
+    # Sort IDs in ascending order
     question_ids = sorted(question_ids)
 
     selected_qid = StringVar()
-    # Set first question ID as default
-    selected_qid.set(question_ids[0])
+    selected_qid.set(question_ids[0])   # Set first question ID as default
 
     text = "Select question ID to display answers:"
     question_dropdown = create_dropdown_ver(qviewFrame, question_ids, selected_qid, num_rows+2, 0, text)
 
-    def update_answers(event=None):
-        # Connect to Database
-        cnx = get_db_connection()
+    # Update answers for selected question ID
+    def updateAnswers(event=None):
+        # Reconnect to Database
+        cnx = get_db_connection()  # Re-open the connection
 
         # Create a Cursor
-        q = cnx.cursor()
+        c = cnx.cursor()
 
         # Get the selected question ID
         selected_question_id = selected_qid.get()
 
-        q.execute("SELECT choice_text FROM Question_Choices WHERE question_id = %s", (selected_question_id,))
-        answers = [answer[0] for answer in q.fetchall()]
+        c.execute("SELECT choice_text FROM Question_Choices WHERE question_id = %s", (selected_question_id,))
+        answers = [answer[0] for answer in c.fetchall()]
 
         # Clear previous answers
         for i in range(5):
@@ -127,20 +130,20 @@ def questionView():
             Label(qviewFrame, text=answer, anchor='w', justify='left').grid(row=j, column=1, sticky="w")
             j += 1
 
-    question_dropdown.bind("<<ComboboxSelected>>", update_answers)
+        # Close Database connection
+        cnx.close()
 
-    global answers_label
+    question_dropdown.bind("<<ComboboxSelected>>", updateAnswers)
 
+    # Display Labels for answers
     Label(qviewFrame, text="(Correct) Answer Number 1:").grid(row=num_rows+4, column=0)
     Label(qviewFrame, text="Answer Number 2:").grid(row=num_rows+5, column=0)
     Label(qviewFrame, text="Answer Number 3:").grid(row=num_rows+6, column=0)
     Label(qviewFrame, text="Answer Number 4:").grid(row=num_rows+7, column=0)
     Label(qviewFrame, text="Answer Number 5:").grid(row=num_rows+8, column=0)
 
-    update_answers()
-
-    # Commit Changes
-    cnx.commit()
+    # Show answers for the first question as default
+    updateAnswers()
 
     # Close Connection
     cnx.close()
