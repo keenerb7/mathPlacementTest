@@ -102,11 +102,13 @@ def questionView():
     c.execute("SELECT * FROM Questions")
     records = c.fetchall()
     print_qid, print_q, print_ctd, print_qd = '', '', '', ''
+    num_rows = 0
     for row in records:
         print_qid += str(row[0]) + "\n"
         print_q += str(row[1]) + "\n"
         print_ctd += str(row[2]) + "\n"
         print_qd += str(row[3]) + "\n"
+        num_rows += 1
 
     qid_label = Label(qviewFrame, text=print_qid, anchor='w')
     qid_label.grid(row=2, column=0, columnspan=1)
@@ -128,22 +130,33 @@ def questionView():
     selected_qid.set(question_ids[0])
 
     text = "Select question ID to display answers:"
-    question_dropdown = create_dropdown_hor(qviewFrame, question_ids, selected_qid, 10, 0, text)
+    question_dropdown = create_dropdown_ver(qviewFrame, question_ids, selected_qid, num_rows+2, 0, text)
 
     def update_answers(event=None):
         # Get the selected question ID
         selected_question_id = selected_qid.get()
         # Get answers for the selected question
         answers = get_answers(selected_question_id)
+
+        for i in range(5):
+            for answer in qviewFrame.grid_slaves(row=num_rows + 4 + i, column=1):
+                answer.grid_forget()
+
         # Display answers
-        answers_text = "\n".join(answers)
-        answers_label.config(text=answers_text)
+        j = num_rows + 4
+        for answer in answers:
+            Label(qviewFrame, text=answer, anchor='w', justify='left').grid(row=j, column=1, sticky="w")
+            j += 1
 
     question_dropdown.bind("<<ComboboxSelected>>", update_answers)
 
     global answers_label
-    answers_label = Label(qviewFrame, text="", anchor='w', justify='left')
-    answers_label.grid(row=12, column=0, columnspan=4, pady=10)
+
+    Label(qviewFrame, text="(Correct) Answer Number 1:").grid(row=num_rows+4, column=0)
+    Label(qviewFrame, text="Answer Number 2:").grid(row=num_rows+5, column=0)
+    Label(qviewFrame, text="Answer Number 3:").grid(row=num_rows+6, column=0)
+    Label(qviewFrame, text="Answer Number 4:").grid(row=num_rows+7, column=0)
+    Label(qviewFrame, text="Answer Number 5:").grid(row=num_rows+8, column=0)
 
     update_answers()
 
