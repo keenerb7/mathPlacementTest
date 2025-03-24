@@ -50,34 +50,6 @@ def backQuestionView():
     back_btn_qview.grid_forget()
     return
 
-
-# Get answers for the selected question ID
-def get_answers(question_id):
-    # Connect to Database
-    cnx = get_db_connection()
-    # Create a Cursor
-    c = cnx.cursor()
-
-    answer_ids = ['a', 'b', 'c', 'd', 'e']
-    answers = []
-
-    # HI MILLE, BRUCE HERE I THINK THERE IS ANY EASIER APPROACH
-    # JUST QUERY BASED ON QUESTION ID AND THAT WILL GET ALL 5 ANSWERS
-    for answer_id in answer_ids:
-        concatenated_id = f"{question_id}{answer_id}"  # Concatenate question ID
-        # Query Question_Choices table for choice IDs
-        c.execute("SELECT choice_text FROM Question_Choices WHERE choice_id = %s", (concatenated_id,))
-        answer = c.fetchone()
-
-        if answer:
-            answers.append(answer[0])  # Add answer to the list
-
-    # Close Connection
-    cnx.close()
-
-    return answers
-
-
 # Create Question View Function To Query From Questions Table
 def questionView():
     hide_main_menu()
@@ -119,9 +91,8 @@ def questionView():
     qd_label = Label(qviewFrame, text=print_qd, anchor='w')
     qd_label.grid(row=2, column=3, columnspan=1)
 
-    q = cnx.cursor()
-    q.execute("SELECT question_id FROM Questions")
-    question_ids = [row[0] for row in q.fetchall()]
+    c.execute("SELECT question_id FROM Questions")
+    question_ids = [row[0] for row in c.fetchall()]
 
     question_ids = sorted(question_ids)
 
@@ -133,10 +104,17 @@ def questionView():
     question_dropdown = create_dropdown_ver(qviewFrame, question_ids, selected_qid, num_rows+2, 0, text)
 
     def update_answers(event=None):
+        # Connect to Database
+        cnx = get_db_connection()
+
+        # Create a Cursor
+        q = cnx.cursor()
+
         # Get the selected question ID
         selected_question_id = selected_qid.get()
-        # Get answers for the selected question
-        answers = get_answers(selected_question_id)
+
+        q.execute("SELECT choice_text FROM Question_Choices WHERE question_id = %s", (selected_question_id,))
+        answers = [answer[0] for answer in q.fetchall()]
 
         # Clear previous answers
         for i in range(5):
@@ -637,8 +615,6 @@ def testView():
     cnx = get_db_connection()
     # Create a Cursor
     c = cnx.cursor()
-
-
 
     # Query Questions Table for all Questions
     c.execute("SELECT * FROM Test")
