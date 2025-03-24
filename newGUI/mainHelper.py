@@ -19,7 +19,7 @@ def create_back_button(parent, command):
 
 
 # Create a Dropdown with a Variable Length
-def create_dropdown_hor(parent, options, var, row, col, text = "Select an option:"):
+def create_dropdown_hor(parent, options, var, row, col, text="Select an option:"):
     """Creates a dropdown menu (Combobox) using a loop."""
     Label(parent, text=text).grid(row=row, column=col, padx=5, pady=5)
     dropdown = Combobox(parent, textvariable=var, values=options)

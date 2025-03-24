@@ -54,15 +54,15 @@ def backQuestionView():
 # Get answers for the selected question ID
 def get_answers(question_id):
     # Connect to Database
-    cnx = mysql.connector.connect(user='sql5764680', password='yK8gNIyhZm', host='sql5.freesqldatabase.com',
-                                  database='sql5764680')
+    cnx = get_db_connection()
     # Create a Cursor
     c = cnx.cursor()
 
     answer_ids = ['a', 'b', 'c', 'd', 'e']
     answers = []
 
-    #
+    # HI MILLE, BRUCE HERE I THINK THERE IS ANY EASIER APPROACH
+    # JUST QUERY BASED ON QUESTION ID AND THAT WILL GET ALL 5 ANSWERS
     for answer_id in answer_ids:
         concatenated_id = f"{question_id}{answer_id}"  # Concatenate question ID
         # Query Question_Choices table for choice IDs
@@ -94,9 +94,7 @@ def questionView():
     Label(qviewFrame, text="Question Difficulty").grid(row=0, column=3, ipadx=5)
 
     # Connect to Database
-    cnx = mysql.connector.connect(user='sql5764680', password='yK8gNIyhZm', host='sql5.freesqldatabase.com',
-                                  database='sql5764680')
-
+    cnx = get_db_connection()
     # Create a Cursor
     c = cnx.cursor()
 
@@ -119,7 +117,6 @@ def questionView():
     qd_label = Label(qviewFrame, text=print_qd, anchor='w')
     qd_label.grid(row=2, column=3, columnspan=1)
 
-    ###NEW STUFF###
     q = cnx.cursor()
     q.execute("SELECT question_id FROM Questions")
     question_ids = [row[0] for row in q.fetchall()]
@@ -326,6 +323,145 @@ def questionModify():
     global qmodifyFrame
     qmodifyFrame = Frame(root, bd=2)
     qmodifyFrame.grid(row=0, pady=10, padx=20)
+
+    # Simple Display of all the Questions
+    # Create a Labels for the Columns of the Question Table
+    Label(qmodifyFrame, text="Question ID").grid(row=0, column=1, sticky="")
+    Label(qmodifyFrame, text="Questions", anchor='w').grid(row=0, column=2, sticky="")
+
+
+    # Connect to Database
+    cnx = get_db_connection()
+    # Create a Cursor
+    c = cnx.cursor()
+
+    # Query Questions Table for all Questions
+    c.execute("SELECT * FROM Questions")
+    records = c.fetchall()
+    print_qid, print_q, print_ctd, print_qd = '', '', '', ''
+    num_rows = 0
+    for row in records:
+        print_qid += str(row[0]) + "\n"
+        print_q += str(row[1]) + "\n"
+        num_rows += 1
+
+    qid_label = Label(qmodifyFrame, text=print_qid)
+    qid_label.grid(row=2, column=1, sticky="ew")
+    q_label = Label(qmodifyFrame, text=print_q)
+    q_label.grid(row=2, column=2, sticky="ew")
+
+    # Create a Dropdown option to select the Question to Edit
+    c.execute("SELECT question_id FROM Questions")
+    question_ids = [row[0] for row in c.fetchall()]
+
+    question_ids = sorted(question_ids)
+
+    selected_qid = StringVar()
+    # Set first question ID as default
+    selected_qid.set(question_ids[0])
+
+    text = "Select Question ID to be Modified:"
+    question_dropdown = create_dropdown_ver(qmodifyFrame, question_ids, selected_qid, 0, 0, text)
+
+    # Commit Changes
+    cnx.commit()
+    # Close Connection
+    cnx.close()
+
+    # Create the label and text boxes for the selected question
+    # Create Labels for the Text Input
+    Label(qmodifyFrame, text="Question:").grid(row=num_rows + 0, column=1)
+    question = Entry(qmodifyFrame, width=100)
+    question.grid(row=num_rows + 0, column=2)
+
+    # Create Dropdown Box for Question Categories
+    # Connect to Database
+    cnx = get_db_connection()
+    # Create a Cursor
+    c = cnx.cursor()
+    c.execute("SELECT * FROM Question_Categories")
+    results = c.fetchall()
+    question_categories = []
+    var = StringVar()
+    for row in results:
+        question_categories.append(row[1])
+
+    cate_dropdown = create_dropdown_ver(qmodifyFrame, question_categories, var, num_rows + 2, 0, text="Question Category")
+    # Commit Changes
+    cnx.commit()
+    # Close Connection
+    cnx.close()
+
+    Label(qmodifyFrame, text="Question Difficulty").grid(row=num_rows + 4, column=0, pady=10)
+    difficulty = Entry(qmodifyFrame, width=30)
+    difficulty.grid(row=num_rows + 5, column=0, padx=10, pady=10)
+
+    # ANSWER SECTION
+    # Create Labels for the Answer Choices and note the first one is always correct
+    Label(qmodifyFrame, text="(Correct) Answer Number 1:").grid(row=num_rows + 2, column=1)
+    Label(qmodifyFrame, text="Answer Number 2:").grid(row=num_rows + 3, column=1)
+    Label(qmodifyFrame, text="Answer Number 3:").grid(row=num_rows + 4, column=1)
+    Label(qmodifyFrame, text="Answer Number 4:").grid(row=num_rows + 5, column=1)
+    Label(qmodifyFrame, text="Answer Number 5:").grid(row=num_rows + 6, column=1)
+
+    # Create Text Boxes for Each Answer
+    answers = []
+    for i in range(5):
+        entry = Entry(qmodifyFrame, width=100)
+        entry.grid(row=num_rows + 2 + i, column=2)
+        answers.append(entry)
+
+    # Create Function to Fill in text boxes with current data given the Question ID
+    def question_selection_dis(event=NONE):
+        # Save the Question ID that we Want to change
+        qID = question_dropdown.get()
+
+        # Clear out the old results
+        question.delete(0, END)
+        cate_dropdown.delete(END)
+        difficulty.delete(0, END)
+        for i in range(5):
+            answers[i].delete(0, END)
+
+        # Save the Question, Category, and Difficulty from Questions Table
+        # Connect to Database
+        cnx = get_db_connection()
+        # Create a Cursor
+        c = cnx.cursor()
+
+        c.execute("SELECT * FROM Questions WHERE question_id = %s", (qID,))
+        questionInfo = c.fetchone()
+
+        # Save the Answers from Question Choices Table
+        c.execute("SELECT choice_text FROM Question_Choices WHERE question_id = %s", (qID,))
+        questionAns = c.fetchall()
+
+        # Commit Changes
+        cnx.commit()
+        # Close Connection
+        cnx.close()
+
+        # Update the Text Boxes and Other Widgets with the Question ID data
+        question.insert(0, questionInfo[1])
+        cate_dropdown.set(questionInfo[2])
+        difficulty.insert(0, questionInfo[3])
+        for i in range(5):
+            answers[i].insert(0, questionAns[i])
+        return
+
+    # Create Function to Submit the Changes to the Database
+    # MUST USE THE UPDATE SQL COMMANDS GOODLUCK BUDDY
+    def submitChanges():
+        return
+
+    # Create a Binding for the Dropdown menu to change the Question ID
+    question_dropdown.bind("<<ComboboxSelected>>", question_selection_dis)
+
+    # Create Button to Trigger the Submission of Changes
+    # Should probably have a message box saying that once these changes are made there is no going back
+    # Create Add Button to Trigger the Addition of the new Record
+    submit_btn = Button(qmodifyFrame, text="Submit Changes", command=submitChanges)
+    submit_btn.grid(row=num_rows + 6, column=0, padx=10, pady=10)
 
     global back_btn_qmodify
     back_btn_qmodify = create_back_button(root, backQuestionModify)
