@@ -14,7 +14,7 @@ cnx.close()
 root = Tk()
 root.title("University of Findlay Math Department")
 root.iconbitmap(r"C:\university_findlay_logo_32d_icon.ico")
-root.geometry("1000x500")
+root.geometry("1100x500")
 
 
 # Create a Main Menu Display Functions for Show and Hide
@@ -596,6 +596,26 @@ def backTestView():
     back_btn_tview.grid_forget()
     return
 
+def countQuestions(t_id):
+    # Connect to Database
+    cnx = get_db_connection()
+
+    # Create a Cursor
+    c = cnx.cursor()
+
+    # Query Test Questions table for count of questions
+    c.execute("SELECT COUNT(question_id) AS num_questions FROM Test_Questions WHERE test_id = %s", (t_id,))
+
+    # Get the result
+    result = c.fetchone()
+
+    # Get the count if any questions were found, else set to 0
+    num_questions = result[0] if result else 0
+
+    # Close the connection
+    cnx.close()
+
+    return num_questions
 
 # Create Function to View a Test
 def testView():
@@ -605,6 +625,44 @@ def testView():
     global tviewFrame
     tviewFrame = Frame(root, bd=2)
     tviewFrame.grid(row=0, pady=10, padx=20)
+
+    # Create a Labels for the Columns of the Question Table
+    Label(tviewFrame, text="Test ID").grid(row=0, column=0, ipadx=5)
+    Label(tviewFrame, text="Type", anchor='w').grid(row=0, column=1, ipadx=5)
+    Label(tviewFrame, text="Title").grid(row=0, column=2, ipadx=100)
+    Label(tviewFrame, text="Time").grid(row=0, column=3, ipadx=5)
+    Label(tviewFrame, text="# of Questions").grid(row=0, column=4, ipadx=5)
+
+    # Connect to Database
+    cnx = get_db_connection()
+    # Create a Cursor
+    c = cnx.cursor()
+
+
+
+    # Query Questions Table for all Questions
+    c.execute("SELECT * FROM Test")
+    records = c.fetchall()
+    print_tid, print_ttype, print_ttitle, print_ttime, print_qnum= '', '', '', '', ''
+    num_rows = 0
+    for row in records:
+        print_tid += str(row[0]) + "\n"
+        print_ttype += str(row[1]) + "\n"
+        print_ttitle += str(row[2]) + "\n"
+        print_ttime += str(row[3]) + "\n"
+        print_qnum += str(countQuestions(row[0])) + "\n"
+        num_rows += 1
+
+    tid_label = Label(tviewFrame, text=print_tid, anchor='w')
+    tid_label.grid(row=2, column=0, columnspan=1)
+    ttype_label = Label(tviewFrame, text=print_ttype, anchor='w')
+    ttype_label.grid(row=2, column=1, columnspan=1)
+    ttitle_label = Label(tviewFrame, text=print_ttitle, anchor='w')
+    ttitle_label.grid(row=2, column=2, columnspan=1)
+    ttime_label = Label(tviewFrame, text=print_ttime, anchor='w')
+    ttime_label.grid(row=2, column=3, columnspan=1)
+    qnum_label = Label(tviewFrame, text=print_qnum, anchor='w')
+    qnum_label.grid(row=2, column=4, columnspan=1)
 
     global back_btn_tview
     back_btn_tview = create_back_button(root, backTestView)
