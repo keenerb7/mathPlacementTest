@@ -897,6 +897,7 @@ def testMake():
     tid_label = Label(tmakeFrame, text=(countTests() + 1), anchor='w')
     tid_label.grid(row=2, column=0, columnspan=1)
 
+    # MAYBE USE A DROPDOWN WITH TEST TYPES SO NO GUESSING
     # Test type input
     ttype_entry = Entry(tmakeFrame, width=8)
     ttype_entry.grid(row=2, column=1)
@@ -963,6 +964,73 @@ def testDelete():
     global tdeleteFrame
     tdeleteFrame = Frame(root, bd=2)
     tdeleteFrame.grid(row=0, pady=10, padx=20)
+
+    # Create a Labels for the Columns of the Question Table
+    Label(tdeleteFrame, text="Test ID").grid(row=0, column=0, ipadx=5)
+    Label(tdeleteFrame, text="Test", anchor='w').grid(row=0, column=1)
+
+    def showTestForDelete():
+        # Connect to Database
+        cnx = get_db_connection()
+        # Create a Cursor
+        c = cnx.cursor()
+        # Query Questions Table for all Questions
+        c.execute("SELECT * FROM Test")
+        records = c.fetchall()
+        print_tid, print_t, print_ttd, print_td = '', '', '', ''
+        for row in records:
+            print_tid += str(row[0]) + "\n"
+            print_t += str(row[2]) + "\n"
+
+        # Commit Changes
+        cnx.commit()
+
+        # Close Connection
+        cnx.close()
+
+        qid_label = Label(tdeleteFrame, text=print_tid, anchor='w')
+        qid_label.grid(row=2, column=0, columnspan=1)
+        q_label = Label(tdeleteFrame, text=print_t, anchor='w')
+        q_label.grid(row=2, column=1, columnspan=1)
+
+    # Create a Function to Delete the Typed Question ID From the Question Table
+    # and to Delete all the Questions Answers in Question Choices
+    def deleteQuestion():
+        question_id = delete_box.get()
+        if messagebox.askyesno("Question",
+                               "Are you sure you would like to delete Test ID: " + str(question_id)):
+            # Connect to Database
+            cnx = get_db_connection()
+            # Create a Cursor
+            c = cnx.cursor()
+
+            # Data Validation to Ensure Proper Question ID
+            c.execute("SELECT * FROM Test WHERE test_id= %s", (question_id,))
+            results = c.fetchall()
+            if len(results) == 0:
+                messagebox.showerror("Error", f"{question_id} is not a valid Test ID.")
+                return
+
+            # Delete Answers for the same Question ID
+            c.execute("DELETE FROM Test_Questions WHERE test_id= %s", (delete_box.get(),))
+            # Delete Proper Question ID From Questions Table
+            c.execute("DELETE from Test WHERE test_id= %s", (delete_box.get(),))
+
+            # Commit Changes
+            cnx.commit()
+            # Close Connection
+            cnx.close()
+        else:
+            return
+
+        showTestForDelete()
+
+    showTestForDelete()
+    Label(tdeleteFrame, text="Test ID to Delete: ").grid(row=3, column=0)
+    delete_box = Entry(tdeleteFrame, width=10)
+    delete_box.grid(row=3, column=1)
+    deleteQuestion_btn = Button(tdeleteFrame, text="Delete Test", command=deleteQuestion)
+    deleteQuestion_btn.grid(row=4, column=1)
 
     global back_btn_tdelete
     back_btn_tdelete = create_back_button(root, backTestDelete)
