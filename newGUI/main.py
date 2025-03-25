@@ -206,11 +206,8 @@ def questionAdd():
         # Create a Cursor
         c = cnx.cursor()
 
-        # First Find the Last Used ID
-        # Query Questions Table for all Questions
-        c.execute("SELECT * FROM Questions")
-        records = c.fetchall()
-        newID = records[-1][0] + 1
+        # FInd new ID for the New Question
+        newID = countQuestionsTotal() + 1
 
         # Find Category ID for the selection Category
         c.execute("SELECT category_id FROM Question_Categories WHERE category_name= %s", (var.get(),))

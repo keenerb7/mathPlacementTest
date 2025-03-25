@@ -35,7 +35,7 @@ def create_dropdown_ver(parent, options, var, row, col, cspan=1, text="Select an
     return dropdown
 
 
-def countQuestions(t_id):
+def countQuestionsTestID(t_id):
     # Connect to Database
     cnx = get_db_connection()
 
@@ -78,3 +78,24 @@ def countTests():
 
     return num_tests
 
+
+def countQuestionsTotal():
+    # Connect to Database
+    cnx = get_db_connection()
+
+    # Create a Cursor
+    c = cnx.cursor()
+
+    # Query Test Questions table for count of questions
+    c.execute("SELECT COUNT(question_id) AS num_questions FROM Questions")
+
+    # Get the result
+    result = c.fetchone()
+
+    # Get the count if any questions were found, else set to 0
+    num_questions = result[0] if result else 0
+
+    # Close the connection
+    cnx.close()
+
+    return num_questions
