@@ -104,7 +104,7 @@ def questionView():
     selected_qid.set(question_ids[0])  # Set first question ID as default
 
     text = "Select question ID to display answers:"
-    question_dropdown = create_dropdown_ver(qviewFrame, question_ids, selected_qid, num_rows + 2, 0, text)
+    question_dropdown = create_dropdown_ver(qviewFrame, question_ids, selected_qid, num_rows + 2, 0, 1, text)
 
     # Get answers for selected question ID
     def getAnswers(event=None):
@@ -269,7 +269,7 @@ def questionAdd():
     for row in results:
         question_categories.append(row[1])
 
-    create_dropdown_ver(qaddFrame, question_categories, var, 2, 0, text="Question Category")
+    create_dropdown_ver(qaddFrame, question_categories, var, 2, 0, 1, text="Question Category")
     # Commit Changes
     cnx.commit()
     # Close Connection
@@ -358,7 +358,7 @@ def questionModify():
     selected_qid.set(question_ids[0])
 
     text = "Select Question ID to be modified:"
-    question_dropdown = create_dropdown_ver(qmodifyFrame, question_ids, selected_qid, 0, 0, text)
+    question_dropdown = create_dropdown_ver(qmodifyFrame, question_ids, selected_qid, 0, 0, 1, text)
 
     # Commit Changes
     cnx.commit()
@@ -383,7 +383,7 @@ def questionModify():
     for row in results:
         question_categories.append(row[1])
 
-    cate_dropdown = create_dropdown_ver(qmodifyFrame, question_categories, var, num_rows + 2, 0,
+    cate_dropdown = create_dropdown_ver(qmodifyFrame, question_categories, var, num_rows + 2, 0, 1,
                                         text="Question Category")
     # Commit Changes
     cnx.commit()

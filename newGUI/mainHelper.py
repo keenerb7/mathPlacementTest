@@ -23,13 +23,13 @@ def create_dropdown_hor(parent, options, var, row, col, cspan=1, text="Select an
     """Creates a dropdown menu (Combobox) using a loop."""
     Label(parent, text=text).grid(row=row, column=col, columnspan=cspan, padx=5, pady=5)
     dropdown = Combobox(parent, textvariable=var, values=options)
-    dropdown.grid(row=row, column=col + cspan, columnspan=2, padx=5, pady=5)
+    dropdown.grid(row=row, column=col, columnspan=cspan, padx=5, pady=5)
     return dropdown
 
 
-def create_dropdown_ver(parent, options, var, row, col, text="Select an option:"):
+def create_dropdown_ver(parent, options, var, row, col, cspan=1, text="Select an option:"):
     """Creates a dropdown menu (Combobox) using a loop."""
     Label(parent, text=text).grid(row=row, column=col, padx=5, pady=5, sticky="w")
     dropdown = Combobox(parent, textvariable=var, values=options)
-    dropdown.grid(row=row + 1, column=col, padx=5, pady=5, sticky="w")
+    dropdown.grid(row=row + 1, column=col, columnspan=cspan, padx=5, pady=5, sticky="w")
     return dropdown
