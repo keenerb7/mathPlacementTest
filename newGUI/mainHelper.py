@@ -91,7 +91,7 @@ def countQuestionsTotal():
     c.execute("SELECT question_id AS num_questions FROM Questions")
 
     # Get the result
-    result = c.fetchone()
+    result = c.fetchall()
 
     # Get the count if any questions were found, else set to 0
     num_questions = result[-1][0] if result else 0
