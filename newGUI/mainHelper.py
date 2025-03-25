@@ -23,7 +23,7 @@ def create_dropdown_hor(parent, options, var, row, col, cspan=1, text="Select an
     """Creates a dropdown menu (Combobox) using a loop."""
     Label(parent, text=text).grid(row=row, column=col, columnspan=cspan, padx=5, pady=5)
     dropdown = Combobox(parent, textvariable=var, values=options)
-    dropdown.grid(row=row, column=col, columnspan=cspan, padx=5, pady=5)
+    dropdown.grid(row=row, column=col + 1, columnspan=cspan, padx=5, pady=5)
     return dropdown
 
 
@@ -99,3 +99,22 @@ def countQuestionsTotal():
     cnx.close()
 
     return num_questions
+
+
+def getCategoryName(cat_id):
+    # Connect to Database
+    cnx = get_db_connection()
+
+    # Create a Cursor
+    c = cnx.cursor()
+
+    # Query Test table for count of Test ID
+    c.execute("SELECT category_name FROM Question_Categories WHERE category_id = %s", (cat_id,))
+
+    # Get the result
+    result = c.fetchone()
+
+    # Close the connection
+    cnx.close()
+
+    return result

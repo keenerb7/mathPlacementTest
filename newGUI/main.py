@@ -241,6 +241,7 @@ def questionAdd():
 
         # Clear Text Boxes
         question.delete(0, END)
+        cate_drop.set('')
         difficulty.delete(0, END)
         for i in range(5):
             answers[i].delete(0, END)
@@ -249,7 +250,7 @@ def questionAdd():
 
     hide_main_menu()
 
-    # Create a Frame this option
+    # Create a Frame for this option
     global qaddFrame
     qaddFrame = Frame(root, bd=2)
     qaddFrame.grid(row=0, pady=10, padx=20)
@@ -271,7 +272,7 @@ def questionAdd():
     for row in results:
         question_categories.append(row[1])
 
-    create_dropdown_ver(qaddFrame, question_categories, var, 2, 0, 1, text="Question Category")
+    cate_drop = create_dropdown_ver(qaddFrame, question_categories, var, 2, 0, 1, text="Question Category")
     # Commit Changes
     cnx.commit()
     # Close Connection
@@ -412,47 +413,132 @@ def questionModify():
         entry.grid(row=num_rows + 2 + i, column=2)
         answers.append(entry)
 
-    # Create Function to Fill in text boxes with current data given the Question ID
-    def question_selection_dis(event=NONE):
-        # Save the Question ID that we Want to change
+    def question_selection_dis(event=None):
+        # Save the Question ID that we want to change
         qID = question_dropdown.get()
 
         # Clear out the old results
         question.delete(0, END)
-        cate_dropdown.delete(END)
+        cate_dropdown.set('')  # Corrected clearing method for dropdown
         difficulty.delete(0, END)
         for i in range(5):
             answers[i].delete(0, END)
 
-        # Save the Question, Category, and Difficulty from Questions Table
         # Connect to Database
         cnx = get_db_connection()
-        # Create a Cursor
         c = cnx.cursor()
 
+        # Fetch question details
         c.execute("SELECT * FROM Questions WHERE question_id = %s", (qID,))
         questionInfo = c.fetchone()
 
-        # Save the Answers from Question Choices Table
+        # Fetch answers for the selected question
         c.execute("SELECT choice_text FROM Question_Choices WHERE question_id = %s", (qID,))
         questionAns = c.fetchall()
 
-        # Commit Changes
-        cnx.commit()
-        # Close Connection
+        # Close database connection
         cnx.close()
 
-        # Update the Text Boxes and Other Widgets with the Question ID data
-        question.insert(0, questionInfo[1])
-        cate_dropdown.set(questionInfo[2])
-        difficulty.insert(0, questionInfo[3])
-        for i in range(5):
-            answers[i].insert(0, questionAns[i])
-        return
+        if questionInfo:
+            # Get Category Name for Drop Down
+            cat_name = str(getCategoryName(questionInfo[2])) # Fetch category name
+            cat_name = cat_name.strip("(),''")
+            cate_dropdown.set(cat_name)  # Correctly update dropdown value
+
+            # Update the text fields with the retrieved data
+            question.insert(0, questionInfo[1])  # Question text
+            difficulty.insert(0, questionInfo[3])  # Difficulty level
+
+            # Update answer choices
+            for i, ans in enumerate(questionAns):
+                answers[i].insert(0, ans[0])  # Insert the actual text value
 
     # Create Function to Submit the Changes to the Database
     # MUST USE THE UPDATE SQL COMMANDS GOODLUCK BUDDY
     def submitChanges():
+        # Validate that there is a question in the form
+        if not question.get().strip():
+            messagebox.showerror("Error", "There is no Question submitted.")
+            return
+
+        # Validates that there is a selection in the dropdown box
+        if len(var.get()) == 0:
+            messagebox.showerror("Error", "There is no Question Category Selected.")
+            return
+
+        # Validate that there is a difficulty input
+        if not difficulty.get().strip():
+            messagebox.showerror("Error", "There is no Question Difficulty submitted.")
+            return
+
+        # Validate that Difficulty is a number
+        if difficulty.get().isalpha():
+            messagebox.showerror("Error", "Please enter an integer for Question Difficulty.")
+            return
+
+        # Validate that each answer is not empty
+        for i in range(5):
+            if not answers[i].get().strip():
+                messagebox.showerror("Error", f"Answer {i + 1} is not submitted.")
+                return
+
+        # Connect to Database
+        cnx = get_db_connection()
+
+        # Create a Cursor
+        c = cnx.cursor()
+
+        # FInd new ID for the New Question
+        newID = countQuestionsTotal()
+
+        # Find Category ID for the selection Category
+        c.execute("SELECT category_id FROM Question_Categories WHERE category_name= %s", (var.get(),))
+        qcatResults = c.fetchone()
+        cat_id = qcatResults[0]
+
+        # Update existing question in the Questions Table
+        c.execute(
+            """UPDATE Questions 
+               SET question = %s, category_id = %s, question_difficulty = %s 
+               WHERE question_id = %s""",
+            (question.get(), cat_id, difficulty.get(), newID)
+        )
+
+        # Update existing question choices in the Question_Choices Table
+        letter = ['a', 'b', 'c', 'd', 'e']
+        for i in range(5):
+            if i == 0:
+                c.execute(
+                    """UPDATE Question_Choices 
+                       SET choice_text = %s, is_correct = %s 
+                       WHERE choice_id = %s AND question_id = %s""",
+                    (answers[i].get(), '1', str(f"{newID}{letter[i]}"), newID)
+                )
+            else:
+                c.execute(
+                    """UPDATE Question_Choices 
+                       SET choice_text = %s, is_correct = %s 
+                       WHERE choice_id = %s AND question_id = %s""",
+                    (answers[i].get(), '0', str(f"{newID}{letter[i]}"), newID)
+                )
+
+
+        print("Supposed to be Updated.")
+        print()
+
+        # Commit Changes
+        cnx.commit()
+
+        # Close Connection
+        cnx.close()
+
+        # Clear Text Boxes
+        question.delete(0, END)
+        cate_dropdown.set('')
+        difficulty.delete(0, END)
+        for i in range(5):
+            answers[i].delete(0, END)
+        question_dropdown.set('')
         return
 
     # Create a Binding for the Dropdown menu to change the Question ID
