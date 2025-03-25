@@ -1,4 +1,3 @@
-import mysql.connector
 from test2qti import *
 
 # Connect to Database
@@ -14,9 +13,13 @@ cnx.close()
 root = Tk()
 root.title("University of Findlay Math Department")
 root.iconbitmap(r"university_findlay_logo_32d_icon.ico")
-root.geometry("1100x500")
 
 
+# I think we should ask if they want a consistent size or variable zie
+# Without setting the size beforehand it is variable
+# root.geometry("1100x500")
+
+########################################Helper Function that Need to be in Main#########################################
 # Create a Main Menu Display Functions for Show and Hide
 def show_main_menu():
     viewQuest_btn.grid(row=0, column=0, padx=10, pady=10, ipadx=50)
@@ -43,6 +46,7 @@ def hide_main_menu():
     extractTest_btn.grid_forget()
 
 
+######################################Question View#####################################################################
 # Create a Function to Return to Original View from Question View Page
 def backQuestionView():
     show_main_menu()
@@ -147,16 +151,17 @@ def questionView():
     # Show answers for the first question as default
     getAnswers()
 
+    # Close the connection and cursor
+    c.close()
+    cnx.close()
+
     # Create a Back Button to Hide Current View and Reshow Original View
     global back_btn_qview
     back_btn_qview = create_back_button(root, backQuestionView)
     return
 
-    #Close the connection and cursor
-    c.close()
-    cnx.close()
 
-
+####################################Question Add########################################################################
 # Create a Function to Return to Original View
 def backQuestionAdd():
     show_main_menu()
@@ -305,6 +310,7 @@ def questionAdd():
     return
 
 
+###############################################Question Modify##########################################################
 # Create Function to Return to Original View
 def backQuestionModify():
     show_main_menu()
@@ -466,6 +472,7 @@ def questionModify():
     return
 
 
+############################################Question Delete#############################################################
 # Create a Function to Return to Original View
 def backQuestionDelete():
     show_main_menu()
@@ -556,6 +563,7 @@ def questionDelete():
     return
 
 
+######################################Question Buttons##################################################################
 # Create View Question Button
 viewQuest_btn = Button(root, text="View Questions", command=questionView)
 viewQuest_btn.grid(row=0, column=0, columnspan=1, pady=10, padx=10, ipadx=50)
@@ -573,59 +581,16 @@ deleteQuest_btn = Button(root, text="Delete Questions", command=questionDelete)
 deleteQuest_btn.grid(row=0, column=3, columnspan=1, pady=10, padx=10, ipadx=50)
 
 
-#################################################################################################################
-################################### This Section is the Test Section ############################################
+########################################################################################################################
+################################### This Section is the Test Section ###################################################
+########################################################################################################################
 
-
+################################################Test View###############################################################
 def backTestView():
     show_main_menu()
     tviewFrame.grid_forget()
     back_btn_tview.grid_forget()
     return
-
-
-def countQuestions(t_id):
-    # Connect to Database
-    cnx = get_db_connection()
-
-    # Create a Cursor
-    c = cnx.cursor()
-
-    # Query Test Questions table for count of questions
-    c.execute("SELECT COUNT(question_id) AS num_questions FROM Test_Questions WHERE test_id = %s", (t_id,))
-
-    # Get the result
-    result = c.fetchone()
-
-    # Get the count if any questions were found, else set to 0
-    num_questions = result[0] if result else 0
-
-    # Close the connection
-    cnx.close()
-
-    return num_questions
-
-
-def countTests():
-    # Connect to Database
-    cnx = get_db_connection()
-
-    # Create a Cursor
-    c = cnx.cursor()
-
-    # Query Test table for count of Test ID
-    c.execute("SELECT COUNT(test_id) AS num_tests FROM Test")
-
-    # Get the result
-    result = c.fetchone()
-
-    # Get the count if any test were found, else set to 0
-    num_tests = result[0] if result else 0
-
-    # Close the connection
-    cnx.close()
-
-    return num_tests
 
 
 # Create Function to View a Test
@@ -754,6 +719,7 @@ def testView():
     return
 
 
+###################################################Test Make############################################################
 def backTestMake():
     show_main_menu()
     tmakeFrame.grid_forget()
@@ -875,6 +841,7 @@ def testMake():
     return
 
 
+#################################################Test Modify############################################################
 def backTestModify():
     show_main_menu()
     tmodifyFrame.grid_forget()
@@ -897,6 +864,7 @@ def testModify():
     return
 
 
+###################################################Test Delete##########################################################
 def backTestDelete():
     show_main_menu()
     tdeleteFrame.grid_forget()
@@ -919,6 +887,7 @@ def testDelete():
     return
 
 
+##############################################Test Extract##############################################################
 # Create a Function to Return to Original View
 def backTestExtract():
     show_main_menu()
@@ -983,6 +952,7 @@ def testExtract():
     return
 
 
+##############################################Test Buttons##############################################################
 # Create View Test Button
 viewTest_btn = Button(root, text="View Test", command=testView)
 viewTest_btn.grid(row=2, column=0, columnspan=1, pady=10, padx=10, ipadx=50)
@@ -1003,5 +973,6 @@ deleteTest_btn.grid(row=2, column=3, columnspan=1, pady=10, padx=10, ipadx=50)
 extractTest_btn = Button(root, text="Extract Test", command=testExtract)
 extractTest_btn.grid(row=3, column=1, columnspan=2, pady=10, padx=10, ipadx=50)
 
+########################################################################################################################
 # Run the main event loop
 root.mainloop()

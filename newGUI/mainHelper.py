@@ -33,3 +33,48 @@ def create_dropdown_ver(parent, options, var, row, col, cspan=1, text="Select an
     dropdown = Combobox(parent, textvariable=var, values=options)
     dropdown.grid(row=row + 1, column=col, columnspan=cspan, padx=5, pady=5, sticky="w")
     return dropdown
+
+
+def countQuestions(t_id):
+    # Connect to Database
+    cnx = get_db_connection()
+
+    # Create a Cursor
+    c = cnx.cursor()
+
+    # Query Test Questions table for count of questions
+    c.execute("SELECT COUNT(question_id) AS num_questions FROM Test_Questions WHERE test_id = %s", (t_id,))
+
+    # Get the result
+    result = c.fetchone()
+
+    # Get the count if any questions were found, else set to 0
+    num_questions = result[0] if result else 0
+
+    # Close the connection
+    cnx.close()
+
+    return num_questions
+
+
+def countTests():
+    # Connect to Database
+    cnx = get_db_connection()
+
+    # Create a Cursor
+    c = cnx.cursor()
+
+    # Query Test table for count of Test ID
+    c.execute("SELECT COUNT(test_id) AS num_tests FROM Test")
+
+    # Get the result
+    result = c.fetchone()
+
+    # Get the count if any test were found, else set to 0
+    num_tests = result[0] if result else 0
+
+    # Close the connection
+    cnx.close()
+
+    return num_tests
+
