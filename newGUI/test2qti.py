@@ -1,6 +1,8 @@
+import os
+import shutil
 import subprocess
 from collections import defaultdict
-from tkinter import messagebox
+from tkinter import messagebox, filedialog
 
 from mainHelper import *
 
@@ -93,13 +95,40 @@ def test2qti(createTest):
         cnx.close()
         f.close()
 
+        # Open the directory selection dialog
+        folder_path = filedialog.askdirectory(initialdir=os.path.expanduser("~"), title="Select a folder")
+
         # Create Solution File Name
         solution_file_path = text_file_name.strip() + " Solutions.pdf"
 
         # Runs the text2qti form the command line to create a QTI file and solutions PDF
         subprocess.run(['text2qti', text_file_path, '--solutions', solution_file_path])
 
-        messagebox.showinfo("Success", "Successful QTI File Extraction!")
+        # Delete Text File because it has no use
+        if os.path.exists(text_file_path):
+            os.remove(text_file_path)
+
+        # Find the generated .zip file (assuming text2qti creates a zip with the test name)
+        zip_filename = text_file_name + ".zip"
+        zip_source_path = os.path.join(os.getcwd(), zip_filename)  # Assuming it’s created in the current directory
+        zip_dest_path = os.path.join(folder_path, zip_filename)  # Destination in selected folder
+
+        # Move .zip file if it exists
+        if os.path.exists(zip_source_path):
+            shutil.move(zip_source_path, zip_dest_path)
+            messagebox.showinfo("Success", f"QTI .zip File Exported to {zip_dest_path}")
+        else:
+            messagebox.showerror("Error", f"Could not find {zip_filename}.zip , Please Try Again.")
+
+        # Find the generated solutions file
+        pdf_filename = solution_file_path
+        pdf_source_path = os.path.join(os.getcwd(), pdf_filename)  # Assuming it’s created in the current directory
+        pdf_dest_path = os.path.join(folder_path, pdf_filename)  # Destination in selected folder
+
+        # Move .zip file if it exists
+        if os.path.exists(pdf_source_path):
+            shutil.move(pdf_source_path, pdf_dest_path)
+
         return
     else:
         return
