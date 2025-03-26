@@ -1,15 +1,6 @@
 from test2qti import *
 from tkinter import ttk
 
-# Connect to Database
-cnx = get_db_connection()
-# Create a Cursor
-c = cnx.cursor()
-# Commit Changes
-cnx.commit()
-# Close Connection
-cnx.close()
-
 # Create the main window
 root = Tk()
 root.title("University of Findlay Math Department")
@@ -50,6 +41,7 @@ def show_main_menu():
     modifyTest_btn.grid(row=2, column=2, pady=10, padx=10, ipadx=50, ipady=10, sticky='ew')
     deleteTest_btn.grid(row=2, column=3, pady=10, padx=10, ipadx=50, ipady=10, sticky='ew')
     extractTest_btn.grid(row=3, column=1, columnspan=2, pady=10, padx=10, ipadx=50, ipady=10)
+
 
 def hide_main_menu():
     mainMenu_lbl.grid_forget()
@@ -653,13 +645,30 @@ def questionDelete():
                 messagebox.showerror("Error", f"{question_id} is not a valid Question ID.")
                 return
 
-            # Delete Answers for the same Question ID
-            c.execute("DELETE FROM Question_Choices WHERE question_id= %s", (delete_box.get(),))
-            # Delete Proper Question ID From Questions Table
-            c.execute("DELETE from Questions WHERE question_id= %s", (delete_box.get(),))
+            # Query Questions in the Test questions table to see if the Question is apart a test
+            c.execute("SELECT question_id FROM Test_Questions")
+            usedQuesitons = c.fetchall()
+            if question_id in usedQuesitons:
+                messagebox.showerror("Error", f"{question_id} is apart of a current Test.")
+                return
 
-            # Commit Changes
-            cnx.commit()
+            try:
+                # Delete Answers for the same Question ID
+                c.execute("DELETE FROM Question_Choices WHERE question_id= %s", (delete_box.get(),))
+                # Delete Proper Question ID From Questions Table
+                c.execute("DELETE from Questions WHERE question_id= %s", (delete_box.get(),))
+
+                # Commit Changes
+                cnx.commit()
+
+            except Exception as e:
+                # Rollback changes if there's an error
+                cnx.rollback()
+
+                # Display an error message
+                messagebox.showerror("ERROR", f"{question_id} is unable to be deleted. {question_id} is in a test.")
+                # print(f"Error occurred: {e}")
+
             # Close Connection
             cnx.close()
         else:
