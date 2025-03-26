@@ -1,4 +1,5 @@
 from test2qti import *
+from tkinter import ttk
 
 # Connect to Database
 cnx = get_db_connection()
@@ -14,26 +15,45 @@ root = Tk()
 root.title("University of Findlay Math Department")
 root.iconbitmap(r"university_findlay_logo_32d_icon.ico")
 
+root.tk.call("source", r"azure.tcl")
+root.tk.call("set_theme", "light")
+
+notebook = ttk.Notebook(root)
+notebook.grid(row=1, column=0, rowspan=5, columnspan=4)
+notebook.grid_columnconfigure(0, weight=1, uniform="equal")
+notebook.grid_columnconfigure(1, weight=1, uniform="equal")
+quest_frame = ttk.Frame(notebook)
+test_frame = ttk.Frame(notebook)
+
+notebook.add(quest_frame, text="Question Options")
+notebook.add(test_frame, text="Test Options")
+
 
 # I think we should ask if they want a consistent size or variable zie
 # Without setting the size beforehand it is variable
 # root.geometry("1100x500")
 
-########################################Helper Function that Need to be in Main#########################################
+########################################Helper function that need to be in main#########################################
 # Create a Main Menu Display Functions for Show and Hide
 def show_main_menu():
-    viewQuest_btn.grid(row=0, column=0, padx=10, pady=10, ipadx=50)
-    addQuest_btn.grid(row=0, column=1, padx=10, pady=10, ipadx=50)
-    modifyQuest_btn.grid(row=0, column=2, padx=10, pady=10, ipadx=50)
-    deleteQuest_btn.grid(row=0, column=3, padx=10, pady=10, ipadx=50)
-    viewTest_btn.grid(row=2, column=0, columnspan=1, pady=10, padx=10, ipadx=50)
-    makeTest_btn.grid(row=2, column=1, columnspan=1, pady=10, padx=10, ipadx=50)
-    modifyTest_btn.grid(row=2, column=2, columnspan=1, pady=10, padx=10, ipadx=50)
-    deleteTest_btn.grid(row=2, column=3, columnspan=1, pady=10, padx=10, ipadx=50)
-    extractTest_btn.grid(row=3, column=1, columnspan=2, pady=10, padx=10, ipadx=50)
+    notebook.grid(row=1, column=0, rowspan=5, columnspan=4)
+    mainMenu_lbl.grid(row=0, column=0, columnspan=4, padx=10, pady=10, ipadx=50, ipady=10)
 
+    viewQuest_btn.grid(row=2, column=0, padx=10, pady=10, ipadx=50, ipady=10, sticky='ew')
+    addQuest_btn.grid(row=2, column=1, padx=10, pady=10, ipadx=50, ipady=10, sticky='ew')
+    modifyQuest_btn.grid(row=2, column=2, padx=10, pady=10, ipadx=50, ipady=10, sticky='ew')
+    deleteQuest_btn.grid(row=2, column=3, padx=10, pady=10, ipadx=50, ipady=10, sticky='ew')
+
+    # Test buttons in row 3
+    viewTest_btn.grid(row=2, column=0, pady=10, padx=10, ipadx=50, ipady=10, sticky='ew')
+    makeTest_btn.grid(row=2, column=1, pady=10, padx=10, ipadx=50, ipady=10, sticky='ew')
+    modifyTest_btn.grid(row=2, column=2, pady=10, padx=10, ipadx=50, ipady=10, sticky='ew')
+    deleteTest_btn.grid(row=2, column=3, pady=10, padx=10, ipadx=50, ipady=10, sticky='ew')
+    extractTest_btn.grid(row=3, column=1, columnspan=2, pady=10, padx=10, ipadx=50, ipady=10)
 
 def hide_main_menu():
+    mainMenu_lbl.grid_forget()
+    notebook.grid_forget()
     # Hide Current Buttons
     viewQuest_btn.grid_forget()
     addQuest_btn.grid_forget()
@@ -65,10 +85,10 @@ def questionView():
     qviewFrame.grid(row=0, pady=10, padx=20)
 
     # Create Labels for the Columns of the Question Table
-    Label(qviewFrame, text="Question ID").grid(row=0, column=0, ipadx=5)
-    Label(qviewFrame, text="Question", anchor='w').grid(row=0, column=1, ipadx=215)
-    Label(qviewFrame, text="Category ID").grid(row=0, column=2, ipadx=5)
-    Label(qviewFrame, text="Question Difficulty").grid(row=0, column=3, ipadx=5)
+    ttk.Label(qviewFrame, text="Question ID").grid(row=0, column=0, ipadx=5)
+    ttk.Label(qviewFrame, text="Question", anchor='w').grid(row=0, column=1, columnspan=2, ipadx=215, sticky='w')
+    ttk.Label(qviewFrame, text="Category ID").grid(row=0, column=3, ipadx=5)
+    ttk.Label(qviewFrame, text="Question Difficulty").grid(row=0, column=4, ipadx=5)
 
     # Connect to Database
     cnx = get_db_connection()
@@ -79,23 +99,23 @@ def questionView():
     c.execute("SELECT * FROM Questions")
     records = c.fetchall()
 
-    print_qid, print_q, print_ctd, print_qd = '', '', '', ''
-    num_rows = 0
-    for row in records:
-        print_qid += str(row[0]) + "\n"
-        print_q += str(row[1]) + "\n"
-        print_ctd += str(row[2]) + "\n"
-        print_qd += str(row[3]) + "\n"
-        num_rows += 1
+    num_qrows = 0
 
-    qid_label = Label(qviewFrame, text=print_qid, anchor='w')
-    qid_label.grid(row=2, column=0, columnspan=1)
-    q_label = Label(qviewFrame, text=print_q, anchor='w')
-    q_label.grid(row=2, column=1, columnspan=1)
-    ctd_label = Label(qviewFrame, text=print_ctd, anchor='w')
-    ctd_label.grid(row=2, column=2, columnspan=1)
-    qd_label = Label(qviewFrame, text=print_qd, anchor='w')
-    qd_label.grid(row=2, column=3, columnspan=1)
+    # Loop through and display each question
+    for row in records:
+        qid_lbl = ttk.Label(qviewFrame, text=str(row[0]), anchor='w')
+        qid_lbl.grid(row=num_qrows + 2, column=0, columnspan=1)
+
+        q_lbl = Label(qviewFrame, text=str(row[1]), anchor='w', justify='left')
+        q_lbl.grid(row=num_qrows + 2, column=1, columnspan=2, sticky='w')
+
+        ctd_lbl = Label(qviewFrame, text=str(row[2]), anchor='w')
+        ctd_lbl.grid(row=num_qrows + 2, column=3, columnspan=1)
+
+        qd_lbl = Label(qviewFrame, text=str(row[3]), anchor='w')
+        qd_lbl.grid(row=num_qrows + 2, column=4, columnspan=1)
+
+        num_qrows += 1
 
     # Get all question IDs
     c.execute("SELECT question_id FROM Questions")
@@ -108,7 +128,7 @@ def questionView():
     selected_qid.set(question_ids[0])  # Set first question ID as default
 
     text = "Select question ID to display answers:"
-    question_dropdown = create_dropdown_ver(qviewFrame, question_ids, selected_qid, num_rows + 2, 0, 1, text)
+    question_dropdown = create_dropdown_hor(qviewFrame, question_ids, selected_qid, num_qrows + 2, 0, 2, text)
 
     # Get answers for selected question ID
     def getAnswers(event=None):
@@ -126,13 +146,13 @@ def questionView():
 
         # Clear previous answers
         for i in range(5):
-            for answer in qviewFrame.grid_slaves(row=num_rows + 4 + i, column=1):
+            for answer in qviewFrame.grid_slaves(row=num_qrows + 4 + i, column=2):
                 answer.grid_forget()
 
         # Display answers
-        j = num_rows + 4
+        j = num_qrows + 4
         for answer in answers:
-            Label(qviewFrame, text=answer, anchor='w', justify='left').grid(row=j, column=1, sticky="w")
+            Label(qviewFrame, text=answer, anchor='w', justify='left').grid(row=j, column=2, sticky="w")
             j += 1
 
         # Close connection and cursor
@@ -142,11 +162,11 @@ def questionView():
     question_dropdown.bind("<<ComboboxSelected>>", getAnswers)
 
     # Display Labels for answers
-    Label(qviewFrame, text="(Correct) Answer Number 1:").grid(row=num_rows + 4, column=0)
-    Label(qviewFrame, text="Answer Number 2:").grid(row=num_rows + 5, column=0)
-    Label(qviewFrame, text="Answer Number 3:").grid(row=num_rows + 6, column=0)
-    Label(qviewFrame, text="Answer Number 4:").grid(row=num_rows + 7, column=0)
-    Label(qviewFrame, text="Answer Number 5:").grid(row=num_rows + 8, column=0)
+    ttk.Label(qviewFrame, text="(Correct) Answer Number 1:").grid(row=num_qrows + 4, column=0, columnspan=2, sticky="w")
+    ttk.Label(qviewFrame, text="Answer Number 2:").grid(row=num_qrows + 5, column=0, columnspan=2, sticky="w")
+    ttk.Label(qviewFrame, text="Answer Number 3:").grid(row=num_qrows + 6, column=0, columnspan=2, sticky="w")
+    ttk.Label(qviewFrame, text="Answer Number 4:").grid(row=num_qrows + 7, column=0, columnspan=2, sticky="w")
+    ttk.Label(qviewFrame, text="Answer Number 5:").grid(row=num_qrows + 8, column=0, columnspan=2, sticky="w")
 
     # Show answers for the first question as default
     getAnswers()
@@ -256,9 +276,9 @@ def questionAdd():
     qaddFrame.grid(row=0, pady=10, padx=20)
 
     # Create Labels for the Text Input
-    Label(qaddFrame, text="Question:").grid(row=0, column=1)
-    question = Entry(qaddFrame, width=100)
-    question.grid(row=0, column=2)
+    ttk.Label(qaddFrame, text="Question:").grid(row=0, column=2)
+    question = ttk.Entry(qaddFrame, width=100)
+    question.grid(row=0, column=3)
 
     # Create Dropdown Box for Question Categories
     # Connect to Database
@@ -279,28 +299,28 @@ def questionAdd():
     cnx.close()
 
     # Label(qaddFrame, text="Question Category").grid(row=1, column=0, pady=10)
-    Label(qaddFrame, text="Question Difficulty").grid(row=4, column=0, pady=10)
-    difficulty = Entry(qaddFrame, width=30)
+    ttk.Label(qaddFrame, text="Question Difficulty").grid(row=4, column=0, pady=10)
+    difficulty = ttk.Entry(qaddFrame, width=30)
     difficulty.grid(row=5, column=0, padx=10, pady=10)
 
     # ANSWER SECTION
     # Create Labels for the Answer Choices and note the first one is always correct
-    Label(qaddFrame, text="(Correct) Answer Number 1:").grid(row=2, column=1)
-    Label(qaddFrame, text="Answer Number 2:").grid(row=3, column=1)
-    Label(qaddFrame, text="Answer Number 3:").grid(row=4, column=1)
-    Label(qaddFrame, text="Answer Number 4:").grid(row=5, column=1)
-    Label(qaddFrame, text="Answer Number 5:").grid(row=6, column=1)
+    ttk.Label(qaddFrame, text="(Correct) Answer Number 1:").grid(row=2, column=2)
+    ttk.Label(qaddFrame, text="Answer Number 2:").grid(row=3, column=2)
+    ttk.Label(qaddFrame, text="Answer Number 3:").grid(row=4, column=2)
+    ttk.Label(qaddFrame, text="Answer Number 4:").grid(row=5, column=2)
+    ttk.Label(qaddFrame, text="Answer Number 5:").grid(row=6, column=2)
 
     # Create Text Boxes for Each Answer
     answers = []
     for i in range(5):
-        entry = Entry(qaddFrame, width=100)
-        entry.grid(row=2 + i, column=2)
+        entry = ttk.Entry(qaddFrame, width=100)
+        entry.grid(row=2 + i, column=3)
         answers.append(entry)
 
     # Create Add Button to Trigger the Addition of the new Record
-    add_btn = Button(qaddFrame, text="Add Question", command=addQuestion)
-    add_btn.grid(row=6, column=0, padx=10, pady=10)
+    add_btn = ttk.Button(qaddFrame, text="Add Question", command=addQuestion, width=30)
+    add_btn.grid(row=8, column=3, padx=10, pady=10)
 
     # Create a Back Button to Hide Current View and Reshow Original View
     global back_btn_qadd
@@ -362,7 +382,7 @@ def questionModify():
     selected_qid.set(question_ids[0])
 
     text = "Select Question ID to be modified:"
-    question_dropdown = create_dropdown_ver(qmodifyFrame, question_ids, selected_qid, 0, 0, 1, text)
+    question_dropdown = create_dropdown_ver(qmodifyFrame, question_ids, selected_qid, 1, 0, 1, text)
 
     # Commit Changes
     cnx.commit()
@@ -372,7 +392,7 @@ def questionModify():
     # Create the label and text boxes for the selected question
     # Create Labels for the Text Input
     Label(qmodifyFrame, text="Question:").grid(row=num_rows + 0, column=1)
-    question = Entry(qmodifyFrame, width=100)
+    question = ttk.Entry(qmodifyFrame, width=100)
     question.grid(row=num_rows + 0, column=2)
 
     # Create Dropdown Box for Question Categories
@@ -394,8 +414,8 @@ def questionModify():
     # Close Connection
     cnx.close()
 
-    Label(qmodifyFrame, text="Question Difficulty").grid(row=num_rows + 4, column=0, pady=10)
-    difficulty = Entry(qmodifyFrame, width=30)
+    Label(qmodifyFrame, text="Question Difficulty").grid(row=num_rows + 4, column=0, pady=10, sticky='w')
+    difficulty = ttk.Entry(qmodifyFrame, width=30)
     difficulty.grid(row=num_rows + 5, column=0, padx=10, pady=10)
 
     # ANSWER SECTION
@@ -409,7 +429,7 @@ def questionModify():
     # Create Text Boxes for Each Answer
     answers = []
     for i in range(5):
-        entry = Entry(qmodifyFrame, width=100)
+        entry = ttk.Entry(qmodifyFrame, width=100)
         entry.grid(row=num_rows + 2 + i, column=2)
         answers.append(entry)
 
@@ -577,29 +597,33 @@ def questionDelete():
     Label(qdeleteFrame, text="Question ID").grid(row=0, column=0, ipadx=5)
     Label(qdeleteFrame, text="Question", anchor='w').grid(row=0, column=1, ipadx=215)
 
-    def showQuestionsForDelete():
-        # Connect to Database
-        cnx = get_db_connection()
-        # Create a Cursor
-        c = cnx.cursor()
-        # Query Questions Table for all Questions
-        c.execute("SELECT * FROM Questions")
-        records = c.fetchall()
-        print_qid, print_q, print_ctd, print_qd = '', '', '', ''
-        for row in records:
-            print_qid += str(row[0]) + "\n"
-            print_q += str(row[1]) + "\n"
+    global num_rows_qdelete
+    num_rows_qdelete = 0
 
-        # Commit Changes
-        cnx.commit()
+    # Connect to Database
+    cnx = get_db_connection()
 
-        # Close Connection
-        cnx.close()
+    # Create a Cursor
+    c = cnx.cursor()
 
-        qid_label = Label(qdeleteFrame, text=print_qid, anchor='w')
-        qid_label.grid(row=2, column=0, columnspan=1)
-        q_label = Label(qdeleteFrame, text=print_q, anchor='w')
-        q_label.grid(row=2, column=1, columnspan=1)
+    # Query Questions Table for all Questions
+    c.execute("SELECT * FROM Questions")
+    records = c.fetchall()
+
+    for row in records:
+        qid_lbl = ttk.Label(qdeleteFrame, text=str(row[0]), anchor='w')
+        qid_lbl.grid(row=num_rows_qdelete + 2, column=0, columnspan=1)
+
+        q_lbl = Label(qdeleteFrame, text=str(row[1]), anchor='w', justify='left')
+        q_lbl.grid(row=num_rows_qdelete + 2, column=1, columnspan=2, sticky='w')
+
+        num_rows_qdelete += 1
+
+    # Commit Changes
+    cnx.commit()
+
+    # Close Connection
+    cnx.close()
 
     # Create a Function to Delete the Typed Question ID From the Question Table
     # and to Delete all the Questions Answers in Question Choices
@@ -631,14 +655,20 @@ def questionDelete():
         else:
             return
 
-        showQuestionsForDelete()
+        for i in range(num_rows_qdelete):
+            for answer in qdeleteFrame.grid_slaves(row=num_rows_qdelete + 2 + i, column=0):
+                answer.grid_forget()
+            for answer in qdeleteFrame.grid_slaves(row=num_rows_qdelete + 2 + i, column=1):
+                answer.grid_forget()
 
-    showQuestionsForDelete()
-    Label(qdeleteFrame, text="Question ID to Delete: ").grid(row=3, column=0)
-    delete_box = Entry(qdeleteFrame, width=10)
-    delete_box.grid(row=3, column=1)
-    deleteQuestion_btn = Button(qdeleteFrame, text="Delete Question", command=deleteQuestion)
-    deleteQuestion_btn.grid(row=4, column=1)
+        questionDelete()
+
+
+    ttk.Label(qdeleteFrame, text="Question ID to Delete: ").grid(row=num_rows_qdelete + 2, column=0, columnspan=2, sticky='w')
+    delete_box = ttk.Entry(qdeleteFrame, width=10)
+    delete_box.grid(row=num_rows_qdelete + 2, column=1)
+    deleteQuestion_btn = ttk.Button(qdeleteFrame, text="Delete Question", command=deleteQuestion)
+    deleteQuestion_btn.grid(row=num_rows_qdelete + 4, column=1)
 
     # Create a Back Button to Hide Current View and Reshow Original View
     global back_btn_qdelete
@@ -647,21 +677,24 @@ def questionDelete():
 
 
 ######################################Question Buttons##################################################################
+# Create Main Menu Label
+mainMenu_lbl = ttk.Label(root, text="Math Placement Test", font=('Verdana',20), anchor="center")
+mainMenu_lbl.grid(row=0, column=0, columnspan=5, padx=10, pady=10, ipadx=50, ipady=10)
 # Create View Question Button
-viewQuest_btn = Button(root, text="View Questions", command=questionView)
-viewQuest_btn.grid(row=0, column=0, columnspan=1, pady=10, padx=10, ipadx=50)
+viewQuest_btn = ttk.Button(quest_frame, text="View Questions", command=questionView, width=13)
+viewQuest_btn.grid(row=1, column=0, columnspan=1, pady=10, padx=10, ipadx=50, ipady=10)
 
 # Create Add Question Button
-addQuest_btn = Button(root, text="Add Questions", command=questionAdd)
-addQuest_btn.grid(row=0, column=1, columnspan=1, pady=10, padx=10, ipadx=50)
+addQuest_btn = ttk.Button(quest_frame, text="Add Questions", command=questionAdd, width=13)
+addQuest_btn.grid(row=1, column=1, columnspan=1, pady=10, padx=10, ipadx=50, ipady=10)
 
 # Create Modify Question Button
-modifyQuest_btn = Button(root, text="Modify Questions", command=questionModify)
-modifyQuest_btn.grid(row=0, column=2, columnspan=1, pady=10, padx=10, ipadx=50)
+modifyQuest_btn = ttk.Button(quest_frame, text="Modify Questions", command=questionModify, width=13)
+modifyQuest_btn.grid(row=1, column=2, columnspan=1, pady=10, padx=10, ipadx=50, ipady=10)
 
 # Create Delete Question Button
-deleteQuest_btn = Button(root, text="Delete Questions", command=questionDelete)
-deleteQuest_btn.grid(row=0, column=3, columnspan=1, pady=10, padx=10, ipadx=50)
+deleteQuest_btn = ttk.Button(quest_frame, text="Delete Questions", command=questionDelete, width=13)
+deleteQuest_btn.grid(row=1, column=3, columnspan=1, pady=10, padx=10, ipadx=50, ipady=10)
 
 
 ########################################################################################################################
@@ -723,15 +756,15 @@ def testView():
         print_qnum += str(countQuestions(row[0])) + "\n"
         num_rows += 1
 
-    tid_label = Label(tviewFrame, text=print_tid, anchor='w')
+    tid_label = ttk.Label(tviewFrame, text=print_tid, anchor='w')
     tid_label.grid(row=2, column=0, columnspan=1)
-    ttype_label = Label(tviewFrame, text=print_ttype, anchor='w')
+    ttype_label = ttk.Label(tviewFrame, text=print_ttype, anchor='w')
     ttype_label.grid(row=2, column=1, columnspan=1)
-    ttitle_label = Label(tviewFrame, text=print_ttitle, anchor='w')
+    ttitle_label = ttk.Label(tviewFrame, text=print_ttitle, anchor='w')
     ttitle_label.grid(row=2, column=2, columnspan=1)
-    ttime_label = Label(tviewFrame, text=print_ttime, anchor='w')
+    ttime_label = ttk.Label(tviewFrame, text=print_ttime, anchor='w')
     ttime_label.grid(row=2, column=3, columnspan=1)
-    qnum_label = Label(tviewFrame, text=print_qnum, anchor='w')
+    qnum_label = ttk.Label(tviewFrame, text=print_qnum, anchor='w')
     qnum_label.grid(row=2, column=4, columnspan=1)
 
     # Get all test IDs
@@ -744,7 +777,7 @@ def testView():
     selected_tid = StringVar()
     selected_tid.set(test_ids[0])  # Set first question ID as default
 
-    text = "Select test ID to display question:"
+    text = "Select test ID to display question: "
     test_dropdown = create_dropdown_hor(tviewFrame, test_ids, selected_tid, num_rows + 2, 0, 2, text)
 
     # Get answers for selected question ID
@@ -899,23 +932,23 @@ def testMake():
 
     # MAYBE USE A DROPDOWN WITH TEST TYPES SO NO GUESSING
     # Test type input
-    ttype_entry = Entry(tmakeFrame, width=8)
+    ttype_entry = ttk.Entry(tmakeFrame, width=8)
     ttype_entry.grid(row=2, column=1)
 
     # Test Name input
-    ttitle_entry = Entry(tmakeFrame, width=50)
+    ttitle_entry = ttk.Entry(tmakeFrame, width=50)
     ttitle_entry.grid(row=2, column=2)
 
     # Test Time input
-    ttime_entry = Entry(tmakeFrame, width=8)
+    ttime_entry = ttk.Entry(tmakeFrame, width=8)
     ttime_entry.grid(row=2, column=3)
 
     # Number of questions input
-    tnumquestion_entry = Entry(tmakeFrame, width=8)
+    tnumquestion_entry = ttk.Entry(tmakeFrame, width=8)
     tnumquestion_entry.grid(row=2, column=4)
 
     # Add Test Button
-    add_test_btn = Button(tmakeFrame, text="Create Test", command=addTest)
+    add_test_btn = ttk.Button(tmakeFrame, text="Create Test", command=addTest)
     add_test_btn.grid(row=4, column=2, pady=10)
 
     # Back Button
@@ -1027,9 +1060,9 @@ def testDelete():
 
     showTestForDelete()
     Label(tdeleteFrame, text="Test ID to Delete: ").grid(row=3, column=0)
-    delete_box = Entry(tdeleteFrame, width=10)
+    delete_box = ttk.Entry(tdeleteFrame, width=10)
     delete_box.grid(row=3, column=1)
-    deleteQuestion_btn = Button(tdeleteFrame, text="Delete Test", command=deleteQuestion)
+    deleteQuestion_btn = ttk.Button(tdeleteFrame, text="Delete Test", command=deleteQuestion)
     deleteQuestion_btn.grid(row=4, column=1)
 
     global back_btn_tdelete
@@ -1077,11 +1110,11 @@ def testExtract():
         print_t += str(row[1]) + "\n"
         print_tt += str(row[2]) + "\n"
 
-    tid_label = Label(testExtractFrame, text=print_tid, anchor='w')
+    tid_label = ttk.Label(testExtractFrame, text=print_tid, anchor='w')
     tid_label.grid(row=2, column=0, columnspan=1)
-    t_label = Label(testExtractFrame, text=print_t, anchor='w')
+    t_label = ttk.Label(testExtractFrame, text=print_t, anchor='w')
     t_label.grid(row=2, column=1, columnspan=1)
-    tt_label = Label(testExtractFrame, text=print_tt, anchor='w')
+    tt_label = ttk.Label(testExtractFrame, text=print_tt, anchor='w')
     tt_label.grid(row=2, column=2, columnspan=1)
 
     # Commit Changes
@@ -1091,9 +1124,9 @@ def testExtract():
 
     # Create a Selection Section for the Test
     Label(testExtractFrame, text="Test ID for QTI Extraction: ").grid(row=3, column=0)
-    select_box = Entry(testExtractFrame, width=10)
+    select_box = ttk.Entry(testExtractFrame, width=10)
     select_box.grid(row=3, column=1)
-    extract_btn = Button(testExtractFrame, text="Extract QTI File for Test", command=lambda: test2qti(select_box.get()))
+    extract_btn = ttk.Button(testExtractFrame, text="Extract QTI File for Test", command=lambda: test2qti(select_box.get()))
     extract_btn.grid(row=4, column=1)
 
     # Create a Back Button to Hide Current View and Reshow Original View
@@ -1105,24 +1138,24 @@ def testExtract():
 
 ##############################################Test Buttons##############################################################
 # Create View Test Button
-viewTest_btn = Button(root, text="View Test", command=testView)
-viewTest_btn.grid(row=2, column=0, columnspan=1, pady=10, padx=10, ipadx=50)
+viewTest_btn = ttk.Button(test_frame, text="View Test", command=testView, width=13)
+viewTest_btn.grid(row=1, column=0, pady=10, padx=10, ipadx=50, ipady=10, sticky='ew')
 
 # Create Add Test Button
-makeTest_btn = Button(root, text="Make Test", command=testMake)
-makeTest_btn.grid(row=2, column=1, columnspan=1, pady=10, padx=10, ipadx=50)
+makeTest_btn = ttk.Button(test_frame, text="Make Test", command=testMake, width=13)
+makeTest_btn.grid(row=1, column=1, pady=10, padx=10, ipadx=50, ipady=10, sticky='ew')
 
 # Create Modify Test Button
-modifyTest_btn = Button(root, text="Modify Test", command=testModify)
-modifyTest_btn.grid(row=2, column=2, columnspan=1, pady=10, padx=10, ipadx=50)
+modifyTest_btn = ttk.Button(test_frame, text="Modify Test", command=testModify, width=13)
+modifyTest_btn.grid(row=1, column=2, pady=10, padx=10, ipadx=50, ipady=10, sticky='ew')
 
 # Create Delete Test Button
-deleteTest_btn = Button(root, text="Delete Test", command=testDelete)
-deleteTest_btn.grid(row=2, column=3, columnspan=1, pady=10, padx=10, ipadx=50)
+deleteTest_btn = ttk.Button(test_frame, text="Delete Test", command=testDelete, width=13)
+deleteTest_btn.grid(row=1, column=3, pady=10, padx=10, ipadx=50, ipady=10, sticky='ew')
 
 # Create Extract Test Button
-extractTest_btn = Button(root, text="Extract Test", command=testExtract)
-extractTest_btn.grid(row=3, column=1, columnspan=2, pady=10, padx=10, ipadx=50)
+extractTest_btn = ttk.Button(test_frame, text="Extract Test", command=testExtract, width=13)
+extractTest_btn.grid(row=2, column=1, columnspan=2, pady=10, padx=10, ipadx=50, ipady=10)
 
 ########################################################################################################################
 # Run the main event loop

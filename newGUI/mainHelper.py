@@ -1,5 +1,6 @@
 from tkinter import *
 from tkinter.ttk import Combobox
+from tkinter import ttk
 
 import mysql.connector
 
@@ -13,7 +14,7 @@ def get_db_connection():
 
 # Create a Function to Make the Back Button
 def create_back_button(parent, command):
-    btn = Button(parent, text="Back", command=command)
+    btn = ttk.Button(parent, text="Back", command=command)
     btn.grid(row=1, column=0, columnspan=1, pady=10, padx=10, ipadx=50)
     return btn
 
@@ -21,16 +22,16 @@ def create_back_button(parent, command):
 # Create a Dropdown with a Variable Length
 def create_dropdown_hor(parent, options, var, row, col, cspan, text="Select an option:"):
     """Creates a dropdown menu (Combobox) using a loop."""
-    Label(parent, text=text).grid(row=row, column=col, columnspan=cspan, padx=5, pady=5)
-    dropdown = Combobox(parent, textvariable=var, values=options)
-    dropdown.grid(row=row, column=col + 1, columnspan=cspan, padx=5, pady=5)
+    ttk.Label(parent, text=text, anchor='w').grid(row=row, column=col, columnspan=cspan, padx=5, pady=5, sticky="w")
+    dropdown = ttk.Combobox(parent, textvariable=var, values=options)
+    dropdown.grid(row=row, column=col + cspan, columnspan=cspan, padx=5, pady=5, sticky='w')
     return dropdown
 
 
-def create_dropdown_ver(parent, options, var, row, col, cspan=1, text="Select an option:"):
+def create_dropdown_ver(parent, options, var, row, col, cspan, text="Select an option:"):
     """Creates a dropdown menu (Combobox) using a loop."""
-    Label(parent, text=text).grid(row=row, column=col, padx=5, pady=5, sticky="w")
-    dropdown = Combobox(parent, textvariable=var, values=options)
+    ttk.Label(parent, text=text).grid(row=row, column=col, padx=5, pady=5, sticky="w")
+    dropdown = ttk.Combobox(parent, textvariable=var, values=options)
     dropdown.grid(row=row + 1, column=col, columnspan=cspan, padx=5, pady=5, sticky="w")
     return dropdown
 
