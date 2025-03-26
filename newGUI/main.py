@@ -1119,7 +1119,16 @@ def testExtract():
     # Create a Cursor
     c = cnx.cursor()
 
-    c.execute("SELECT test_id, test_title, test_type FROM Test")
+    c.execute("""
+        SELECT 
+            t.test_id, 
+            t.test_title, 
+            tot.test_name 
+        FROM 
+            Test t
+        JOIN 
+             Types_Of_Test tot ON t.test_type = tot.test_type
+            """)
     results = c.fetchall()
 
     # Create a Frame this option
