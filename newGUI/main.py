@@ -87,7 +87,7 @@ def questionView():
     # Create Labels for the Columns of the Question Table
     ttk.Label(qviewFrame, text="Question ID").grid(row=0, column=0, ipadx=5)
     ttk.Label(qviewFrame, text="Question", anchor='w').grid(row=0, column=1, columnspan=2, ipadx=215, sticky='w')
-    ttk.Label(qviewFrame, text="Category ID").grid(row=0, column=3, ipadx=5)
+    ttk.Label(qviewFrame, text="Category").grid(row=0, column=3, ipadx=5)
     ttk.Label(qviewFrame, text="Question Difficulty").grid(row=0, column=4, ipadx=5)
 
     # Connect to Database
@@ -96,7 +96,17 @@ def questionView():
     c = cnx.cursor()
 
     # Query Questions Table for all Questions
-    c.execute("SELECT * FROM Questions")
+    c.execute("""
+        SELECT 
+            q.question_id,
+            q.question,
+            qc.category_name,
+            q.question_difficulty
+        FROM 
+            Questions q
+        JOIN
+            Question_Categories qc ON q.category_id = qc.category_id
+            """)
     records = c.fetchall()
 
     num_qrows = 0
@@ -730,7 +740,17 @@ def testView():
     c = cnx.cursor()
 
     # Query Questions Table for all Questions
-    c.execute("SELECT * FROM Test")
+    c.execute("""
+        SELECT 
+            t.test_id,
+            tot.test_name,
+            t.test_title,
+            t.test_time
+        FROM 
+            Test t
+        JOIN
+            Types_Of_Test tot ON t.test_type = tot.test_type
+            """)
     records = c.fetchall()
     print_tid, print_ttype, print_ttitle, print_ttime, print_qnum = '', '', '', '', ''
     num_rows = 0
@@ -790,11 +810,21 @@ def testView():
         # Get the selected question ID
         selected_test_id = selected_tid.get()
 
-        query = (
-            "SELECT q.question_id, q.question, q.category_id, q.question_difficulty "
-            "FROM Questions q JOIN Test_Questions tq ON q.question_id = tq.question_ID "
-            "WHERE tq.test_id = %s"
-        )
+        query = ("""
+            SELECT 
+                q.question_id, 
+                q.question, 
+                qc.category_name, 
+                q.question_difficulty 
+            FROM 
+                Questions q 
+            JOIN 
+                Test_Questions tq ON q.question_id = tq.question_id 
+            JOIN 
+                Question_Categories qc ON q.category_id = qc.category_id 
+            WHERE 
+                tq.test_id = %s
+        """)
         c.execute(query, (selected_test_id,))
         questions = c.fetchall()
 
@@ -821,7 +851,7 @@ def testView():
     #Display column headers
     Label(tviewFrame, text="Question ID").grid(row=num_rows + 3, column=0, ipadx=5)
     Label(tviewFrame, text="Question", anchor='w').grid(row=num_rows + 3, column=1, columnspan=3, ipadx=5, sticky="w")
-    Label(tviewFrame, text="Category ID").grid(row=num_rows + 3, column=4, ipadx=5)
+    Label(tviewFrame, text="Category").grid(row=num_rows + 3, column=4, ipadx=5)
     Label(tviewFrame, text="Difficulty").grid(row=num_rows + 3, column=5, ipadx=5)
 
     test_dropdown.bind("<<ComboboxSelected>>", getQuestions)
