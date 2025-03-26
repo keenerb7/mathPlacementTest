@@ -6,7 +6,7 @@ from mainHelper import *
 
 
 def test2qti(createTest):
-    if messagebox.askokcancel("Confirmation", f"Would you like to Extract a QTI file for Test ID: {createTest}?"):
+    if messagebox.askokcancel("Confirmation", f"Would you like to Export a QTI .zip file for Test ID: {createTest}?"):
         cnx = get_db_connection()
 
         cursor = cnx.cursor()

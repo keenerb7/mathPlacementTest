@@ -1170,10 +1170,12 @@ def testExtract():
 
     # Display the Current Tests Available
     print_tid, print_t, print_tt = '', '', ''
+    num_rows = 0
     for row in results:
         print_tid += str(row[0]) + "\n"
         print_t += str(row[1]) + "\n"
         print_tt += str(row[2]) + "\n"
+        num_rows += 1
 
     tid_label = ttk.Label(testExtractFrame, text=print_tid, anchor='w')
     tid_label.grid(row=2, column=0, columnspan=1)
@@ -1188,11 +1190,32 @@ def testExtract():
     cnx.close()
 
     # Create a Selection Section for the Test
-    Label(testExtractFrame, text="Test ID for QTI Extraction: ").grid(row=3, column=0)
-    select_box = ttk.Entry(testExtractFrame, width=10)
-    select_box.grid(row=3, column=1)
-    extract_btn = ttk.Button(testExtractFrame, text="Extract QTI File for Test", command=lambda: test2qti(select_box.get()))
-    extract_btn.grid(row=4, column=1)
+    # Connect to Database
+    cnx = get_db_connection()
+    # Create a Cursor
+    c = cnx.cursor()
+    # Get all test IDs
+    c.execute("SELECT test_id FROM Test")
+    test_ids = [row[0] for row in c.fetchall()]
+
+    # Sort IDs in ascending order
+    test_ids = sorted(test_ids)
+
+    selected_tid = StringVar()
+    selected_tid.set(test_ids[0])  # Set first question ID as default
+
+    text = "Select test ID to Export to QTI .zip file: "
+    test_dropdown = create_dropdown_hor(testExtractFrame, test_ids, selected_tid, num_rows + 2, 0, 2, text)
+
+    # Commit Changes
+    cnx.commit()
+    # Close Connection
+    cnx.close()
+    # Label(testExtractFrame, text="Test ID for QTI Extraction: ").grid(row=3, column=0)
+    # select_box = ttk.Entry(testExtractFrame, width=10)
+    # select_box.grid(row=3, column=1)
+    extract_btn = ttk.Button(testExtractFrame, text="Export QTI .zip File for Test", command=lambda: test2qti(test_dropdown.get()))
+    extract_btn.grid(row=num_rows + 4, column=1)
 
     # Create a Back Button to Hide Current View and Reshow Original View
     global back_btn_testExtract
