@@ -66,13 +66,14 @@ def countTests():
     c = cnx.cursor()
 
     # Query Test table for count of Test ID
-    c.execute("SELECT COUNT(test_id) AS num_tests FROM Test")
+    # c.execute("SELECT COUNT(test_id) AS num_tests FROM Test")
+    c.execute("SELECT test_id AS num_tests FROM Test")
 
     # Get the result
-    result = c.fetchone()
+    result = c.fetchall()
 
     # Get the count if any test were found, else set to 0
-    num_tests = result[0] if result else 0
+    num_tests = result[-1][0] if result else 0
 
     # Close the connection
     cnx.close()
@@ -88,13 +89,13 @@ def countQuestionsTotal():
     c = cnx.cursor()
 
     # Query Test Questions table for count of questions
-    c.execute("SELECT COUNT(question_id) AS num_questions FROM Questions")
+    c.execute("SELECT question_id AS num_questions FROM Questions")
 
     # Get the result
-    result = c.fetchone()
+    result = c.fetchall()
 
     # Get the count if any questions were found, else set to 0
-    num_questions = result[0] if result else 0
+    num_questions = result[-1][0] if result else 0
 
     # Close the connection
     cnx.close()
