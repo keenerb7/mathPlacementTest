@@ -1040,9 +1040,11 @@ def testDelete():
         c.execute("SELECT * FROM Test")
         records = c.fetchall()
         print_tid, print_t, print_ttd, print_td = '', '', '', ''
+        num_rows = 0
         for row in records:
             print_tid += str(row[0]) + "\n"
             print_t += str(row[2]) + "\n"
+            num_rows += 1
 
         # Commit Changes
         cnx.commit()
@@ -1055,10 +1057,13 @@ def testDelete():
         q_label = Label(tdeleteFrame, text=print_t, anchor='w')
         q_label.grid(row=2, column=1, columnspan=1)
 
+        return num_rows
+
     # Create a Function to Delete the Typed Question ID From the Question Table
     # and to Delete all the Questions Answers in Question Choices
     def deleteQuestion():
-        question_id = delete_box.get()
+        question_id = test_dropdown.get()
+        # question_id = delete_box.get()
         if messagebox.askyesno("Question",
                                "Are you sure you would like to delete Test ID: " + str(question_id)):
             # Connect to Database
@@ -1074,9 +1079,9 @@ def testDelete():
                 return
 
             # Delete Answers for the same Question ID
-            c.execute("DELETE FROM Test_Questions WHERE test_id= %s", (delete_box.get(),))
+            c.execute("DELETE FROM Test_Questions WHERE test_id= %s", (question_id,))
             # Delete Proper Question ID From Questions Table
-            c.execute("DELETE from Test WHERE test_id= %s", (delete_box.get(),))
+            c.execute("DELETE from Test WHERE test_id= %s", (question_id,))
 
             # Commit Changes
             cnx.commit()
@@ -1087,12 +1092,34 @@ def testDelete():
 
         showTestForDelete()
 
-    showTestForDelete()
-    Label(tdeleteFrame, text="Test ID to Delete: ").grid(row=3, column=0)
-    delete_box = ttk.Entry(tdeleteFrame, width=10)
-    delete_box.grid(row=3, column=1)
+    num_rows = showTestForDelete()
+    # Connect to Database
+    cnx = get_db_connection()
+    # Create a Cursor
+    c = cnx.cursor()
+    # Get all test IDs
+    c.execute("SELECT test_id FROM Test")
+    test_ids = [row[0] for row in c.fetchall()]
+
+    # Sort IDs in ascending order
+    test_ids = sorted(test_ids)
+
+    selected_tid = StringVar()
+    selected_tid.set(test_ids[0])  # Set first question ID as default
+
+    text = "Select test ID to delete: "
+    test_dropdown = create_dropdown_hor(tdeleteFrame, test_ids, selected_tid, num_rows + 2, 0, 2, text)
+
+    # Commit Changes
+    cnx.commit()
+    # Close Connection
+    cnx.close()
+
+    # Label(tdeleteFrame, text="Test ID to Delete: ").grid(row=3, column=0)
+    # delete_box = ttk.Entry(tdeleteFrame, width=10)
+    # delete_box.grid(row=3, column=1)
     deleteQuestion_btn = ttk.Button(tdeleteFrame, text="Delete Test", command=deleteQuestion)
-    deleteQuestion_btn.grid(row=4, column=1)
+    deleteQuestion_btn.grid(row=num_rows + 4, column=1)
 
     global back_btn_tdelete
     back_btn_tdelete = create_back_button(root, backTestDelete)
