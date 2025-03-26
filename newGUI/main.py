@@ -594,8 +594,8 @@ def questionDelete():
     qdeleteFrame.grid(row=0, pady=10, padx=20)
 
     # Create a Labels for the Columns of the Question Table
-    Label(qdeleteFrame, text="Question ID").grid(row=0, column=0, ipadx=5)
-    Label(qdeleteFrame, text="Question", anchor='w').grid(row=0, column=1, ipadx=215)
+    ttk.Label(qdeleteFrame, text="Question ID").grid(row=0, column=0, ipadx=5)
+    ttk.Label(qdeleteFrame, text="Question", anchor='w').grid(row=0, column=1, ipadx=215)
 
     global num_rows_qdelete
     num_rows_qdelete = 0
@@ -655,12 +655,11 @@ def questionDelete():
         else:
             return
 
-        for i in range(num_rows_qdelete):
-            for answer in qdeleteFrame.grid_slaves(row=num_rows_qdelete + 2 + i, column=0):
-                answer.grid_forget()
-            for answer in qdeleteFrame.grid_slaves(row=num_rows_qdelete + 2 + i, column=1):
-                answer.grid_forget()
+        # Explicitly remove the back button before refreshing the UI
+        back_btn_qdelete.grid_forget()
 
+        # Refresh the UI to show updated list of questions
+        qdeleteFrame.destroy()
         questionDelete()
 
 
