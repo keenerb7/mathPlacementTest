@@ -93,7 +93,7 @@ def countQuestionsTotal():
 
     # Get the result
     result = c.fetchall()
-
+    result.sort()
     # Get the count if any questions were found, else set to 0
     num_questions = result[-1][0] if result else 0
 

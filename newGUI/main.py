@@ -13,11 +13,17 @@ notebook = ttk.Notebook(root)
 notebook.grid(row=1, column=0, rowspan=5, columnspan=4)
 notebook.grid_columnconfigure(0, weight=1, uniform="equal")
 notebook.grid_columnconfigure(1, weight=1, uniform="equal")
+notebook.grid_columnconfigure(2, weight=1, uniform="equal")
+notebook.grid_columnconfigure(3, weight=1, uniform="equal")
 quest_frame = ttk.Frame(notebook)
 test_frame = ttk.Frame(notebook)
+questType_frame = ttk.Frame(notebook)
+testType_frame = ttk.Frame(notebook)
 
 notebook.add(quest_frame, text="Question Options")
 notebook.add(test_frame, text="Test Options")
+notebook.add(questType_frame, text="Question Type Options")
+notebook.add(testType_frame, text="Test Type Options")
 
 
 # I think we should ask if they want a consistent size or variable zie
@@ -717,7 +723,7 @@ def questionDelete():
 
 ######################################Question Buttons##################################################################
 # Create Main Menu Label
-mainMenu_lbl = ttk.Label(root, text="Math Placement Test", font=('Verdana',20), anchor="center")
+mainMenu_lbl = ttk.Label(root, text="Math Placement Test", font=('Verdana', 20), anchor="center")
 mainMenu_lbl.grid(row=0, column=0, columnspan=5, padx=10, pady=10, ipadx=50, ipady=10)
 # Create View Question Button
 viewQuest_btn = ttk.Button(quest_frame, text="View Questions", command=questionView, width=13)
