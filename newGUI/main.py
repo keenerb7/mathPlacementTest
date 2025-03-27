@@ -228,45 +228,56 @@ def questionAdd():
         # Create a Cursor
         c = cnx.cursor()
 
-        # FInd new ID for the New Question
-        newID = countQuestionsTotal() + 1
+        try:
+            # Find the highest existing question ID and increment
+            c.execute("SELECT COALESCE(MAX(question_id), 0) + 1 FROM Questions")
+            newID = c.fetchone()[0]
 
-        # Find Category ID for the selection Category
-        c.execute("SELECT category_id FROM Question_Categories WHERE category_name= %s", (var.get(),))
-        qcatResults = c.fetchone()
-        cat_id = qcatResults[0]
+            # Find Category ID for the selected Category
+            c.execute("SELECT category_id FROM Question_Categories WHERE category_name = %s", (var.get(),))
+            qcatResults = c.fetchone()
 
-        # Insert New Question into Questions Table
-        c.execute(
-            """INSERT INTO Questions (question_id, question, category_id, question_difficulty) 
-               VALUES (%s, %s, %s, %s)""",
-            (newID, question.get(), cat_id, difficulty.get())
-        )
+            if not qcatResults:
+                messagebox.showerror("Error", "Selected category not found.")
+                cnx.close()
+                return
 
-        # Insert New Question Choices into Question Choices Table
-        letter = ['a', 'b', 'c', 'd', 'e']
-        for i in range(5):
-            if i == 0:
+            cat_id = qcatResults[0]
+
+            # Insert New Question into Questions Table
+            c.execute(
+                """INSERT INTO Questions (question_id, question, category_id, question_difficulty) 
+                   VALUES (%s, %s, %s, %s)""",
+                (newID, question.get(), cat_id, difficulty.get())
+            )
+
+            # Insert New Question Choices into Question Choices Table
+            letter = ['a', 'b', 'c', 'd', 'e']
+            for i in range(5):
+                choice_id = f"{newID}{letter[i]}"
+                is_correct = '1' if i == 0 else '0'
                 c.execute("""INSERT INTO Question_Choices (choice_id, question_id, choice_text, is_correct)
-                    VALUES (%s, %s, %s, %s)""",
-                          (str(f"{newID}{letter[i]}"), newID, answers[i].get(), '1'))
-            else:
-                c.execute("""INSERT INTO Question_Choices (choice_id, question_id, choice_text, is_correct)
-                                    VALUES (%s, %s, %s, %s)""",
-                          (str(f"{newID}{letter[i]}"), newID, answers[i].get(), '0'))
+                            VALUES (%s, %s, %s, %s)""",
+                          (choice_id, newID, answers[i].get(), is_correct))
 
-        # Commit Changes
-        cnx.commit()
+            # Commit Changes
+            cnx.commit()
 
-        # Close Connection
-        cnx.close()
+            # Clear Text Boxes
+            question.delete(0, END)
+            cate_drop.set('')
+            difficulty.delete(0, END)
+            for i in range(5):
+                answers[i].delete(0, END)
 
-        # Clear Text Boxes
-        question.delete(0, END)
-        cate_drop.set('')
-        difficulty.delete(0, END)
-        for i in range(5):
-            answers[i].delete(0, END)
+            messagebox.showinfo("Success", "Question added successfully!")
+
+        except mysql.connector.Error as err:
+            messagebox.showerror("Database Error", f"An error occurred: {err}")
+            cnx.rollback()
+        finally:
+            # Close Connection
+            cnx.close()
 
         return
 
