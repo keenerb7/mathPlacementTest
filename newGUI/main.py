@@ -1022,7 +1022,7 @@ def testMake():
     for row in results:
         test_name.append(row[1])
 
-    cate_drop = create_dropdown_ver2(tmakeFrame, test_name, var, 0, 1, 2, 10, text="Type")
+    cate_drop = create_dropdown_ver(tmakeFrame, test_name, var, 0, 1, 2, text="Type")
     # Commit Changes
     cnx.commit()
     # Close Connection
@@ -1313,14 +1313,14 @@ extractTest_btn.grid(row=2, column=1, columnspan=2, pady=10, padx=10, ipadx=50, 
 
 
 
-
-
 ########################################################################################################################
 ################################### This Section is Question Type Options ##############################################
 ########################################################################################################################
 
 
 ######################################## Question Option Add ###########################################################
+
+
 def backQuestCatAdd():
     show_main_menu()
     questCatAddFrame.grid_forget()
@@ -1393,7 +1393,9 @@ def questCatAdd():
 
     return
 
+
 ######################################## Question Option Modify ########################################################
+
 
 def backQuestCatModify():
     show_main_menu()
@@ -1421,7 +1423,9 @@ def questCatModify():
 
     return
 
+
 ######################################## Question Option Delete ########################################################
+
 
 def backQuestCatDelete():
     show_main_menu()
@@ -1430,12 +1434,81 @@ def backQuestCatDelete():
     return
 
 def questCatDelete():
+    def deleteQuestCat():
+
+        # Get the selected category
+        selected_category = var.get()
+
+        if not selected_category:
+            messagebox.showerror("Error", "Please select a category to delete.")
+            return
+
+        # Confirmation Dialog
+        confirm = messagebox.askyesno(
+            "Confirm Deletion",
+            f"Are you sure you want to delete the category '{selected_category}'?\n\nThis will remove the category and any associated questions."
+        )
+
+        if confirm:
+            # Connect to Database
+            cnx = get_db_connection()
+            c = cnx.cursor()
+
+            try:
+                # First, get the category_id for the selected category
+                c.execute("SELECT category_id FROM Question_Categories WHERE category_name = %s", (selected_category,))
+                category_id = c.fetchone()[0]
+
+                # Delete questions associated with this category
+                c.execute("DELETE FROM Questions WHERE category_id = %s", (category_id,))
+
+                # Then delete the category from Question_Categories
+                c.execute("DELETE FROM Question_Categories WHERE category_id = %s", (category_id,))
+
+                # Commit changes
+                cnx.commit()
+
+                # Show success message
+                messagebox.showinfo("Success", f"Category '{selected_category}' has been deleted.")
+
+                # Clear the current selection
+                var.set('')
+
+            except Exception as e:
+                messagebox.showerror("Error", f"An error occurred: {str(e)}")
+                cnx.rollback()
+            finally:
+                cnx.close()
+
+
     hide_main_menu()
 
     # Create a Frame this option
     global questCatDeleteFrame
     questCatDeleteFrame = Frame(root, bd=2)
     questCatDeleteFrame.grid(row=0, pady=10, padx=20)
+
+    # Create Dropdown Box for Question Category
+
+    # Connect to Database
+    cnx = get_db_connection()
+    # Create a Cursor
+    c = cnx.cursor()
+    c.execute("SELECT * FROM Question_Categories")
+    results = c.fetchall()
+    cat_name = []
+    var = StringVar()
+    for row in results:
+        cat_name.append(row[1])
+
+    cate_drop = create_dropdown_ver(questCatDeleteFrame, cat_name, var, 0, 0, 2, text="Select a Question Category")
+    # Commit Changes
+    cnx.commit()
+    # Close Connection
+    cnx.close()
+
+    delete_questCat_btn = ttk.Button(questCatDeleteFrame, text="Delete Question Category", command=deleteQuestCat)
+    delete_questCat_btn.grid(row=5, column=0, pady=10)
 
     global back_btn_questCatDelete
     back_btn_questCatDelete = create_back_button(root, backQuestCatDelete)
@@ -1465,6 +1538,8 @@ deleteQuestCat_btn.grid(row=1, column=2, pady=10, padx=10, ipadx=50, ipady=10, s
 
 
 ######################################## Test Option Add ###############################################################
+
+
 def backTestCatAdd():
     show_main_menu()
     testCatAddFrame.grid_forget()
@@ -1537,7 +1612,9 @@ def testCatAdd():
 
     return
 
+
 ######################################## Test Option Modify ############################################################
+
 
 def backTestCatModify():
     show_main_menu()
@@ -1561,7 +1638,9 @@ def testCatModify():
 
     return
 
+
 ######################################## Test Option Delete ############################################################
+
 
 def backTestCatDelete():
     show_main_menu()
@@ -1570,12 +1649,80 @@ def backTestCatDelete():
     return
 
 def testCatDelete():
+    def deleteTestCat():
+
+        # Get the selected category
+        selected_category = var.get()
+
+        if not selected_category:
+            messagebox.showerror("Error", "Please select a category to delete.")
+            return
+
+        # Confirmation Dialog
+        confirm = messagebox.askyesno(
+            "Confirm Deletion",
+            f"Are you sure you want to delete the category '{selected_category}'?\n\nThis will remove the category and any associated tests."
+        )
+
+        if confirm:
+            # Connect to Database
+            cnx = get_db_connection()
+            c = cnx.cursor()
+
+            try:
+                # First, get the test_type for the selected category
+                c.execute("SELECT test_type FROM Types_Of_Test WHERE test_name = %s", (selected_category,))
+                category_id = c.fetchone()[0]
+
+                # Delete tests associated with this category
+                c.execute("DELETE FROM Test WHERE test_type = %s", (category_id,))
+
+                # Then delete the category from Question_Categories
+                c.execute("DELETE FROM Types_Of_Test WHERE test_type = %s", (category_id,))
+
+                # Commit changes
+                cnx.commit()
+
+                # Show success message
+                messagebox.showinfo("Success", f"Category '{selected_category}' has been deleted.")
+
+                # Clear the current selection
+                var.set('')
+
+            except Exception as e:
+                messagebox.showerror("Error", f"An error occurred: {str(e)}")
+                cnx.rollback()
+            finally:
+                cnx.close()
+
     hide_main_menu()
 
     # Create a Frame this option
     global testCatDeleteFrame
     testCatDeleteFrame = Frame(root, bd=2)
     testCatDeleteFrame.grid(row=0, pady=10, padx=20)
+
+    # Create Dropdown Box for Test Category
+
+    # Connect to Database
+    cnx = get_db_connection()
+    # Create a Cursor
+    c = cnx.cursor()
+    c.execute("SELECT * FROM Types_Of_Test")
+    results = c.fetchall()
+    cat_name = []
+    var = StringVar()
+    for row in results:
+        cat_name.append(row[1])
+
+    cate_drop = create_dropdown_ver(testCatDeleteFrame, cat_name, var, 0, 0, 2, text="Select a Test Category")
+    # Commit Changes
+    cnx.commit()
+    # Close Connection
+    cnx.close()
+
+    delete_testCat_btn = ttk.Button(testCatDeleteFrame, text="Delete Question Category", command=deleteTestCat)
+    delete_testCat_btn.grid(row=5, column=0, pady=10)
 
     global back_btn_testCatDelete
     back_btn_testCatDelete = create_back_button(root, backTestCatDelete)
@@ -1599,7 +1746,7 @@ deleteTestCat_btn.grid(row=1, column=2, pady=10, padx=10, ipadx=50, ipady=10, st
 
 
 
-
+########################################################################################################################
 
 
 # Run the main event loop
