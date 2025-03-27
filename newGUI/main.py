@@ -1076,6 +1076,7 @@ def testModify():
 
 
 ###################################################Test Delete##########################################################
+
 def backTestDelete():
     show_main_menu()
     tdeleteFrame.grid_forget()
@@ -1483,10 +1484,18 @@ def questCatDelete():
 
     hide_main_menu()
 
+    # Number of rows
+    global num_rows_qdelete
+    num_rows_qdelete = 0
+
     # Create a Frame this option
     global questCatDeleteFrame
     questCatDeleteFrame = Frame(root, bd=2)
     questCatDeleteFrame.grid(row=0, pady=10, padx=20)
+
+    # Create a Labels for the Columns of the Question Category Table
+    ttk.Label(questCatDeleteFrame, text="Category ID").grid(row=0, column=0, ipadx=5)
+    ttk.Label(questCatDeleteFrame, text="Category Title", anchor='w').grid(row=0, column=1, ipadx=215)
 
     # Create Dropdown Box for Question Category
 
@@ -1501,14 +1510,28 @@ def questCatDelete():
     for row in results:
         cat_name.append(row[1])
 
-    cate_drop = create_dropdown_ver(questCatDeleteFrame, cat_name, var, 0, 0, 2, text="Select a Question Category")
+        cid_lbl = ttk.Label(questCatDeleteFrame, text=str(row[0]), anchor='w')
+        cid_lbl.grid(row=num_rows_qdelete + 2, column=0, columnspan=1)
+
+        ct_lbl = Label(questCatDeleteFrame, text=str(row[1]), anchor='w', justify='left')
+        ct_lbl.grid(row=num_rows_qdelete + 2, column=1, columnspan=2, sticky='w')
+
+        num_rows_qdelete += 1
+
+    # Dropdown positioned right after the list of categories
+    dropdown_row = num_rows_qdelete + 2
+    #Label(questCatDeleteFrame, text="Select a Question Category:").grid(row=dropdown_row, column=0, columnspan=2, sticky='w')
+
+    cate_drop = create_dropdown_ver(questCatDeleteFrame, cat_name, var, dropdown_row, 0, 2, text="Select a Question Category")
+
     # Commit Changes
     cnx.commit()
     # Close Connection
     cnx.close()
 
+    # Adjust button position
     delete_questCat_btn = ttk.Button(questCatDeleteFrame, text="Delete Question Category", command=deleteQuestCat)
-    delete_questCat_btn.grid(row=5, column=0, pady=10)
+    delete_questCat_btn.grid(row=dropdown_row + 1, column=0, columnspan=2, pady=10)
 
     global back_btn_questCatDelete
     back_btn_questCatDelete = create_back_button(root, backQuestCatDelete)
@@ -1697,10 +1720,18 @@ def testCatDelete():
 
     hide_main_menu()
 
+    # Number of rows
+    global num_rows_qdelete
+    num_rows_qdelete = 0
+
     # Create a Frame this option
     global testCatDeleteFrame
     testCatDeleteFrame = Frame(root, bd=2)
     testCatDeleteFrame.grid(row=0, pady=10, padx=20)
+
+    # Create a Labels for the Columns of the Question Category Table
+    ttk.Label(testCatDeleteFrame, text="Test Category ID").grid(row=0, column=0, ipadx=5)
+    ttk.Label(testCatDeleteFrame, text="Test Category Title", anchor='w').grid(row=0, column=1, ipadx=215)
 
     # Create Dropdown Box for Test Category
 
@@ -1715,14 +1746,27 @@ def testCatDelete():
     for row in results:
         cat_name.append(row[1])
 
-    cate_drop = create_dropdown_ver(testCatDeleteFrame, cat_name, var, 0, 0, 2, text="Select a Test Category")
+        cid_lbl = ttk.Label(testCatDeleteFrame, text=str(row[0]), anchor='w')
+        cid_lbl.grid(row=num_rows_qdelete + 2, column=0, columnspan=1)
+
+        ct_lbl = Label(testCatDeleteFrame, text=str(row[1]), anchor='w', justify='left')
+        ct_lbl.grid(row=num_rows_qdelete + 2, column=1, columnspan=2, sticky='w')
+
+        num_rows_qdelete += 1
+
+        # Dropdown positioned right after the list of categories
+    dropdown_row = num_rows_qdelete + 2
+    # Label(questCatDeleteFrame, text="Select a Question Category:").grid(row=dropdown_row, column=0, columnspan=2, sticky='w')
+
+
+    cate_drop = create_dropdown_ver(testCatDeleteFrame, cat_name, var, dropdown_row, 0, 2, text="Select a Test Category")
     # Commit Changes
     cnx.commit()
     # Close Connection
     cnx.close()
 
     delete_testCat_btn = ttk.Button(testCatDeleteFrame, text="Delete Question Category", command=deleteTestCat)
-    delete_testCat_btn.grid(row=5, column=0, pady=10)
+    delete_testCat_btn.grid(row= dropdown_row + 2, column=0, pady=10)
 
     global back_btn_testCatDelete
     back_btn_testCatDelete = create_back_button(root, backTestCatDelete)
