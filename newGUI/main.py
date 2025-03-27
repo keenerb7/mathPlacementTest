@@ -630,7 +630,7 @@ def questionDelete():
     # Create a Function to Delete the Typed Question ID From the Question Table
     # and to Delete all the Questions Answers in Question Choices
     def deleteQuestion():
-        question_id = delete_box.get()
+        question_id = question_dropdown.get()
         if messagebox.askyesno("Question",
                                "Are you sure you would like to delete Question ID: " + str(question_id)):
             # Connect to Database
@@ -654,9 +654,9 @@ def questionDelete():
 
             try:
                 # Delete Answers for the same Question ID
-                c.execute("DELETE FROM Question_Choices WHERE question_id= %s", (delete_box.get(),))
+                c.execute("DELETE FROM Question_Choices WHERE question_id= %s", (question_id,))
                 # Delete Proper Question ID From Questions Table
-                c.execute("DELETE from Questions WHERE question_id= %s", (delete_box.get(),))
+                c.execute("DELETE from Questions WHERE question_id= %s", (question_id,))
 
                 # Commit Changes
                 cnx.commit()
@@ -681,10 +681,31 @@ def questionDelete():
         qdeleteFrame.destroy()
         questionDelete()
 
+    # Connect to Database
+    cnx = get_db_connection()
+    # Create a Cursor
+    c = cnx.cursor()
 
-    ttk.Label(qdeleteFrame, text="Question ID to Delete: ").grid(row=num_rows_qdelete + 2, column=0, columnspan=2, sticky='w')
-    delete_box = ttk.Entry(qdeleteFrame, width=10)
-    delete_box.grid(row=num_rows_qdelete + 2, column=1)
+    # Create a Dropdown option to select the Question to Edit
+    c.execute("SELECT question_id FROM Questions")
+    question_ids = [row[0] for row in c.fetchall()]
+
+    question_ids = sorted(question_ids)
+
+    selected_qid = StringVar()
+    # Set first question ID as default
+    selected_qid.set(question_ids[0])
+
+    text = "Select Question ID to be Deleted:"
+    question_dropdown = create_dropdown_hor(qdeleteFrame, question_ids, selected_qid, num_rows_qdelete + 4, 0, 1, text)
+
+    # Commit Changes
+    cnx.commit()
+    # Close Connection
+    cnx.close()
+    # ttk.Label(qdeleteFrame, text="Question ID to Delete: ").grid(row=num_rows_qdelete + 2, column=0, columnspan=2, sticky='w')
+    # delete_box = ttk.Entry(qdeleteFrame, width=10)
+    # delete_box.grid(row=num_rows_qdelete + 2, column=1)
     deleteQuestion_btn = ttk.Button(qdeleteFrame, text="Delete Question", command=deleteQuestion)
     deleteQuestion_btn.grid(row=num_rows_qdelete + 4, column=1)
 
