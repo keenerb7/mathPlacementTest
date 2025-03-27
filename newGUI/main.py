@@ -923,7 +923,7 @@ def backTestMake():
 def testMake():
     def addTest():
         # Validate inputs
-        if not ttype_entry.get().strip():
+        if not var.get().strip():
             messagebox.showerror("Error", "Please enter a Test Type.")
             return
 
@@ -948,11 +948,15 @@ def testMake():
             last_test_id = c.fetchone()[0]
             new_test_id = last_test_id + 1 if last_test_id else 1
 
+            # First, get the test_type_id based on the selected test type name
+            c.execute("SELECT test_type FROM Types_Of_Test WHERE test_name = %s", (var.get(),))
+            test_type_id = c.fetchone()[0]
+
             # Insert New Test
             c.execute(
                 """INSERT INTO Test (test_id, test_type, test_title, test_time) 
                    VALUES (%s, %s, %s, %s)""",
-                (new_test_id, ttype_entry.get(), ttitle_entry.get(), test_time)
+                (new_test_id, test_type_id, ttitle_entry.get(), test_time)
             )
 
             # Randomly select questions for the test based on the specified number
@@ -977,7 +981,7 @@ def testMake():
             messagebox.showinfo("Success", f"Test {new_test_id} created successfully!")
 
             # Clear input fields
-            ttype_entry.delete(0, END)
+            cate_drop.set('')
             ttitle_entry.delete(0, END)
             ttime_entry.delete(0, END)
             tnumquestion_entry.delete(0, END)
@@ -997,7 +1001,7 @@ def testMake():
 
     # Labels for Test Creation
     Label(tmakeFrame, text="Test ID").grid(row=0, column=0, ipadx=5)
-    Label(tmakeFrame, text="Type", anchor='w').grid(row=0, column=1, ipadx=5)
+    # Label(tmakeFrame, text="Type", anchor='w').grid(row=0, column=1, ipadx=5)
     Label(tmakeFrame, text="Title").grid(row=0, column=2, ipadx=100)
     Label(tmakeFrame, text="Time (minutes)").grid(row=0, column=3, ipadx=5)
     Label(tmakeFrame, text="# of Questions").grid(row=0, column=4, ipadx=5)
@@ -1006,10 +1010,23 @@ def testMake():
     tid_label = Label(tmakeFrame, text=(countTests() + 1), anchor='w')
     tid_label.grid(row=2, column=0, columnspan=1)
 
-    # MAYBE USE A DROPDOWN WITH TEST TYPES SO NO GUESSING
-    # Test type input
-    ttype_entry = ttk.Entry(tmakeFrame, width=8)
-    ttype_entry.grid(row=2, column=1)
+    # Create Dropdown Box for Test Type
+    # Connect to Database
+    cnx = get_db_connection()
+    # Create a Cursor
+    c = cnx.cursor()
+    c.execute("SELECT * FROM Types_Of_Test")
+    results = c.fetchall()
+    test_name = []
+    var = StringVar()
+    for row in results:
+        test_name.append(row[1])
+
+    cate_drop = create_dropdown_ver2(tmakeFrame, test_name, var, 0, 1, 2, 10, text="Type")
+    # Commit Changes
+    cnx.commit()
+    # Close Connection
+    cnx.close()
 
     # Test Name input
     ttitle_entry = ttk.Entry(tmakeFrame, width=50)
@@ -1022,6 +1039,7 @@ def testMake():
     # Number of questions input
     tnumquestion_entry = ttk.Entry(tmakeFrame, width=8)
     tnumquestion_entry.grid(row=2, column=4)
+
 
     # Add Test Button
     add_test_btn = ttk.Button(tmakeFrame, text="Create Test", command=addTest)
@@ -1292,6 +1310,297 @@ deleteTest_btn.grid(row=1, column=3, pady=10, padx=10, ipadx=50, ipady=10, stick
 extractTest_btn = ttk.Button(test_frame, text="Extract Test", command=testExtract, width=13)
 extractTest_btn.grid(row=2, column=1, columnspan=2, pady=10, padx=10, ipadx=50, ipady=10)
 
+
+
+
+
+
 ########################################################################################################################
+################################### This Section is Question Type Options ##############################################
+########################################################################################################################
+
+
+######################################## Question Option Add ###########################################################
+def backQuestCatAdd():
+    show_main_menu()
+    questCatAddFrame.grid_forget()
+    back_btn_questCatAdd.grid_forget()
+    return
+
+def questCatAdd():
+    def addNewQuestCat():
+
+        # Making sure the user input a Question Category Title
+        if not qctitle_entry.get().strip():
+            messagebox.showerror("Error", "Please enter a Question Category Title.")
+            return
+
+        # Connect to Database
+        cnx = get_db_connection()
+        c = cnx.cursor()
+
+        try:
+            # Find the last Category ID and increment
+            c.execute("SELECT MAX(category_id) FROM Question_Categories")
+            last_questCat_id = c.fetchone()[0]
+            new_questCat_id = last_questCat_id + 1 if last_questCat_id else 1
+
+            # Insert New Category
+            c.execute(
+                """INSERT INTO Question_Categories (category_id, category_name) 
+                   VALUES (%s, %s)""",
+                (new_questCat_id, qctitle_entry.get())
+            )
+
+            # Commit Changes
+            cnx.commit()
+            messagebox.showinfo("Success", f"Question category {new_questCat_id} added successfully!")
+
+            # Clear input field
+            qctitle_entry.delete(0, END)
+
+        except Exception as e:
+            messagebox.showerror("Database Error", str(e))
+            cnx.rollback()
+        finally:
+            cnx.close()
+
+    hide_main_menu()
+
+    # Create a Frame this option
+    global questCatAddFrame
+    questCatAddFrame = Frame(root, bd=2)
+    questCatAddFrame.grid(row=0, pady=10, padx=20)
+
+    Label(questCatAddFrame, text="Question Category Name").grid(row=0, column=0, ipadx=5)
+
+    # If we have time they would like to have a comment section next to the category name
+    # this means editing the database and adding category_label in the Questions_Categories table
+
+    #Label(questCatAddFrame, text="Question Type Comment").grid(row=0, column=0, ipadx=5)
+
+    # Test Name input
+    qctitle_entry = ttk.Entry(questCatAddFrame, width=50)
+    qctitle_entry.grid(row=2, column=0)
+
+    # Add Test Button
+    add_questCat_btn = ttk.Button(questCatAddFrame, text="Add New Category", command=addNewQuestCat)
+    add_questCat_btn.grid(row=5, column=0, pady=10)
+
+
+    global back_btn_questCatAdd
+    back_btn_questCatAdd = create_back_button(root, backQuestCatAdd)
+
+    return
+
+######################################## Question Option Modify ########################################################
+
+def backQuestCatModify():
+    show_main_menu()
+    questCatModifyFrame.grid_forget()
+    back_btn_questCatModify.grid_forget()
+    return
+
+def questCatModify():
+    def submitChanges():
+
+        return
+
+    hide_main_menu()
+
+    # Create a Frame this option
+    global questCatModifyFrame
+    questCatModifyFrame = Frame(root, bd=2)
+    questCatModifyFrame.grid(row=0, pady=10, padx=20)
+
+
+
+
+    global back_btn_questCatModify
+    back_btn_questCatModify = create_back_button(root, backQuestCatModify)
+
+    return
+
+######################################## Question Option Delete ########################################################
+
+def backQuestCatDelete():
+    show_main_menu()
+    questCatDeleteFrame.grid_forget()
+    back_btn_questCatDelete.grid_forget()
+    return
+
+def questCatDelete():
+    hide_main_menu()
+
+    # Create a Frame this option
+    global questCatDeleteFrame
+    questCatDeleteFrame = Frame(root, bd=2)
+    questCatDeleteFrame.grid(row=0, pady=10, padx=20)
+
+    global back_btn_questCatDelete
+    back_btn_questCatDelete = create_back_button(root, backQuestCatDelete)
+
+    return
+
+
+################################################ Question Options Buttons ##############################################
+
+# Create Add Question Option Button
+addQuestCat_btn = ttk.Button(questType_frame, text="Add Question Type", command=questCatAdd, width=13)
+addQuestCat_btn.grid(row=1, column=0, pady=10, padx=10, ipadx=50, ipady=10, sticky='ew')
+
+# Create Modify Question Option Button
+modifyQuestCat_btn = ttk.Button(questType_frame, text="Modify Question Type", command=questCatModify, width=13)
+modifyQuestCat_btn.grid(row=1, column=1, pady=10, padx=10, ipadx=50, ipady=10, sticky='ew')
+
+# Create Delete Question Option Button
+deleteQuestCat_btn = ttk.Button(questType_frame, text="Delete Question Type", command=questCatDelete, width=13)
+deleteQuestCat_btn.grid(row=1, column=2, pady=10, padx=10, ipadx=50, ipady=10, sticky='ew')
+
+
+
+########################################################################################################################
+################################### This Section is Test Type Options ##################################################
+########################################################################################################################
+
+
+######################################## Test Option Add ###############################################################
+def backTestCatAdd():
+    show_main_menu()
+    testCatAddFrame.grid_forget()
+    back_btn_testCatAdd.grid_forget()
+    return
+
+def testCatAdd():
+    def addNewTestCat():
+        # Making sure the user input a Question Category Title
+        if not tctitle_entry.get().strip():
+            messagebox.showerror("Error", "Please enter a Test Category Title.")
+            return
+
+        # Connect to Database
+        cnx = get_db_connection()
+        c = cnx.cursor()
+
+        try:
+            # Find the last Category ID and increment
+            c.execute("SELECT MAX(test_type) FROM Types_Of_Test")
+            last_testCat_id = c.fetchone()[0]
+            new_testCat_id = last_testCat_id + 1 if last_testCat_id else 1
+
+            # Insert New Category
+            c.execute(
+                """INSERT INTO Types_Of_Test (test_type, test_name) 
+                   VALUES (%s, %s)""",
+                (new_testCat_id, tctitle_entry.get())
+            )
+
+            # Commit Changes
+            cnx.commit()
+            messagebox.showinfo("Success", f"Question category {new_testCat_id} added successfully!")
+
+            # Clear input field
+            tctitle_entry.delete(0, END)
+
+        except Exception as e:
+            messagebox.showerror("Database Error", str(e))
+            cnx.rollback()
+        finally:
+            cnx.close()
+
+    hide_main_menu()
+
+    # Create a Frame this option
+    global testCatAddFrame
+    testCatAddFrame = Frame(root, bd=2)
+    testCatAddFrame.grid(row=0, pady=10, padx=20)
+
+
+    Label(testCatAddFrame, text="Test Category Name").grid(row=0, column=0, ipadx=5)
+
+    # If we have time they would like to have a comment section next to the category name
+    # this means editing the database and adding category_label in the Questions_Categories table
+
+    #Label(questCatAddFrame, text="Question Type Comment").grid(row=0, column=0, ipadx=5)
+
+    # Test Name input
+    tctitle_entry = ttk.Entry(testCatAddFrame, width=50)
+    tctitle_entry.grid(row=2, column=0)
+
+    # Add Test Button
+    add_testCat_btn = ttk.Button(testCatAddFrame, text="Add New Category", command=addNewTestCat)
+    add_testCat_btn.grid(row=5, column=0, pady=10)
+
+
+    global back_btn_testCatAdd
+    back_btn_testCatAdd = create_back_button(root, backTestCatAdd)
+
+    return
+
+######################################## Test Option Modify ############################################################
+
+def backTestCatModify():
+    show_main_menu()
+    testCatModifyFrame.grid_forget()
+    back_btn_testCatModify.grid_forget()
+    return
+
+def testCatModify():
+    def submitChanges():
+        return
+
+    hide_main_menu()
+
+    # Create a Frame this option
+    global testCatModifyFrame
+    testCatModifyFrame = Frame(root, bd=2)
+    testCatModifyFrame.grid(row=0, pady=10, padx=20)
+
+    global back_btn_testCatModify
+    back_btn_testCatModify = create_back_button(root, backTestCatModify)
+
+    return
+
+######################################## Test Option Delete ############################################################
+
+def backTestCatDelete():
+    show_main_menu()
+    testCatDeleteFrame.grid_forget()
+    back_btn_testCatDelete.grid_forget()
+    return
+
+def testCatDelete():
+    hide_main_menu()
+
+    # Create a Frame this option
+    global testCatDeleteFrame
+    testCatDeleteFrame = Frame(root, bd=2)
+    testCatDeleteFrame.grid(row=0, pady=10, padx=20)
+
+    global back_btn_testCatDelete
+    back_btn_testCatDelete = create_back_button(root, backTestCatDelete)
+
+    return
+
+
+################################################ Test Options Buttons ##################################################
+
+# Create Add Question Option Button
+addTestCat_btn = ttk.Button(testType_frame, text="Add Test Type", command=testCatAdd, width=13)
+addTestCat_btn.grid(row=1, column=0, pady=10, padx=10, ipadx=50, ipady=10, sticky='ew')
+
+# Create Delete Question Option Button
+deleteTestCat_btn = ttk.Button(testType_frame, text="Modify Test Type", command=testCatModify, width=13)
+deleteTestCat_btn.grid(row=1, column=1, pady=10, padx=10, ipadx=50, ipady=10, sticky='ew')
+
+# Create Delete Question Option Button
+deleteTestCat_btn = ttk.Button(testType_frame, text="Delete Test Type", command=testCatDelete, width=13)
+deleteTestCat_btn.grid(row=1, column=2, pady=10, padx=10, ipadx=50, ipady=10, sticky='ew')
+
+
+
+
+
+
 # Run the main event loop
 root.mainloop()

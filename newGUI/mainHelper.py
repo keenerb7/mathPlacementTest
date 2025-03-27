@@ -35,6 +35,13 @@ def create_dropdown_ver(parent, options, var, row, col, cspan, text="Select an o
     dropdown.grid(row=row + 1, column=col, columnspan=cspan, padx=5, pady=5, sticky="w")
     return dropdown
 
+def create_dropdown_ver2(parent, options, var, row, col, cspan, xpad, text="Select an option:"):
+    """Creates a dropdown menu (Combobox) using a loop."""
+    ttk.Label(parent, text=text).grid(row=row, column=col, padx=xpad, pady=5, sticky="w")
+    dropdown = ttk.Combobox(parent, textvariable=var, values=options)
+    dropdown.grid(row=row + 1, column=col, columnspan=cspan, padx=xpad, pady=5, sticky="w")
+    return dropdown
+
 
 def countQuestionsTestID(t_id):
     # Connect to Database
