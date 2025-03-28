@@ -12,10 +12,6 @@ root.tk.call("set_theme", "light")
 
 notebook = ttk.Notebook(root)
 notebook.grid(row=1, column=0, rowspan=5, columnspan=4)
-notebook.grid_columnconfigure(0, weight=1, uniform="equal")
-notebook.grid_columnconfigure(1, weight=1, uniform="equal")
-notebook.grid_columnconfigure(2, weight=1, uniform="equal")
-notebook.grid_columnconfigure(3, weight=1, uniform="equal")
 quest_frame = ttk.Frame(notebook)
 test_frame = ttk.Frame(notebook)
 questType_frame = ttk.Frame(notebook)
@@ -29,7 +25,7 @@ notebook.add(testType_frame, text="Test Type Options")
 
 # I think we should ask if they want a consistent size or variable zie
 # Without setting the size beforehand it is variable
-# root.geometry("1100x500")
+root.geometry("1200x600")
 
 ########################################Helper function that need to be in main#########################################
 # Create a Main Menu Display Functions for Show and Hide
@@ -71,6 +67,7 @@ def backQuestionView():
     show_main_menu()
     qviewFrame.grid_forget()
     back_btn_qview.grid_forget()
+    header_qview.grid_forget()
     return
 
 
@@ -78,16 +75,43 @@ def backQuestionView():
 def questionView():
     hide_main_menu()
 
+    # Show header
+    global header_qview
+    header_qview = create_header_label(root, "Question Overview")
+
     # Create a Frame this option
     global qviewFrame
     qviewFrame = Frame(root, bd=2)
-    qviewFrame.grid(row=0, pady=10, padx=20)
+    qviewFrame.grid(row=1, pady=10, padx=20)
 
-    # Create Labels for the Columns of the Question Table
-    ttk.Label(qviewFrame, text="Question ID").grid(row=0, column=0, ipadx=5)
-    ttk.Label(qviewFrame, text="Question", anchor='w').grid(row=0, column=1, columnspan=2, ipadx=215, sticky='w')
-    ttk.Label(qviewFrame, text="Category").grid(row=0, column=3, ipadx=5)
-    ttk.Label(qviewFrame, text="Question Difficulty").grid(row=0, column=4, ipadx=5)
+    # Create a Frame for the treeview
+    treeFrame = Frame(qviewFrame, bd=10)
+    treeFrame.grid(row=0, column=0, sticky="nsew")
+
+    # Define columns for the treeview
+    columns = ("qid", "q", "qcat", "qdif")
+
+    # Create a treeview with the defined columns
+    tree = ttk.Treeview(treeFrame, columns=columns, show="headings", height=10)
+
+    # Set headers
+    tree.heading("qid", text="ID", anchor="w")
+    tree.heading("q", text="Question", anchor="w")
+    tree.heading("qcat", text="Category", anchor="w")
+    tree.heading("qdif", text="Difficulty", anchor="w")
+
+    # Set the columns
+    tree.column("qid", width=40, anchor="w")
+    tree.column("q", width=820, anchor="w")
+    tree.column("qcat", width=120, anchor="w")
+    tree.column("qdif", width=100, anchor="w")
+
+    tree.grid(row=0, column=0, sticky="nsew")
+
+    # Create scrollbar for treeview
+    scrollbar = ttk.Scrollbar(treeFrame, orient="vertical", command=tree.yview)
+    scrollbar.grid(row=0, column=1, sticky="ns")
+    tree.configure(yscrollcommand=scrollbar.set)
 
     # Connect to Database
     cnx = get_db_connection()
@@ -108,23 +132,13 @@ def questionView():
             """)
     records = c.fetchall()
 
-    num_qrows = 0
-
     # Loop through and display each question
     for row in records:
-        qid_lbl = ttk.Label(qviewFrame, text=str(row[0]), anchor='w')
-        qid_lbl.grid(row=num_qrows + 2, column=0, columnspan=1)
+        tree.insert("", "end", values=row)
 
-        q_lbl = Label(qviewFrame, text=str(row[1]), anchor='w', justify='left')
-        q_lbl.grid(row=num_qrows + 2, column=1, columnspan=2, sticky='w')
-
-        ctd_lbl = Label(qviewFrame, text=str(row[2]), anchor='w')
-        ctd_lbl.grid(row=num_qrows + 2, column=3, columnspan=1)
-
-        qd_lbl = Label(qviewFrame, text=str(row[3]), anchor='w')
-        qd_lbl.grid(row=num_qrows + 2, column=4, columnspan=1)
-
-        num_qrows += 1
+    # Create a Frame inside the qview Frame to display answers
+    answerFrame = Frame(qviewFrame, bd=2)
+    answerFrame.grid(row=1, column=0, pady=5, padx=5, sticky="nsew")
 
     # Get all question IDs
     c.execute("SELECT question_id FROM Questions")
@@ -137,7 +151,7 @@ def questionView():
     selected_qid.set(question_ids[0])  # Set first question ID as default
 
     text = "Select question ID to display answers:"
-    question_dropdown = create_dropdown_hor(qviewFrame, question_ids, selected_qid, num_qrows + 2, 0, 2, text)
+    question_dropdown = create_dropdown_hor(answerFrame, question_ids, selected_qid, 1, 1, 2, "normal", text)
 
     # Get answers for selected question ID
     def getAnswers(event=None):
@@ -155,13 +169,13 @@ def questionView():
 
         # Clear previous answers
         for i in range(5):
-            for answer in qviewFrame.grid_slaves(row=num_qrows + 4 + i, column=2):
+            for answer in answerFrame.grid_slaves(row=4 + i, column=2):
                 answer.grid_forget()
 
         # Display answers
-        j = num_qrows + 4
+        j = 4
         for answer in answers:
-            Label(qviewFrame, text=answer, anchor='w', justify='left').grid(row=j, column=2, sticky="w")
+            Label(answerFrame, text=answer, anchor='w', justify='left').grid(row=j, column=2, sticky="w")
             j += 1
 
         # Close connection and cursor
@@ -171,11 +185,11 @@ def questionView():
     question_dropdown.bind("<<ComboboxSelected>>", getAnswers)
 
     # Display Labels for answers
-    ttk.Label(qviewFrame, text="(Correct) Answer Number 1:").grid(row=num_qrows + 4, column=0, columnspan=2, sticky="w")
-    ttk.Label(qviewFrame, text="Answer Number 2:").grid(row=num_qrows + 5, column=0, columnspan=2, sticky="w")
-    ttk.Label(qviewFrame, text="Answer Number 3:").grid(row=num_qrows + 6, column=0, columnspan=2, sticky="w")
-    ttk.Label(qviewFrame, text="Answer Number 4:").grid(row=num_qrows + 7, column=0, columnspan=2, sticky="w")
-    ttk.Label(qviewFrame, text="Answer Number 5:").grid(row=num_qrows + 8, column=0, columnspan=2, sticky="w")
+    ttk.Label(answerFrame, text="(Correct) Answer Number 1:").grid(row=4, column=1, columnspan=1, sticky="w")
+    ttk.Label(answerFrame, text="Answer Number 2:").grid(row=5, column=1, columnspan=1, sticky="w")
+    ttk.Label(answerFrame, text="Answer Number 3:").grid(row=6, column=1, columnspan=1, sticky="w")
+    ttk.Label(answerFrame, text="Answer Number 4:").grid(row=7, column=1, columnspan=1, sticky="w")
+    ttk.Label(answerFrame, text="Answer Number 5:").grid(row=8, column=1, columnspan=1, sticky="w")
 
     # Show answers for the first question as default
     getAnswers()
