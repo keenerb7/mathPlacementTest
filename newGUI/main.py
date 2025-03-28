@@ -1,5 +1,6 @@
 from test2qti import *
 from tkinter import ttk
+from latexCheck import *
 
 # Create the main window
 root = Tk()
@@ -207,6 +208,11 @@ def questionAdd():
             messagebox.showerror("Error", "There is no Question submitted.")
             return
 
+        valid, texResult = check_latex_validity(f'{question.get()}')
+        if not valid:
+            messagebox.showerror("LaTeX is not valid.", f"Error: {texResult}\nCheck Question.")
+            return
+
         # Validates that there is a selection in the dropdown box
         if len(var.get()) == 0:
             messagebox.showerror("Error", "There is no Question Category Selected.")
@@ -222,11 +228,18 @@ def questionAdd():
             messagebox.showerror("Error", "Please enter an integer for Question Difficulty.")
             return
 
-        # Validate that each answer is not empty
+        # Validate that each answer is not empty and properly latex formatted
         for i in range(5):
-            if not answers[i].get().strip():
+            answer = answers[i].get()
+            if not answer.strip():
                 messagebox.showerror("Error", f"Answer {i + 1} is not submitted.")
                 return
+
+            valid, texResult = check_latex_validity(f'{answer}')
+            if not valid:
+                messagebox.showerror("LaTeX is not valid.", f"Error: {texResult}\nCheck Answer {i + 1}")
+                return
+            print(texResult)
 
         # Connect to Database
         cnx = get_db_connection()
@@ -1322,11 +1335,13 @@ extractTest_btn.grid(row=2, column=1, columnspan=2, pady=10, padx=10, ipadx=50, 
 ######################################## Question Option Add ###########################################################
 
 
+
 def backQuestCatAdd():
     show_main_menu()
     questCatAddFrame.grid_forget()
     back_btn_questCatAdd.grid_forget()
     return
+
 
 def questCatAdd():
     def addNewQuestCat():
@@ -1404,6 +1419,7 @@ def backQuestCatModify():
     back_btn_questCatModify.grid_forget()
     return
 
+
 def questCatModify():
     def submitChanges():
 
@@ -1433,6 +1449,7 @@ def backQuestCatDelete():
     questCatDeleteFrame.grid_forget()
     back_btn_questCatDelete.grid_forget()
     return
+
 
 def questCatDelete():
     def deleteQuestCat():
@@ -1563,11 +1580,13 @@ deleteQuestCat_btn.grid(row=1, column=2, pady=10, padx=10, ipadx=50, ipady=10, s
 ######################################## Test Option Add ###############################################################
 
 
+
 def backTestCatAdd():
     show_main_menu()
     testCatAddFrame.grid_forget()
     back_btn_testCatAdd.grid_forget()
     return
+
 
 def testCatAdd():
     def addNewTestCat():
@@ -1645,6 +1664,7 @@ def backTestCatModify():
     back_btn_testCatModify.grid_forget()
     return
 
+
 def testCatModify():
     def submitChanges():
         return
@@ -1670,6 +1690,7 @@ def backTestCatDelete():
     testCatDeleteFrame.grid_forget()
     back_btn_testCatDelete.grid_forget()
     return
+
 
 def testCatDelete():
     def deleteTestCat():
