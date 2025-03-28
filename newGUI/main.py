@@ -1,6 +1,6 @@
 from test2qti import *
 from tkinter import ttk
-from latexCheck import *
+# from latexCheck import *
 
 # Create the main window
 root = Tk()
@@ -957,7 +957,7 @@ def testMake():
 
         try:
             # Find the last Test ID and increment
-            c.execute("SELECT MAX(test_id) FROM Test")
+            c.execute("SELECT COALESCE(MAX(test_id), 0) +1 FROM Test")
             last_test_id = c.fetchone()[0]
             new_test_id = last_test_id + 1 if last_test_id else 1
 
@@ -1335,7 +1335,6 @@ extractTest_btn.grid(row=2, column=1, columnspan=2, pady=10, padx=10, ipadx=50, 
 ######################################## Question Option Add ###########################################################
 
 
-
 def backQuestCatAdd():
     show_main_menu()
     questCatAddFrame.grid_forget()
@@ -1344,6 +1343,11 @@ def backQuestCatAdd():
 
 
 def questCatAdd():
+
+    # When refreshing the page, destroy previous frame
+    if 'questCatAddFrame' in globals():
+        backQuestCatAdd()
+
     def addNewQuestCat():
 
         # Making sure the user input a Question Category Title
@@ -1375,6 +1379,9 @@ def questCatAdd():
             # Clear input field
             qctitle_entry.delete(0, END)
 
+            # Refresh the UI
+            questCatAdd()
+
         except Exception as e:
             messagebox.showerror("Database Error", str(e))
             cnx.rollback()
@@ -1383,12 +1390,44 @@ def questCatAdd():
 
     hide_main_menu()
 
+    # Number of rows after for loop
+    global num_rows_qdelete
+    num_rows_qdelete = 0
+
     # Create a Frame this option
     global questCatAddFrame
     questCatAddFrame = Frame(root, bd=2)
     questCatAddFrame.grid(row=0, pady=10, padx=20)
 
-    Label(questCatAddFrame, text="Question Category Name").grid(row=0, column=0, ipadx=5)
+    # Create a Labels for the Columns of the Question Category Table
+    ttk.Label(questCatAddFrame, text="Test Category ID").grid(row=0, column=0, ipadx=5)
+    ttk.Label(questCatAddFrame, text="Test Category Title", anchor='w').grid(row=0, column=1, ipadx=215)
+
+    # Connect to Database
+    cnx = get_db_connection()
+    # Create a Cursor
+    c = cnx.cursor()
+    c.execute("SELECT * FROM Question_Categories")
+    results = c.fetchall()
+    cat_name = []
+    var = StringVar()
+    for row in results:
+        cat_name.append(row[1])
+
+        cid_lbl = ttk.Label(questCatAddFrame, text=str(row[0]), anchor='w')
+        cid_lbl.grid(row=num_rows_qdelete + 2, column=0, columnspan=1)
+
+        ct_lbl = Label(questCatAddFrame, text=str(row[1]), anchor='w', justify='left')
+        ct_lbl.grid(row=num_rows_qdelete + 2, column=1, columnspan=2, sticky='w')
+
+        num_rows_qdelete += 1
+
+    # Commit Changes
+    cnx.commit()
+    # Close Connection
+    cnx.close()
+
+    Label(questCatAddFrame, text="Question Category Name").grid(row=num_rows_qdelete + 3, column=0, ipadx=5)
 
     # If we have time they would like to have a comment section next to the category name
     # this means editing the database and adding category_label in the Questions_Categories table
@@ -1397,11 +1436,11 @@ def questCatAdd():
 
     # Test Name input
     qctitle_entry = ttk.Entry(questCatAddFrame, width=50)
-    qctitle_entry.grid(row=2, column=0)
+    qctitle_entry.grid(row=num_rows_qdelete + 4, column=0)
 
     # Add Test Button
     add_questCat_btn = ttk.Button(questCatAddFrame, text="Add New Category", command=addNewQuestCat)
-    add_questCat_btn.grid(row=5, column=0, pady=10)
+    add_questCat_btn.grid(row= num_rows_qdelete + 5, column=0, pady=10)
 
 
     global back_btn_questCatAdd
@@ -1421,19 +1460,106 @@ def backQuestCatModify():
 
 
 def questCatModify():
+
+    # When refreshing the page, destroy previous frame
+    if 'questCatModifyFrame' in globals():
+        backQuestCatModify()
+
     def submitChanges():
 
-        return
+        # Get the selected category and new title
+        selected_category = var.get()
+        new_title = qctitle_entry.get().strip()
+
+        if not selected_category:
+            messagebox.showerror("Error", "Please select a category")
+            return
+
+        if not new_title:
+            messagebox.showerror("Error", "Please write a title")
+
+        # Connect to Database
+        cnx = get_db_connection()
+        c = cnx.cursor()
+
+        try:
+            # Update the category title in the database
+            c.execute("UPDATE Question_Categories SET category_name = %s WHERE category_name = %s",
+                      (new_title, selected_category))
+            cnx.commit()
+            messagebox.showinfo("Success", f"Category '{selected_category}' updated to '{new_title}'")
+
+            # Refresh the UI
+            questCatModify()
+
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to update category: {str(e)}")
+        finally:
+            # Close Connection
+            cnx.close()
+
 
     hide_main_menu()
+
+    # Counts number of rows in for loop
+    global num_rows_qdelete
+    num_rows_qdelete = 0
 
     # Create a Frame this option
     global questCatModifyFrame
     questCatModifyFrame = Frame(root, bd=2)
     questCatModifyFrame.grid(row=0, pady=10, padx=20)
 
+    # Create a Labels for the Columns of the Question Category Table
+    ttk.Label(questCatModifyFrame, text="Category ID").grid(row=0, column=0, ipadx=5)
+    ttk.Label(questCatModifyFrame, text="Category Title", anchor='w').grid(row=0, column=1, ipadx=215)
 
+    # Create Dropdown Box for Question Category
 
+    # Connect to Database
+    cnx = get_db_connection()
+    # Create a Cursor
+    c = cnx.cursor()
+    c.execute("SELECT * FROM Question_Categories")
+    results = c.fetchall()
+    cat_name = []
+    var = StringVar()
+    for row in results:
+        cat_name.append(row[1])
+
+        cid_lbl = ttk.Label(questCatModifyFrame, text=str(row[0]), anchor='w')
+        cid_lbl.grid(row=num_rows_qdelete + 2, column=0, columnspan=1)
+
+        ct_lbl = Label(questCatModifyFrame, text=str(row[1]), anchor='w', justify='left')
+        ct_lbl.grid(row=num_rows_qdelete + 2, column=1, columnspan=2, sticky='w')
+
+        num_rows_qdelete += 1
+
+    # Dropdown positioned right after the list of categories
+    dropdown_row = num_rows_qdelete + 2
+
+    # Create dropdown for category selection
+    def on_category_select(event):
+        # When a category is selected, populate the entry with its current title
+        selected_category = var.get()
+        qctitle_entry.delete(0, END)
+        qctitle_entry.insert(0, selected_category)
+
+    cate_drop = create_dropdown_ver(questCatModifyFrame, cat_name, var, dropdown_row, 0, 2,text="Select a Question Category")
+    cate_drop.bind('<<ComboboxSelected>>', on_category_select)
+
+    # Commit Changes
+    cnx.commit()
+    # Close Connection
+    cnx.close()
+
+    # Test Name input
+    qctitle_entry = ttk.Entry(questCatModifyFrame, width=50)
+    qctitle_entry.grid(row=num_rows_qdelete + 4, column=0)
+
+    # Button to modify
+    modify_questCat_btn = ttk.Button(questCatModifyFrame, text="Modify Question Category Title", command=submitChanges)
+    modify_questCat_btn.grid(row=dropdown_row + 5, column=0, columnspan=1, pady=10)
 
     global back_btn_questCatModify
     back_btn_questCatModify = create_back_button(root, backQuestCatModify)
@@ -1452,6 +1578,11 @@ def backQuestCatDelete():
 
 
 def questCatDelete():
+
+    # When refreshing the page, destroy previous frame
+    if 'questCatDeleteFrame' in globals():
+        backQuestCatDelete()
+
     def deleteQuestCat():
 
         # Get the selected category
@@ -1491,6 +1622,9 @@ def questCatDelete():
 
                 # Clear the current selection
                 var.set('')
+
+                # Refresh the UI
+                questCatDelete()
 
             except Exception as e:
                 messagebox.showerror("Error", f"An error occurred: {str(e)}")
@@ -1580,7 +1714,6 @@ deleteQuestCat_btn.grid(row=1, column=2, pady=10, padx=10, ipadx=50, ipady=10, s
 ######################################## Test Option Add ###############################################################
 
 
-
 def backTestCatAdd():
     show_main_menu()
     testCatAddFrame.grid_forget()
@@ -1589,6 +1722,11 @@ def backTestCatAdd():
 
 
 def testCatAdd():
+
+    # When refreshing the page, destroy previous frame
+    if 'testCatAddFrame' in globals():
+        backTestCatAdd()
+
     def addNewTestCat():
         # Making sure the user input a Question Category Title
         if not tctitle_entry.get().strip():
@@ -1601,7 +1739,7 @@ def testCatAdd():
 
         try:
             # Find the last Category ID and increment
-            c.execute("SELECT MAX(test_type) FROM Types_Of_Test")
+            c.execute("SELECT COALESCE(MAX(test_type), 0) + 1 FROM Types_Of_Test")
             last_testCat_id = c.fetchone()[0]
             new_testCat_id = last_testCat_id + 1 if last_testCat_id else 1
 
@@ -1619,6 +1757,10 @@ def testCatAdd():
             # Clear input field
             tctitle_entry.delete(0, END)
 
+
+            # Refresh the UI
+            testCatAdd()
+
         except Exception as e:
             messagebox.showerror("Database Error", str(e))
             cnx.rollback()
@@ -1627,13 +1769,45 @@ def testCatAdd():
 
     hide_main_menu()
 
+    # Number of rows
+    global num_rows_qdelete
+    num_rows_qdelete = 0
+
     # Create a Frame this option
     global testCatAddFrame
     testCatAddFrame = Frame(root, bd=2)
     testCatAddFrame.grid(row=0, pady=10, padx=20)
 
+    # Create a Labels for the Columns of the Question Category Table
+    ttk.Label(testCatAddFrame, text="Test Category ID").grid(row=0, column=0, ipadx=5)
+    ttk.Label(testCatAddFrame, text="Test Category Title", anchor='w').grid(row=0, column=1, ipadx=215)
 
-    Label(testCatAddFrame, text="Test Category Name").grid(row=0, column=0, ipadx=5)
+    # Connect to Database
+    cnx = get_db_connection()
+    # Create a Cursor
+    c = cnx.cursor()
+    c.execute("SELECT * FROM Types_Of_Test")
+    results = c.fetchall()
+    cat_name = []
+    var = StringVar()
+    for row in results:
+        cat_name.append(row[1])
+
+        cid_lbl = ttk.Label(testCatAddFrame, text=str(row[0]), anchor='w')
+        cid_lbl.grid(row=num_rows_qdelete + 2, column=0, columnspan=1)
+
+        ct_lbl = Label(testCatAddFrame, text=str(row[1]), anchor='w', justify='left')
+        ct_lbl.grid(row=num_rows_qdelete + 2, column=1, columnspan=2, sticky='w')
+
+        num_rows_qdelete += 1
+
+    # Commit Changes
+    cnx.commit()
+    # Close Connection
+    cnx.close()
+
+
+    Label(testCatAddFrame, text="New Test Category Name").grid(row=num_rows_qdelete + 3, column=0, ipadx=5)
 
     # If we have time they would like to have a comment section next to the category name
     # this means editing the database and adding category_label in the Questions_Categories table
@@ -1642,11 +1816,11 @@ def testCatAdd():
 
     # Test Name input
     tctitle_entry = ttk.Entry(testCatAddFrame, width=50)
-    tctitle_entry.grid(row=2, column=0)
+    tctitle_entry.grid(row=num_rows_qdelete + 4, column=0)
 
     # Add Test Button
     add_testCat_btn = ttk.Button(testCatAddFrame, text="Add New Category", command=addNewTestCat)
-    add_testCat_btn.grid(row=5, column=0, pady=10)
+    add_testCat_btn.grid(row=num_rows_qdelete + 6, column=0, pady=10)
 
 
     global back_btn_testCatAdd
@@ -1666,15 +1840,104 @@ def backTestCatModify():
 
 
 def testCatModify():
+
+    # When refreshing the page, destroy previous frame
+    if 'testCatModifyFrame' in globals():
+        backTestCatModify()
+
     def submitChanges():
-        return
+        # Get the selected category and new title
+        selected_category = var.get()
+        new_title = qctitle_entry.get().strip()
+
+        if not selected_category:
+            messagebox.showerror("Error", "Please select a category")
+            return
+
+        if not new_title:
+            messagebox.showerror("Error", "Please write a title")
+
+        # Connect to Database
+        cnx = get_db_connection()
+        c = cnx.cursor()
+
+        try:
+            # Update the category title in the database
+            c.execute("UPDATE Types_Of_Test SET test_name = %s WHERE test_name = %s", (new_title, selected_category))
+            cnx.commit()
+            messagebox.showinfo("Success", f"Test Category '{selected_category}' updated to '{new_title}'")
+
+            # Refresh the UI
+            testCatModify()
+
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to update test category: {str(e)}")
+        finally:
+            # Close Connection
+            cnx.close()
 
     hide_main_menu()
+
+    # Counts number of rows in for loop
+    global num_rows_qdelete
+    num_rows_qdelete = 0
 
     # Create a Frame this option
     global testCatModifyFrame
     testCatModifyFrame = Frame(root, bd=2)
     testCatModifyFrame.grid(row=0, pady=10, padx=20)
+
+    # Create a Labels for the Columns of the Question Category Table
+    ttk.Label(testCatModifyFrame, text="Test Category ID").grid(row=0, column=0, ipadx=5)
+    ttk.Label(testCatModifyFrame, text="Test Category Title", anchor='w').grid(row=0, column=1, ipadx=215)
+
+    # Create Dropdown Box for Question Category
+
+    # Connect to Database
+    cnx = get_db_connection()
+    # Create a Cursor
+    c = cnx.cursor()
+    c.execute("SELECT * FROM Types_Of_Test")
+    results = c.fetchall()
+    cat_name = []
+    var = StringVar()
+    for row in results:
+        cat_name.append(row[1])
+
+        cid_lbl = ttk.Label(testCatModifyFrame, text=str(row[0]), anchor='w')
+        cid_lbl.grid(row=num_rows_qdelete + 2, column=0, columnspan=1)
+
+        ct_lbl = Label(testCatModifyFrame, text=str(row[1]), anchor='w', justify='left')
+        ct_lbl.grid(row=num_rows_qdelete + 2, column=1, columnspan=2, sticky='w')
+
+        num_rows_qdelete += 1
+
+    # Dropdown positioned right after the list of categories
+    dropdown_row = num_rows_qdelete + 2
+
+    # Create dropdown for category selection
+    def on_category_select(event):
+        # When a category is selected, populate the entry with its current title
+        selected_category = var.get()
+        qctitle_entry.delete(0, END)
+        qctitle_entry.insert(0, selected_category)
+
+    cate_drop = create_dropdown_ver(testCatModifyFrame, cat_name, var, dropdown_row, 0, 2,text="Select a Test Category")
+    cate_drop.bind('<<ComboboxSelected>>', on_category_select)
+
+    # Commit Changes
+    cnx.commit()
+    # Close Connection
+    cnx.close()
+
+    # Test Name input
+    qctitle_entry = ttk.Entry(testCatModifyFrame, width=50)
+    qctitle_entry.grid(row=num_rows_qdelete + 4, column=0)
+
+    # Button to modify
+    modify_testCat_btn = ttk.Button(testCatModifyFrame, text="Modify Test Category Title", command=submitChanges)
+    modify_testCat_btn.grid(row=dropdown_row + 5, column=0, columnspan=1, pady=10)
+
 
     global back_btn_testCatModify
     back_btn_testCatModify = create_back_button(root, backTestCatModify)
@@ -1692,7 +1955,13 @@ def backTestCatDelete():
     return
 
 
+
 def testCatDelete():
+
+    # When refreshing the page, destroy previous frame
+    if 'testCatDeleteFrame' in globals():
+        backTestCatDelete()
+
     def deleteTestCat():
 
         # Get the selected category
@@ -1732,6 +2001,9 @@ def testCatDelete():
 
                 # Clear the current selection
                 var.set('')
+
+                # Refresh the UI
+                testCatDelete()
 
             except Exception as e:
                 messagebox.showerror("Error", f"An error occurred: {str(e)}")
