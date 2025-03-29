@@ -1,6 +1,6 @@
 from test2qti import *
 from tkinter import ttk
-# from latexCheck import *
+from latexCheck import *
 
 # Create the main window
 root = Tk()
@@ -210,6 +210,7 @@ def backQuestionAdd():
     show_main_menu()
     qaddFrame.grid_forget()
     back_btn_qadd.grid_forget()
+    header_qadd.grid_forget()
     return
 
 
@@ -319,7 +320,11 @@ def questionAdd():
     # Create a Frame for this option
     global qaddFrame
     qaddFrame = Frame(root, bd=2)
-    qaddFrame.grid(row=0, pady=10, padx=20)
+    qaddFrame.grid(row=1, pady=10, padx=20)
+
+    # Show header
+    global header_qadd
+    header_qadd = create_header_label(root, "Add Questions")
 
     # Create Labels for the Text Input
     ttk.Label(qaddFrame, text="Question:").grid(row=0, column=2)
@@ -338,7 +343,7 @@ def questionAdd():
     for row in results:
         question_categories.append(row[1])
 
-    cate_drop = create_dropdown_ver(qaddFrame, question_categories, var, 2, 0, 1, text="Question Category")
+    cate_drop = create_dropdown_ver(qaddFrame, question_categories, var, 2, 0, 1, "readonly", text="Question Category")
     # Commit Changes
     cnx.commit()
     # Close Connection
@@ -380,6 +385,7 @@ def backQuestionModify():
     show_main_menu()
     qmodifyFrame.grid_forget()
     back_btn_qmodify.grid_forget()
+    header_qmodify.grid_forget()
     return
 
 
@@ -390,12 +396,38 @@ def questionModify():
     # Create a Frame this option
     global qmodifyFrame
     qmodifyFrame = Frame(root, bd=2)
-    qmodifyFrame.grid(row=0, pady=10, padx=20)
+    qmodifyFrame.grid(row=1, pady=10, padx=20)
 
-    # Simple Display of all the Questions
-    # Create a Labels for the Columns of the Question Table
-    Label(qmodifyFrame, text="Question ID").grid(row=0, column=1, sticky="")
-    Label(qmodifyFrame, text="Questions", anchor='w').grid(row=0, column=2, sticky="")
+    # Show header
+    global header_qmodify
+    header_qmodify = create_header_label(root, "Modify Questions")
+
+    treeFrame = Frame(qmodifyFrame, bd=5)
+    treeFrame.grid(row=0, column=0, sticky="nsew")
+
+    # Define columns for the treeview
+    columns = ("qid", "q", "qcat", "qdif")
+
+    # Create a treeview with the defined columns
+    tree = ttk.Treeview(treeFrame, columns=columns, show="headings", height=7)
+
+    # Set headers
+    tree.heading("qid", text="ID", anchor="w")
+    tree.heading("q", text="Question", anchor="w")
+    tree.heading("qcat", text="Category", anchor="w")
+    tree.heading("qdif", text="Difficulty", anchor="w")
+
+    # Set the columns
+    tree.column("qid", width=40, anchor="w")
+    tree.column("q", width=820, anchor="w")
+    tree.column("qcat", width=120, anchor="w")
+    tree.column("qdif", width=100, anchor="w")
+
+    tree.grid(row=0, column=0, sticky="nsew")
+
+    scrollbar = ttk.Scrollbar(treeFrame, orient="vertical", command=tree.yview)
+    scrollbar.grid(row=0, column=1, sticky="ns")
+    tree.configure(yscrollcommand=scrollbar.set)
 
     # Connect to Database
     cnx = get_db_connection()
@@ -403,19 +435,27 @@ def questionModify():
     c = cnx.cursor()
 
     # Query Questions Table for all Questions
-    c.execute("SELECT * FROM Questions")
+    c.execute("""
+                SELECT 
+                    q.question_id,
+                    q.question,
+                    qc.category_name,
+                    q.question_difficulty
+                FROM 
+                    Questions q
+                JOIN
+                    Question_Categories qc ON q.category_id = qc.category_id
+                    """)
     records = c.fetchall()
-    print_qid, print_q, print_ctd, print_qd = '', '', '', ''
-    num_rows = 0
-    for row in records:
-        print_qid += str(row[0]) + "\n"
-        print_q += str(row[1]) + "\n"
-        num_rows += 1
 
-    qid_label = Label(qmodifyFrame, text=print_qid)
-    qid_label.grid(row=2, column=1, sticky="ew")
-    q_label = Label(qmodifyFrame, text=print_q)
-    q_label.grid(row=2, column=2, sticky="ew")
+    # Loop through and display each question
+    for row in records:
+        tree.insert("", "end", values=row)
+
+    modFrame = Frame(qmodifyFrame, bd=2)
+    modFrame.grid(row=1, column=0, pady=5, padx=5, sticky="nsew")
+
+    modFrame.grid_columnconfigure(1, weight=1)  # Expands second column
 
     # Create a Dropdown option to select the Question to Edit
     c.execute("SELECT question_id FROM Questions")
@@ -424,11 +464,12 @@ def questionModify():
     question_ids = sorted(question_ids)
 
     selected_qid = StringVar()
+
     # Set first question ID as default
     selected_qid.set(question_ids[0])
 
     text = "Select Question ID to be modified:"
-    question_dropdown = create_dropdown_ver(qmodifyFrame, question_ids, selected_qid, 1, 0, 1, text)
+    question_dropdown = create_dropdown_ver(modFrame, question_ids, selected_qid, 0, 0, 1, "normal", text)
 
     # Commit Changes
     cnx.commit()
@@ -437,46 +478,50 @@ def questionModify():
 
     # Create the label and text boxes for the selected question
     # Create Labels for the Text Input
-    Label(qmodifyFrame, text="Question:").grid(row=num_rows + 0, column=1)
-    question = ttk.Entry(qmodifyFrame, width=100)
-    question.grid(row=num_rows + 0, column=2)
+    Label(modFrame, text="Question: ").grid(row=0, column=3, sticky='w')
+    question = ttk.Entry(modFrame, width=110)
+    question.grid(row=0, column=4, columnspan=3, sticky='e')
 
     # Create Dropdown Box for Question Categories
     # Connect to Database
     cnx = get_db_connection()
+
     # Create a Cursor
     c = cnx.cursor()
+
+    # Retrieve question categories
     c.execute("SELECT * FROM Question_Categories")
     results = c.fetchall()
     question_categories = []
     var = StringVar()
+
     for row in results:
         question_categories.append(row[1])
 
-    cate_dropdown = create_dropdown_ver(qmodifyFrame, question_categories, var, num_rows + 2, 0, 1,
+    cate_dropdown = create_dropdown_ver(modFrame, question_categories, var, 2, 0, 1, "readonly",
                                         text="Question Category")
     # Commit Changes
     cnx.commit()
     # Close Connection
     cnx.close()
 
-    Label(qmodifyFrame, text="Question Difficulty").grid(row=num_rows + 4, column=0, pady=10, sticky='w')
-    difficulty = ttk.Entry(qmodifyFrame, width=30)
-    difficulty.grid(row=num_rows + 5, column=0, padx=10, pady=10)
+    Label(modFrame, text="Question Difficulty").grid(row=4, column=0, pady=5, padx=5, sticky='w')
+    difficulty = ttk.Entry(modFrame, width=30)
+    difficulty.grid(row=5, column=0, padx=5, pady=5)
 
     # ANSWER SECTION
     # Create Labels for the Answer Choices and note the first one is always correct
-    Label(qmodifyFrame, text="(Correct) Answer Number 1:").grid(row=num_rows + 2, column=1)
-    Label(qmodifyFrame, text="Answer Number 2:").grid(row=num_rows + 3, column=1)
-    Label(qmodifyFrame, text="Answer Number 3:").grid(row=num_rows + 4, column=1)
-    Label(qmodifyFrame, text="Answer Number 4:").grid(row=num_rows + 5, column=1)
-    Label(qmodifyFrame, text="Answer Number 5:").grid(row=num_rows + 6, column=1)
+    Label(modFrame, text="Answer Number 1 (Correct): ").grid(row=1, column=4, sticky='e')
+    Label(modFrame, text="Answer Number 2: ").grid(row=2, column=4, sticky='e')
+    Label(modFrame, text="Answer Number 3: ").grid(row=3, column=4, sticky='e')
+    Label(modFrame, text="Answer Number 4: ").grid(row=4, column=4, sticky='e')
+    Label(modFrame, text="Answer Number 5: ").grid(row=5, column=4, sticky='e')
 
     # Create Text Boxes for Each Answer
     answers = []
     for i in range(5):
-        entry = ttk.Entry(qmodifyFrame, width=100)
-        entry.grid(row=num_rows + 2 + i, column=2)
+        entry = ttk.Entry(modFrame, width=70)
+        entry.grid(row=1 + i, column=5, columnspan=3, sticky='e')
         answers.append(entry)
 
     def question_selection_dis(event=None):
@@ -613,8 +658,8 @@ def questionModify():
     # Create Button to Trigger the Submission of Changes
     # Should probably have a message box saying that once these changes are made there is no going back
     # Create Add Button to Trigger the Addition of the new Record
-    submit_btn = Button(qmodifyFrame, text="Submit Changes", command=submitChanges)
-    submit_btn.grid(row=num_rows + 6, column=0, padx=10, pady=10)
+    submit_btn = ttk.Button(modFrame, text="Submit Changes", command=submitChanges, style='Accent.TButton', width=25)
+    submit_btn.grid(row=6, column=6, padx=10, pady=10, sticky='e')
 
     global back_btn_qmodify
     back_btn_qmodify = create_back_button(root, backQuestionModify)
@@ -637,7 +682,7 @@ def questionDelete():
     # Create a Frame this option
     global qdeleteFrame
     qdeleteFrame = Frame(root, bd=2)
-    qdeleteFrame.grid(row=0, pady=10, padx=20)
+    qdeleteFrame.grid(row=1, pady=10, padx=20)
 
     # Create a Labels for the Columns of the Question Table
     ttk.Label(qdeleteFrame, text="Question ID").grid(row=0, column=0, ipadx=5)
@@ -710,7 +755,7 @@ def questionDelete():
                 cnx.rollback()
 
                 # Display an error message
-                messagebox.showerror("ERROR", f"{question_id} is unable to be deleted. {question_id} is in a test.")
+                messagebox.showerror("ERROR", f"Question #{question_id} is part of a test and cannot be deleted.")
                 # print(f"Error occurred: {e}")
 
             # Close Connection
@@ -741,7 +786,7 @@ def questionDelete():
     selected_qid.set(question_ids[0])
 
     text = "Select Question ID to be Deleted:"
-    question_dropdown = create_dropdown_hor(qdeleteFrame, question_ids, selected_qid, num_rows_qdelete + 4, 0, 1, text)
+    question_dropdown = create_dropdown_hor(qdeleteFrame, question_ids, selected_qid, num_rows_qdelete + 4, 0, 1, "normal", text)
 
     # Commit Changes
     cnx.commit()
@@ -799,7 +844,7 @@ def testView():
     # Create a Frame this option
     global tviewFrame
     tviewFrame = Frame(root, bd=2)
-    tviewFrame.grid(row=0, pady=10, padx=20)
+    tviewFrame.grid(row=1, pady=10, padx=20)
 
     # Create a Labels for the Columns of the Question Table
     Label(tviewFrame, text="Test ID").grid(row=0, column=0, ipadx=5)
@@ -871,7 +916,7 @@ def testView():
     selected_tid.set(test_ids[0])  # Set first question ID as default
 
     text = "Select test ID to display question: "
-    test_dropdown = create_dropdown_hor(tviewFrame, test_ids, selected_tid, num_rows + 2, 0, 2, text)
+    test_dropdown = create_dropdown_hor(tviewFrame, test_ids, selected_tid, num_rows + 2, 0, 2, "normal", text)
 
     # Get answers for selected question ID
     def getQuestions(event=None):
@@ -1024,7 +1069,7 @@ def testMake():
     # Create a Frame for this option
     global tmakeFrame
     tmakeFrame = Frame(root, bd=2)
-    tmakeFrame.grid(row=0, pady=10, padx=20)
+    tmakeFrame.grid(row=1, pady=10, padx=20)
 
     # Labels for Test Creation
     Label(tmakeFrame, text="Test ID").grid(row=0, column=0, ipadx=5)
@@ -1049,7 +1094,7 @@ def testMake():
     for row in results:
         test_name.append(row[1])
 
-    cate_drop = create_dropdown_ver(tmakeFrame, test_name, var, 0, 1, 2, text="Type")
+    cate_drop = create_dropdown_ver(tmakeFrame, test_name, var, 0, 1, 2, "normal", text="Type")
     # Commit Changes
     cnx.commit()
     # Close Connection
@@ -1094,7 +1139,7 @@ def testModify():
     # Create a Frame this option
     global tmodifyFrame
     tmodifyFrame = Frame(root, bd=2)
-    tmodifyFrame.grid(row=0, pady=10, padx=20)
+    tmodifyFrame.grid(row=1, pady=10, padx=20)
 
     global back_btn_tmodify
     back_btn_tmodify = create_back_button(root, backTestModify)
@@ -1118,7 +1163,7 @@ def testDelete():
     # Create a Frame this option
     global tdeleteFrame
     tdeleteFrame = Frame(root, bd=2)
-    tdeleteFrame.grid(row=0, pady=10, padx=20)
+    tdeleteFrame.grid(row=1, pady=10, padx=20)
 
     # Create a Labels for the Columns of the Question Table
     Label(tdeleteFrame, text="Test ID").grid(row=0, column=0, ipadx=5)
@@ -1201,7 +1246,7 @@ def testDelete():
     selected_tid.set(test_ids[0])  # Set first question ID as default
 
     text = "Select test ID to delete: "
-    test_dropdown = create_dropdown_hor(tdeleteFrame, test_ids, selected_tid, num_rows + 2, 0, 2, text)
+    test_dropdown = create_dropdown_hor(tdeleteFrame, test_ids, selected_tid, num_rows + 2, 0, 2, "normal", text)
 
     # Commit Changes
     cnx.commit()
@@ -1254,7 +1299,7 @@ def testExtract():
     # Create a Frame this option
     global testExtractFrame
     testExtractFrame = Frame(root, bd=2)
-    testExtractFrame.grid(row=0, pady=10, padx=20)
+    testExtractFrame.grid(row=1, pady=10, padx=20)
 
     # Create a Labels for the Columns of the Question Table
     Label(testExtractFrame, text="Test ID").grid(row=0, column=0, ipadx=5)
@@ -1298,7 +1343,7 @@ def testExtract():
     selected_tid.set(test_ids[0])  # Set first question ID as default
 
     text = "Select test ID to Export to QTI .zip file: "
-    test_dropdown = create_dropdown_hor(testExtractFrame, test_ids, selected_tid, num_rows + 2, 0, 2, text)
+    test_dropdown = create_dropdown_hor(testExtractFrame, test_ids, selected_tid, num_rows + 2, 0, 2, "normal", text)
 
     # Commit Changes
     cnx.commit()
@@ -1411,7 +1456,7 @@ def questCatAdd():
     # Create a Frame this option
     global questCatAddFrame
     questCatAddFrame = Frame(root, bd=2)
-    questCatAddFrame.grid(row=0, pady=10, padx=20)
+    questCatAddFrame.grid(row=1, pady=10, padx=20)
 
     # Create a Labels for the Columns of the Question Category Table
     ttk.Label(questCatAddFrame, text="Test Category ID").grid(row=0, column=0, ipadx=5)
@@ -1522,7 +1567,7 @@ def questCatModify():
     # Create a Frame this option
     global questCatModifyFrame
     questCatModifyFrame = Frame(root, bd=2)
-    questCatModifyFrame.grid(row=0, pady=10, padx=20)
+    questCatModifyFrame.grid(row=1, pady=10, padx=20)
 
     # Create a Labels for the Columns of the Question Category Table
     ttk.Label(questCatModifyFrame, text="Category ID").grid(row=0, column=0, ipadx=5)
@@ -1559,7 +1604,7 @@ def questCatModify():
         qctitle_entry.delete(0, END)
         qctitle_entry.insert(0, selected_category)
 
-    cate_drop = create_dropdown_ver(questCatModifyFrame, cat_name, var, dropdown_row, 0, 2,text="Select a Question Category")
+    cate_drop = create_dropdown_ver(questCatModifyFrame, cat_name, var, dropdown_row, 0, 2, "normal", text="Select a Question Category")
     cate_drop.bind('<<ComboboxSelected>>', on_category_select)
 
     # Commit Changes
@@ -1656,7 +1701,7 @@ def questCatDelete():
     # Create a Frame this option
     global questCatDeleteFrame
     questCatDeleteFrame = Frame(root, bd=2)
-    questCatDeleteFrame.grid(row=0, pady=10, padx=20)
+    questCatDeleteFrame.grid(row=1, pady=10, padx=20)
 
     # Create a Labels for the Columns of the Question Category Table
     ttk.Label(questCatDeleteFrame, text="Category ID").grid(row=0, column=0, ipadx=5)
@@ -1687,7 +1732,7 @@ def questCatDelete():
     dropdown_row = num_rows_qdelete + 2
     #Label(questCatDeleteFrame, text="Select a Question Category:").grid(row=dropdown_row, column=0, columnspan=2, sticky='w')
 
-    cate_drop = create_dropdown_ver(questCatDeleteFrame, cat_name, var, dropdown_row, 0, 2, text="Select a Question Category")
+    cate_drop = create_dropdown_ver(questCatDeleteFrame, cat_name, var, dropdown_row, 0, 2, "normal", text="Select a Question Category")
 
     # Commit Changes
     cnx.commit()
@@ -1790,7 +1835,7 @@ def testCatAdd():
     # Create a Frame this option
     global testCatAddFrame
     testCatAddFrame = Frame(root, bd=2)
-    testCatAddFrame.grid(row=0, pady=10, padx=20)
+    testCatAddFrame.grid(row=1, pady=10, padx=20)
 
     # Create a Labels for the Columns of the Question Category Table
     ttk.Label(testCatAddFrame, text="Test Category ID").grid(row=0, column=0, ipadx=5)
@@ -1899,7 +1944,7 @@ def testCatModify():
     # Create a Frame this option
     global testCatModifyFrame
     testCatModifyFrame = Frame(root, bd=2)
-    testCatModifyFrame.grid(row=0, pady=10, padx=20)
+    testCatModifyFrame.grid(row=1, pady=10, padx=20)
 
     # Create a Labels for the Columns of the Question Category Table
     ttk.Label(testCatModifyFrame, text="Test Category ID").grid(row=0, column=0, ipadx=5)
@@ -2034,7 +2079,7 @@ def testCatDelete():
     # Create a Frame this option
     global testCatDeleteFrame
     testCatDeleteFrame = Frame(root, bd=2)
-    testCatDeleteFrame.grid(row=0, pady=10, padx=20)
+    testCatDeleteFrame.grid(row=1, pady=10, padx=20)
 
     # Create a Labels for the Columns of the Question Category Table
     ttk.Label(testCatDeleteFrame, text="Test Category ID").grid(row=0, column=0, ipadx=5)
@@ -2066,7 +2111,7 @@ def testCatDelete():
     # Label(questCatDeleteFrame, text="Select a Question Category:").grid(row=dropdown_row, column=0, columnspan=2, sticky='w')
 
 
-    cate_drop = create_dropdown_ver(testCatDeleteFrame, cat_name, var, dropdown_row, 0, 2, text="Select a Test Category")
+    cate_drop = create_dropdown_ver(testCatDeleteFrame, cat_name, var, dropdown_row, 0, 2, "normal", text="Select a Test Category")
     # Commit Changes
     cnx.commit()
     # Close Connection

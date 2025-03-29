@@ -39,7 +39,7 @@ def create_dropdown_ver(parent, options, var, row, col, cspan, state, text="Sele
     """Creates a dropdown menu (Combobox) using a loop."""
     ttk.Label(parent, text=text).grid(row=row, column=col, padx=5, pady=5, sticky="w")
     dropdown = ttk.Combobox(parent, textvariable=var, values=options)
-    dropdown.grid(row=row + 1, column=col + cspan, columnspan=cspan, padx=5, pady=5, sticky="w")
+    dropdown.grid(row=row + 1, column=col, columnspan=cspan, padx=5, pady=5, sticky="w")
     dropdown.config(state=state)
     return dropdown
 
