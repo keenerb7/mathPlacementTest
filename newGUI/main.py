@@ -22,10 +22,10 @@ notebook.add(test_frame, text="Test Options")
 notebook.add(questType_frame, text="Question Type Options")
 notebook.add(testType_frame, text="Test Type Options")
 
-
 # I think we should ask if they want a consistent size or variable zie
 # Without setting the size beforehand it is variable
 root.geometry("1200x600")
+
 
 ########################################Helper function that need to be in main#########################################
 # Create a Main Menu Display Functions for Show and Hide
@@ -254,7 +254,6 @@ def questionAdd():
             if not valid:
                 messagebox.showerror("LaTeX is not valid.", f"Error: {texResult}\nCheck Answer {i + 1}")
                 return
-            print(texResult)
 
         # Connect to Database
         cnx = get_db_connection()
@@ -552,7 +551,7 @@ def questionModify():
 
         if questionInfo:
             # Get Category Name for Drop Down
-            cat_name = str(getCategoryName(questionInfo[2])) # Fetch category name
+            cat_name = str(getCategoryName(questionInfo[2]))  # Fetch category name
             cat_name = cat_name.strip("(),''")
             cate_dropdown.set(cat_name)  # Correctly update dropdown value
 
@@ -577,6 +576,11 @@ def questionModify():
             messagebox.showerror("Error", "There is no Question Category Selected.")
             return
 
+        valid, texResult = check_latex_validity(f'{question.get()}')
+        if not valid:
+            messagebox.showerror("LaTeX is not valid.", f"Error: {texResult}\nCheck Question.")
+            return
+
         # Validate that there is a difficulty input
         if not difficulty.get().strip():
             messagebox.showerror("Error", "There is no Question Difficulty submitted.")
@@ -589,8 +593,14 @@ def questionModify():
 
         # Validate that each answer is not empty
         for i in range(5):
+            answer = answers[i].get()
             if not answers[i].get().strip():
                 messagebox.showerror("Error", f"Answer {i + 1} is not submitted.")
+                return
+
+            valid, texResult = check_latex_validity(f'{answer}')
+            if not valid:
+                messagebox.showerror("LaTeX is not valid.", f"Error: {texResult}\nCheck Answer {i + 1}")
                 return
 
         # Connect to Database
@@ -600,7 +610,8 @@ def questionModify():
         c = cnx.cursor()
 
         # FInd new ID for the New Question
-        newID = countQuestionsTotal()
+        # newID = countQuestionsTotal()
+        qid = question_dropdown.get()
 
         # Find Category ID for the selection Category
         c.execute("SELECT category_id FROM Question_Categories WHERE category_name= %s", (var.get(),))
@@ -612,7 +623,7 @@ def questionModify():
             """UPDATE Questions 
                SET question = %s, category_id = %s, question_difficulty = %s 
                WHERE question_id = %s""",
-            (question.get(), cat_id, difficulty.get(), newID)
+            (question.get(), cat_id, difficulty.get(), qid)
         )
 
         # Update existing question choices in the Question_Choices Table
@@ -623,16 +634,15 @@ def questionModify():
                     """UPDATE Question_Choices 
                        SET choice_text = %s, is_correct = %s 
                        WHERE choice_id = %s AND question_id = %s""",
-                    (answers[i].get(), '1', str(f"{newID}{letter[i]}"), newID)
+                    (answers[i].get(), '1', str(f"{qid}{letter[i]}"), qid)
                 )
             else:
                 c.execute(
                     """UPDATE Question_Choices 
                        SET choice_text = %s, is_correct = %s 
                        WHERE choice_id = %s AND question_id = %s""",
-                    (answers[i].get(), '0', str(f"{newID}{letter[i]}"), newID)
+                    (answers[i].get(), '0', str(f"{qid}{letter[i]}"), qid)
                 )
-
 
         print("Supposed to be Updated.")
         print()
@@ -786,7 +796,8 @@ def questionDelete():
     selected_qid.set(question_ids[0])
 
     text = "Select Question ID to be Deleted:"
-    question_dropdown = create_dropdown_hor(qdeleteFrame, question_ids, selected_qid, num_rows_qdelete + 4, 0, 1, "normal", text)
+    question_dropdown = create_dropdown_hor(qdeleteFrame, question_ids, selected_qid, num_rows_qdelete + 4, 0, 1,
+                                            "normal", text)
 
     # Commit Changes
     cnx.commit()
@@ -1112,7 +1123,6 @@ def testMake():
     tnumquestion_entry = ttk.Entry(tmakeFrame, width=8)
     tnumquestion_entry.grid(row=2, column=4)
 
-
     # Add Test Button
     add_test_btn = ttk.Button(tmakeFrame, text="Create Test", command=addTest)
     add_test_btn.grid(row=4, column=2, pady=10)
@@ -1352,7 +1362,8 @@ def testExtract():
     # Label(testExtractFrame, text="Test ID for QTI Extraction: ").grid(row=3, column=0)
     # select_box = ttk.Entry(testExtractFrame, width=10)
     # select_box.grid(row=3, column=1)
-    extract_btn = ttk.Button(testExtractFrame, text="Export QTI .zip File for Test", command=lambda: test2qti(test_dropdown.get()))
+    extract_btn = ttk.Button(testExtractFrame, text="Export QTI .zip File for Test",
+                             command=lambda: test2qti(test_dropdown.get()))
     extract_btn.grid(row=num_rows + 4, column=1)
 
     # Create a Back Button to Hide Current View and Reshow Original View
@@ -1384,16 +1395,10 @@ extractTest_btn = ttk.Button(test_frame, text="Extract Test", command=testExtrac
 extractTest_btn.grid(row=2, column=1, columnspan=2, pady=10, padx=10, ipadx=50, ipady=10)
 
 
-
-
 ########################################################################################################################
 ################################### This Section is Question Type Options ##############################################
 ########################################################################################################################
-
-
 ######################################## Question Option Add ###########################################################
-
-
 def backQuestCatAdd():
     show_main_menu()
     questCatAddFrame.grid_forget()
@@ -1402,7 +1407,6 @@ def backQuestCatAdd():
 
 
 def questCatAdd():
-
     # When refreshing the page, destroy previous frame
     if 'questCatAddFrame' in globals():
         backQuestCatAdd()
@@ -1499,8 +1503,7 @@ def questCatAdd():
 
     # Add Test Button
     add_questCat_btn = ttk.Button(questCatAddFrame, text="Add New Category", command=addNewQuestCat)
-    add_questCat_btn.grid(row= num_rows_qdelete + 5, column=0, pady=10)
-
+    add_questCat_btn.grid(row=num_rows_qdelete + 5, column=0, pady=10)
 
     global back_btn_questCatAdd
     back_btn_questCatAdd = create_back_button(root, backQuestCatAdd)
@@ -1519,7 +1522,6 @@ def backQuestCatModify():
 
 
 def questCatModify():
-
     # When refreshing the page, destroy previous frame
     if 'questCatModifyFrame' in globals():
         backQuestCatModify()
@@ -1556,7 +1558,6 @@ def questCatModify():
         finally:
             # Close Connection
             cnx.close()
-
 
     hide_main_menu()
 
@@ -1604,7 +1605,8 @@ def questCatModify():
         qctitle_entry.delete(0, END)
         qctitle_entry.insert(0, selected_category)
 
-    cate_drop = create_dropdown_ver(questCatModifyFrame, cat_name, var, dropdown_row, 0, 2, "normal", text="Select a Question Category")
+    cate_drop = create_dropdown_ver(questCatModifyFrame, cat_name, var, dropdown_row, 0, 2, "normal",
+                                    text="Select a Question Category")
     cate_drop.bind('<<ComboboxSelected>>', on_category_select)
 
     # Commit Changes
@@ -1637,7 +1639,6 @@ def backQuestCatDelete():
 
 
 def questCatDelete():
-
     # When refreshing the page, destroy previous frame
     if 'questCatDeleteFrame' in globals():
         backQuestCatDelete()
@@ -1691,7 +1692,6 @@ def questCatDelete():
             finally:
                 cnx.close()
 
-
     hide_main_menu()
 
     # Number of rows
@@ -1732,7 +1732,8 @@ def questCatDelete():
     dropdown_row = num_rows_qdelete + 2
     #Label(questCatDeleteFrame, text="Select a Question Category:").grid(row=dropdown_row, column=0, columnspan=2, sticky='w')
 
-    cate_drop = create_dropdown_ver(questCatDeleteFrame, cat_name, var, dropdown_row, 0, 2, "normal", text="Select a Question Category")
+    cate_drop = create_dropdown_ver(questCatDeleteFrame, cat_name, var, dropdown_row, 0, 2, "normal",
+                                    text="Select a Question Category")
 
     # Commit Changes
     cnx.commit()
@@ -1764,7 +1765,6 @@ deleteQuestCat_btn = ttk.Button(questType_frame, text="Delete Question Type", co
 deleteQuestCat_btn.grid(row=1, column=2, pady=10, padx=10, ipadx=50, ipady=10, sticky='ew')
 
 
-
 ########################################################################################################################
 ################################### This Section is Test Type Options ##################################################
 ########################################################################################################################
@@ -1781,7 +1781,6 @@ def backTestCatAdd():
 
 
 def testCatAdd():
-
     # When refreshing the page, destroy previous frame
     if 'testCatAddFrame' in globals():
         backTestCatAdd()
@@ -1815,7 +1814,6 @@ def testCatAdd():
 
             # Clear input field
             tctitle_entry.delete(0, END)
-
 
             # Refresh the UI
             testCatAdd()
@@ -1865,7 +1863,6 @@ def testCatAdd():
     # Close Connection
     cnx.close()
 
-
     Label(testCatAddFrame, text="New Test Category Name").grid(row=num_rows_qdelete + 3, column=0, ipadx=5)
 
     # If we have time they would like to have a comment section next to the category name
@@ -1880,7 +1877,6 @@ def testCatAdd():
     # Add Test Button
     add_testCat_btn = ttk.Button(testCatAddFrame, text="Add New Category", command=addNewTestCat)
     add_testCat_btn.grid(row=num_rows_qdelete + 6, column=0, pady=10)
-
 
     global back_btn_testCatAdd
     back_btn_testCatAdd = create_back_button(root, backTestCatAdd)
@@ -1899,7 +1895,6 @@ def backTestCatModify():
 
 
 def testCatModify():
-
     # When refreshing the page, destroy previous frame
     if 'testCatModifyFrame' in globals():
         backTestCatModify()
@@ -1981,7 +1976,8 @@ def testCatModify():
         qctitle_entry.delete(0, END)
         qctitle_entry.insert(0, selected_category)
 
-    cate_drop = create_dropdown_ver(testCatModifyFrame, cat_name, var, dropdown_row, 0, 2,text="Select a Test Category")
+    cate_drop = create_dropdown_ver(testCatModifyFrame, cat_name, var, dropdown_row, 0, 2,
+                                    text="Select a Test Category")
     cate_drop.bind('<<ComboboxSelected>>', on_category_select)
 
     # Commit Changes
@@ -1996,7 +1992,6 @@ def testCatModify():
     # Button to modify
     modify_testCat_btn = ttk.Button(testCatModifyFrame, text="Modify Test Category Title", command=submitChanges)
     modify_testCat_btn.grid(row=dropdown_row + 5, column=0, columnspan=1, pady=10)
-
 
     global back_btn_testCatModify
     back_btn_testCatModify = create_back_button(root, backTestCatModify)
@@ -2014,9 +2009,7 @@ def backTestCatDelete():
     return
 
 
-
 def testCatDelete():
-
     # When refreshing the page, destroy previous frame
     if 'testCatDeleteFrame' in globals():
         backTestCatDelete()
@@ -2110,15 +2103,15 @@ def testCatDelete():
     dropdown_row = num_rows_qdelete + 2
     # Label(questCatDeleteFrame, text="Select a Question Category:").grid(row=dropdown_row, column=0, columnspan=2, sticky='w')
 
-
-    cate_drop = create_dropdown_ver(testCatDeleteFrame, cat_name, var, dropdown_row, 0, 2, "normal", text="Select a Test Category")
+    cate_drop = create_dropdown_ver(testCatDeleteFrame, cat_name, var, dropdown_row, 0, 2, "normal",
+                                    text="Select a Test Category")
     # Commit Changes
     cnx.commit()
     # Close Connection
     cnx.close()
 
     delete_testCat_btn = ttk.Button(testCatDeleteFrame, text="Delete Question Category", command=deleteTestCat)
-    delete_testCat_btn.grid(row= dropdown_row + 2, column=0, pady=10)
+    delete_testCat_btn.grid(row=dropdown_row + 2, column=0, pady=10)
 
     global back_btn_testCatDelete
     back_btn_testCatDelete = create_back_button(root, backTestCatDelete)
@@ -2139,8 +2132,6 @@ deleteTestCat_btn.grid(row=1, column=1, pady=10, padx=10, ipadx=50, ipady=10, st
 # Create Delete Question Option Button
 deleteTestCat_btn = ttk.Button(testType_frame, text="Delete Test Type", command=testCatDelete, width=13)
 deleteTestCat_btn.grid(row=1, column=2, pady=10, padx=10, ipadx=50, ipady=10, sticky='ew')
-
-
 
 ########################################################################################################################
 
