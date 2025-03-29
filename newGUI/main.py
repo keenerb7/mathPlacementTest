@@ -751,6 +751,7 @@ def questionDelete():
                 messagebox.showerror("Error", f"{question_id} is apart of a current Test.")
                 return
 
+            # noinspection PyBroadException
             try:
                 # Delete Answers for the same Question ID
                 c.execute("DELETE FROM Question_Choices WHERE question_id= %s", (question_id,))
@@ -1976,7 +1977,7 @@ def testCatModify():
         qctitle_entry.delete(0, END)
         qctitle_entry.insert(0, selected_category)
 
-    cate_drop = create_dropdown_ver(testCatModifyFrame, cat_name, var, dropdown_row, 0, 2,
+    cate_drop = create_dropdown_ver(testCatModifyFrame, cat_name, var, dropdown_row, 0, 2, "normal",
                                     text="Select a Test Category")
     cate_drop.bind('<<ComboboxSelected>>', on_category_select)
 
