@@ -1347,56 +1347,90 @@ def testExtract():
     global header_textract
     header_textract = create_header_label(root, "Export Tests")
 
-    # Display a list of Test and Their Names
+    # Create a Frame this option
+    global textractFrame
+    textractFrame = Frame(root, bd=2)
+    textractFrame.grid(row=1, pady=10, padx=20)
+
+    # Create a Frame for the treeview
+    treeFrame = Frame(textractFrame, bd=10)
+    treeFrame.grid(row=0, column=0, sticky="nsew")
+
+    # Define columns for the treeview
+    columns = ("tid", "ttype", "ttitle", "ttime", "numq")
+
+    # Create a treeview with the defined columns
+    tree = ttk.Treeview(treeFrame, columns=columns, show="headings", height=6)
+
+    # Set headers
+    tree.heading("tid", text="ID", anchor="w")
+    tree.heading("ttype", text="Type", anchor="w")
+    tree.heading("ttitle", text="Title", anchor="w")
+    tree.heading("ttime", text="Time", anchor="w")
+    tree.heading("numq", text="# of Questions", anchor="w")
+
+    # Set the columns
+    tree.column("tid", width=40, anchor="w")
+    tree.column("ttype", width=200, anchor="w")
+    tree.column("ttitle", width=620, anchor="w")
+    tree.column("ttime", width=100, anchor="w")
+    tree.column("numq", width=100, anchor="w")
+
+    tree.grid(row=0, column=0, sticky="nsew")
+
+    scrollbar = ttk.Scrollbar(treeFrame, orient="vertical", command=tree.yview)
+    scrollbar.grid(row=0, column=1, sticky="ns")
+    tree.configure(yscrollcommand=scrollbar.set)
+
     # Connect to Database
     cnx = get_db_connection()
 
     # Create a Cursor
     c = cnx.cursor()
 
+    # Query Questions Table for all Questions
     c.execute("""
-        SELECT t.test_id, t.test_title, tot.test_name 
-        FROM Test t
-        JOIN Types_Of_Test tot ON t.test_type = tot.test_type
-            """)
-    results = c.fetchall()
+            SELECT t.test_id, tot.test_name, t.test_title, t.test_time
+            FROM Test t
+            JOIN Types_Of_Test tot ON t.test_type = tot.test_type
+                """)
 
-    # Create a Frame this option
-    global testExtractFrame
-    testExtractFrame = Frame(root, bd=2)
-    testExtractFrame.grid(row=1, pady=10, padx=20)
+    records = c.fetchall()
 
-    # Create a Labels for the Columns of the Question Table
-    Label(testExtractFrame, text="Test ID").grid(row=0, column=0, ipadx=5)
-    Label(testExtractFrame, text="Test Title", anchor='w').grid(row=0, column=1, ipadx=100)
-    Label(testExtractFrame, text="Test Type").grid(row=0, column=2, ipadx=5)
+    def countQuestions(t_id):
+        # Query Test Questions table for count of questions
+        c.execute("SELECT COUNT(question_id) AS num_questions FROM Test_Questions WHERE test_id = %s", (t_id,))
 
-    # Display the Current Tests Available
-    print_tid, print_t, print_tt = '', '', ''
-    num_rows = 0
-    for row in results:
-        print_tid += str(row[0]) + "\n"
-        print_t += str(row[1]) + "\n"
-        print_tt += str(row[2]) + "\n"
-        num_rows += 1
+        # Get the result
+        result = c.fetchone()
 
-    tid_label = ttk.Label(testExtractFrame, text=print_tid, anchor='w')
-    tid_label.grid(row=2, column=0, columnspan=1)
-    t_label = ttk.Label(testExtractFrame, text=print_t, anchor='w')
-    t_label.grid(row=2, column=1, columnspan=1)
-    tt_label = ttk.Label(testExtractFrame, text=print_tt, anchor='w')
-    tt_label.grid(row=2, column=2, columnspan=1)
+        # Get the count if any questions were found, else set to 0
+        num_questions = result[0] if result else 0
+
+        return num_questions
+
+    # Loop through and display each question in the treeview
+    for row in records:
+        num_questions = countQuestions(row[0])
+        tree.insert("", "end", values=row + (num_questions,))
 
     # Commit Changes
     cnx.commit()
+
     # Close Connection
     cnx.close()
+
+    #Create a Frame for extract button and dropdown
+    butFrame = Frame(textractFrame, bd=2)
+    butFrame.grid(row=1, column=0, pady=5, padx=5, sticky="nsew")
 
     # Create a Selection Section for the Test
     # Connect to Database
     cnx = get_db_connection()
+
     # Create a Cursor
     c = cnx.cursor()
+
     # Get all test IDs
     c.execute("SELECT test_id FROM Test")
     test_ids = [row[0] for row in c.fetchall()]
@@ -1408,18 +1442,18 @@ def testExtract():
     selected_tid.set(test_ids[0])  # Set first question ID as default
 
     text = "Select test ID to Export to QTI .zip file: "
-    test_dropdown = create_dropdown_hor(testExtractFrame, test_ids, selected_tid, num_rows + 2, 0, 2, "normal", text)
+    test_dropdown = create_dropdown_hor(butFrame, test_ids, selected_tid, 1, 0, 2, "normal", text)
 
     # Commit Changes
     cnx.commit()
     # Close Connection
     cnx.close()
-    # Label(testExtractFrame, text="Test ID for QTI Extraction: ").grid(row=3, column=0)
-    # select_box = ttk.Entry(testExtractFrame, width=10)
+    # Label(butFrame, text="Test ID for QTI Extraction: ").grid(row=3, column=0)
+    # select_box = ttk.Entry(butFrame, width=10)
     # select_box.grid(row=3, column=1)
-    extract_btn = ttk.Button(testExtractFrame, text="Export QTI .zip File for Test",
-                             command=lambda: test2qti(test_dropdown.get()))
-    extract_btn.grid(row=num_rows + 4, column=1)
+    extract_btn = ttk.Button(butFrame, text="Export QTI .zip File for Test",
+                             command=lambda: test2qti(test_dropdown.get()), style="Accent.TButton")
+    extract_btn.grid(row=1, column=4, sticky='e', padx=10)
 
     # Create a Back Button to Hide Current View and Reshow Original View
     global back_btn_testExtract
