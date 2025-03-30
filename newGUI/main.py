@@ -1183,7 +1183,7 @@ def backTestModify():
     show_main_menu()
     tmodifyFrame.grid_forget()
     back_btn_tmodify.grid_forget()
-    header_tmodify.gridforget()
+    header_tmodify.grid_forget()
     return
 
 
@@ -1333,8 +1333,8 @@ def testDelete():
 # Create a Function to Return to Original View
 def backTestExtract():
     show_main_menu()
-    testExtractFrame.grid_forget()
-    back_btn_testExtract.grid_forget()
+    textractFrame.grid_forget()
+    back_btn_textract.grid_forget()
     header_textract.grid_forget()
     return
 
@@ -1456,8 +1456,8 @@ def testExtract():
     extract_btn.grid(row=1, column=4, sticky='e', padx=10)
 
     # Create a Back Button to Hide Current View and Reshow Original View
-    global back_btn_testExtract
-    back_btn_testExtract = create_back_button(root, backTestExtract)
+    global back_btn_textract
+    back_btn_textract = create_back_button(root, backTestExtract)
 
     return
 
