@@ -883,12 +883,35 @@ def testView():
     global header_tview
     header_tview = create_header_label(root, "Test Overview")
 
-    # Create a Labels for the Columns of the Question Table
-    Label(tviewFrame, text="Test ID").grid(row=0, column=0, ipadx=5)
-    Label(tviewFrame, text="Type", anchor='w').grid(row=0, column=1, ipadx=5)
-    Label(tviewFrame, text="Title").grid(row=0, column=2, ipadx=100)
-    Label(tviewFrame, text="Time").grid(row=0, column=3, ipadx=10)
-    Label(tviewFrame, text="# of Questions").grid(row=0, column=4, ipadx=10)
+    #Create a Frame for the treeview
+    treeFrame = Frame(tviewFrame, bd=10)
+    treeFrame.grid(row=0, column=0, sticky="nsew")
+
+    # Define columns for the treeview
+    columns = ("tid", "ttype", "ttitle", "ttime", "numq")
+
+    # Create a treeview with the defined columns
+    tree = ttk.Treeview(treeFrame, columns=columns, show="headings", height=6)
+
+    # Set headers
+    tree.heading("tid", text="ID", anchor="w")
+    tree.heading("ttype", text="Type", anchor="w")
+    tree.heading("ttitle", text="Title", anchor="w")
+    tree.heading("ttime", text="Time", anchor="w")
+    tree.heading("numq", text="# of Questions", anchor="w")
+
+    # Set the columns
+    tree.column("tid", width=40, anchor="w")
+    tree.column("ttype", width=200, anchor="w")
+    tree.column("ttitle", width=620, anchor="w")
+    tree.column("ttime", width=100, anchor="w")
+    tree.column("numq", width=100, anchor="w")
+
+    tree.grid(row=0, column=0, sticky="nsew")
+
+    scrollbar = ttk.Scrollbar(treeFrame, orient="vertical", command=tree.yview)
+    scrollbar.grid(row=0, column=1, sticky="ns")
+    tree.configure(yscrollcommand=scrollbar.set)
 
     # Connect to Database
     cnx = get_db_connection()
@@ -904,8 +927,6 @@ def testView():
             """)
 
     records = c.fetchall()
-    print_tid, print_ttype, print_ttitle, print_ttime, print_qnum = '', '', '', '', ''
-    num_rows = 0
 
     def countQuestions(t_id):
         # Query Test Questions table for count of questions
@@ -919,24 +940,14 @@ def testView():
 
         return num_questions
 
+    # Loop through and display each question in the treeview
     for row in records:
-        print_tid += str(row[0]) + "\n"
-        print_ttype += str(row[1]) + "\n"
-        print_ttitle += str(row[2]) + "\n"
-        print_ttime += str(row[3]) + "\n"
-        print_qnum += str(countQuestions(row[0])) + "\n"
-        num_rows += 1
+        num_questions = countQuestions(row[0])
+        tree.insert("", "end", values=row+(num_questions,))
 
-    tid_label = ttk.Label(tviewFrame, text=print_tid, anchor='w')
-    tid_label.grid(row=2, column=0, columnspan=1)
-    ttype_label = ttk.Label(tviewFrame, text=print_ttype, anchor='w')
-    ttype_label.grid(row=2, column=1, columnspan=1)
-    ttitle_label = ttk.Label(tviewFrame, text=print_ttitle, anchor='w')
-    ttitle_label.grid(row=2, column=2, columnspan=1)
-    ttime_label = ttk.Label(tviewFrame, text=print_ttime, anchor='w')
-    ttime_label.grid(row=2, column=3, columnspan=1)
-    qnum_label = ttk.Label(tviewFrame, text=print_qnum, anchor='w')
-    qnum_label.grid(row=2, column=4, columnspan=1)
+    # Create a Frame for displaying questions
+    questionFrame = Frame(tviewFrame, bd=2)
+    questionFrame.grid(row=1, column=0, pady=5, padx=5, sticky='nsew')
 
     # Get all test IDs
     c.execute("SELECT test_id FROM Test")
@@ -948,8 +959,8 @@ def testView():
     selected_tid = StringVar()
     selected_tid.set(test_ids[0])  # Set first question ID as default
 
-    text = "Select test ID to display question: "
-    test_dropdown = create_dropdown_hor(tviewFrame, test_ids, selected_tid, num_rows + 2, 0, 2, "normal", text)
+    text = "Select test ID to display questions: "
+    test_dropdown = create_dropdown_hor(questionFrame, test_ids, selected_tid, 0, 0, 2, "normal", text)
 
     # Get answers for selected question ID
     def getQuestions(event=None):
@@ -958,6 +969,31 @@ def testView():
 
         # Create cursor
         c = cnx.cursor()
+
+        qTreeFrame = Frame(questionFrame, bd=10)
+        qTreeFrame.grid(row=1, column=0, sticky="nsew", columnspan=5)
+
+        qColumns = ("qid", "q", "qcat", "qdif")
+
+        qTree = ttk.Treeview(qTreeFrame, columns=qColumns, show="headings", height=5)
+
+        # Set headers
+        qTree.heading("qid", text="ID", anchor="w")
+        qTree.heading("q", text="Question", anchor="w")
+        qTree.heading("qcat", text="Category", anchor="w")
+        qTree.heading("qdif", text="Difficulty", anchor="w")
+
+        # Set the columns
+        qTree.column("qid", width=40, anchor="w")
+        qTree.column("q", width=800, anchor="w")
+        qTree.column("qcat", width=120, anchor="w")
+        qTree.column("qdif", width=100, anchor="w")
+
+        qTree.grid(row=0, column=0, sticky="nsew")
+
+        scrollbar = ttk.Scrollbar(qTreeFrame, orient="vertical", command=qTree.yview)
+        scrollbar.grid(row=0, column=1, sticky="ns")
+        qTree.configure(yscrollcommand=scrollbar.set)
 
         # Get the selected question ID
         selected_test_id = selected_tid.get()
@@ -972,31 +1008,20 @@ def testView():
         c.execute(query, (selected_test_id,))
         questions = c.fetchall()
 
-        # Clear previous answers
-        for question in tviewFrame.grid_slaves():
-            if int(question.grid_info()["row"]) >= num_rows + 4:
-                question.grid_forget()
+        for row in qTree.get_children():
+            tree.delete(row)
 
-        # Display questions
-        j = num_rows + 4
-        for question in questions:
-            Label(tviewFrame, text=question[0], anchor='center').grid(row=j, column=0, sticky="ew")
-            Label(tviewFrame, text=question[1], anchor='w', justify='left', wraplength=400).grid(row=j, column=1,
-                                                                                                 columnspan=3,
-                                                                                                 rowspan=1, sticky="w")
-            Label(tviewFrame, text=question[2], anchor='center').grid(row=j, column=4, sticky="ew")
-            Label(tviewFrame, text=question[3], anchor='center').grid(row=j, column=5, sticky="ew")
-            j += 1
+        for item in questions:
+            qTree.insert("", "end", values=item)
+
+        # Clear previous answers
+        for question in questionFrame.grid_slaves():
+            if int(question.grid_info()["row"]) >= 4:
+                question.grid_forget()
 
         # Close connection and cursor
         c.close()
         cnx.close()
-
-    #Display column headers
-    Label(tviewFrame, text="Question ID").grid(row=num_rows + 3, column=0, ipadx=5)
-    Label(tviewFrame, text="Question", anchor='w').grid(row=num_rows + 3, column=1, columnspan=3, ipadx=5, sticky="w")
-    Label(tviewFrame, text="Category").grid(row=num_rows + 3, column=4, ipadx=5)
-    Label(tviewFrame, text="Difficulty").grid(row=num_rows + 3, column=5, ipadx=5)
 
     test_dropdown.bind("<<ComboboxSelected>>", getQuestions)
 
