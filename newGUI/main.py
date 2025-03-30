@@ -19,8 +19,8 @@ testType_frame = ttk.Frame(notebook)
 
 notebook.add(quest_frame, text="Question Options")
 notebook.add(test_frame, text="Test Options")
-notebook.add(questType_frame, text="Question Type Options")
-notebook.add(testType_frame, text="Test Type Options")
+notebook.add(questType_frame, text="Question Category Options")
+notebook.add(testType_frame, text="Test Category Options")
 
 # I think we should ask if they want a consistent size or variable zie
 # Without setting the size beforehand it is variable
@@ -1796,15 +1796,15 @@ def questCatDelete():
 ################################################ Question Options Buttons ##############################################
 
 # Create Add Question Option Button
-addQuestCat_btn = ttk.Button(questType_frame, text="Add Question Type", command=questCatAdd, width=13)
+addQuestCat_btn = ttk.Button(questType_frame, text="Add Question Category", command=questCatAdd, width=13)
 addQuestCat_btn.grid(row=1, column=0, pady=10, padx=10, ipadx=50, ipady=10, sticky='ew')
 
 # Create Modify Question Option Button
-modifyQuestCat_btn = ttk.Button(questType_frame, text="Modify Question Type", command=questCatModify, width=13)
+modifyQuestCat_btn = ttk.Button(questType_frame, text="Modify Question Category", command=questCatModify, width=13)
 modifyQuestCat_btn.grid(row=1, column=1, pady=10, padx=10, ipadx=50, ipady=10, sticky='ew')
 
 # Create Delete Question Option Button
-deleteQuestCat_btn = ttk.Button(questType_frame, text="Delete Question Type", command=questCatDelete, width=13)
+deleteQuestCat_btn = ttk.Button(questType_frame, text="Delete Question Category", command=questCatDelete, width=13)
 deleteQuestCat_btn.grid(row=1, column=2, pady=10, padx=10, ipadx=50, ipady=10, sticky='ew')
 
 
@@ -2177,15 +2177,15 @@ def testCatDelete():
 ################################################ Test Options Buttons ##################################################
 
 # Create Add Question Option Button
-addTestCat_btn = ttk.Button(testType_frame, text="Add Test Type", command=testCatAdd, width=13)
+addTestCat_btn = ttk.Button(testType_frame, text="Add Test Category", command=testCatAdd, width=13)
 addTestCat_btn.grid(row=1, column=0, pady=10, padx=10, ipadx=50, ipady=10, sticky='ew')
 
 # Create Delete Question Option Button
-deleteTestCat_btn = ttk.Button(testType_frame, text="Modify Test Type", command=testCatModify, width=13)
+deleteTestCat_btn = ttk.Button(testType_frame, text="Modify Test Category", command=testCatModify, width=13)
 deleteTestCat_btn.grid(row=1, column=1, pady=10, padx=10, ipadx=50, ipady=10, sticky='ew')
 
 # Create Delete Question Option Button
-deleteTestCat_btn = ttk.Button(testType_frame, text="Delete Test Type", command=testCatDelete, width=13)
+deleteTestCat_btn = ttk.Button(testType_frame, text="Delete Test Category", command=testCatDelete, width=13)
 deleteTestCat_btn.grid(row=1, column=2, pady=10, padx=10, ipadx=50, ipady=10, sticky='ew')
 
 ########################################################################################################################
