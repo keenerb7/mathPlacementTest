@@ -120,15 +120,9 @@ def questionView():
 
     # Query Questions Table for all Questions
     c.execute("""
-        SELECT 
-            q.question_id,
-            q.question,
-            qc.category_name,
-            q.question_difficulty
-        FROM 
-            Questions q
-        JOIN
-            Question_Categories qc ON q.category_id = qc.category_id
+        SELECT q.question_id, q.question, qc.category_name, q.question_difficulty
+        FROM Questions q
+        JOIN Question_Categories qc ON q.category_id = qc.category_id
             """)
     records = c.fetchall()
 
@@ -289,9 +283,10 @@ def questionAdd():
             for i in range(5):
                 choice_id = f"{newID}{letter[i]}"
                 is_correct = '1' if i == 0 else '0'
-                c.execute("""INSERT INTO Question_Choices (choice_id, question_id, choice_text, is_correct)
-                            VALUES (%s, %s, %s, %s)""",
-                          (choice_id, newID, answers[i].get(), is_correct))
+                c.execute("""
+                        INSERT INTO Question_Choices (choice_id, question_id, choice_text, is_correct)
+                        VALUES (%s, %s, %s, %s)""",
+                        (choice_id, newID, answers[i].get(), is_correct))
 
             # Commit Changes
             cnx.commit()
@@ -435,15 +430,9 @@ def questionModify():
 
     # Query Questions Table for all Questions
     c.execute("""
-                SELECT 
-                    q.question_id,
-                    q.question,
-                    qc.category_name,
-                    q.question_difficulty
-                FROM 
-                    Questions q
-                JOIN
-                    Question_Categories qc ON q.category_id = qc.category_id
+                SELECT q.question_id, q.question, qc.category_name, q.question_difficulty
+                FROM Questions q
+                JOIN Question_Categories qc ON q.category_id = qc.category_id
                     """)
     records = c.fetchall()
 
@@ -682,6 +671,7 @@ def backQuestionDelete():
     show_main_menu()
     qdeleteFrame.grid_forget()
     back_btn_qdelete.grid_forget()
+    header_qdelete.grid_forget()
     return
 
 
@@ -694,31 +684,54 @@ def questionDelete():
     qdeleteFrame = Frame(root, bd=2)
     qdeleteFrame.grid(row=1, pady=10, padx=20)
 
-    # Create a Labels for the Columns of the Question Table
-    ttk.Label(qdeleteFrame, text="Question ID").grid(row=0, column=0, ipadx=5)
-    ttk.Label(qdeleteFrame, text="Question", anchor='w').grid(row=0, column=1, ipadx=215)
+    # Show header
+    global header_qdelete
+    header_qdelete = create_header_label(root, "Delete Questions")
 
-    global num_rows_qdelete
-    num_rows_qdelete = 0
+    treeFrame = Frame(qdeleteFrame, bd=10)
+    treeFrame.grid(row=0, column=0, sticky="nsew")
+
+    # Define columns for the treeview
+    columns = ("qid", "q", "qcat")
+
+    # Create a treeview with the defined columns
+    tree = ttk.Treeview(treeFrame, columns=columns, show="headings", height=10)
+
+    # Set headers
+    tree.heading("qid", text="ID", anchor="w")
+    tree.heading("q", text="Question", anchor="w")
+    tree.heading("qcat", text="Category", anchor="w")
+
+    # Set the columns
+    tree.column("qid", width=40, anchor="w")
+    tree.column("q", width=800, anchor="w")
+    tree.column("qcat", width=120, anchor="w")
+
+    tree.grid(row=0, column=0, sticky="nsew")
+
+    scrollbar = ttk.Scrollbar(treeFrame, orient="vertical", command=tree.yview)
+    scrollbar.grid(row=0, column=1, sticky="ns")
+    tree.configure(yscrollcommand=scrollbar.set)
 
     # Connect to Database
     cnx = get_db_connection()
-
     # Create a Cursor
     c = cnx.cursor()
 
     # Query Questions Table for all Questions
-    c.execute("SELECT * FROM Questions")
+    c.execute("""
+                SELECT q.question_id, q.question, qc.category_name
+                FROM Questions q
+                JOIN Question_Categories qc ON q.category_id = qc.category_id
+                    """)
     records = c.fetchall()
 
+    # Loop through and display each question
     for row in records:
-        qid_lbl = ttk.Label(qdeleteFrame, text=str(row[0]), anchor='w')
-        qid_lbl.grid(row=num_rows_qdelete + 2, column=0, columnspan=1)
+        tree.insert("", "end", values=row)
 
-        q_lbl = Label(qdeleteFrame, text=str(row[1]), anchor='w', justify='left')
-        q_lbl.grid(row=num_rows_qdelete + 2, column=1, columnspan=2, sticky='w')
-
-        num_rows_qdelete += 1
+    delFrame = Frame(qdeleteFrame, bd=2)
+    delFrame.grid(row=1, column=0, pady=5, padx=5, sticky="nsew")
 
     # Commit Changes
     cnx.commit()
@@ -779,10 +792,13 @@ def questionDelete():
 
         # Refresh the UI to show updated list of questions
         qdeleteFrame.destroy()
+        back_btn_qdelete.grid_forget()
+        header_qdelete.grid_forget()
         questionDelete()
 
     # Connect to Database
     cnx = get_db_connection()
+
     # Create a Cursor
     c = cnx.cursor()
 
@@ -793,26 +809,30 @@ def questionDelete():
     question_ids = sorted(question_ids)
 
     selected_qid = StringVar()
+
     # Set first question ID as default
     selected_qid.set(question_ids[0])
 
-    text = "Select Question ID to be Deleted:"
-    question_dropdown = create_dropdown_hor(qdeleteFrame, question_ids, selected_qid, num_rows_qdelete + 4, 0, 1,
+    text = "Select Question ID to be deleted:"
+    question_dropdown = create_dropdown_hor(delFrame, question_ids, selected_qid, 0, 0, 2,
                                             "normal", text)
 
     # Commit Changes
     cnx.commit()
+
     # Close Connection
     cnx.close()
+
     # ttk.Label(qdeleteFrame, text="Question ID to Delete: ").grid(row=num_rows_qdelete + 2, column=0, columnspan=2, sticky='w')
     # delete_box = ttk.Entry(qdeleteFrame, width=10)
     # delete_box.grid(row=num_rows_qdelete + 2, column=1)
-    deleteQuestion_btn = ttk.Button(qdeleteFrame, text="Delete Question", command=deleteQuestion)
-    deleteQuestion_btn.grid(row=num_rows_qdelete + 4, column=1)
+    deleteQuestion_btn = ttk.Button(delFrame, text="Delete Question", command=deleteQuestion, style="Accent.TButton")
+    deleteQuestion_btn.grid(row=0, column=5, sticky='e')
 
     # Create a Back Button to Hide Current View and Reshow Original View
     global back_btn_qdelete
     back_btn_qdelete = create_back_button(root, backQuestionDelete)
+
     return
 
 
@@ -846,6 +866,7 @@ def backTestView():
     show_main_menu()
     tviewFrame.grid_forget()
     back_btn_tview.grid_forget()
+    header_tview.grid_forget()
     return
 
 
@@ -858,6 +879,10 @@ def testView():
     tviewFrame = Frame(root, bd=2)
     tviewFrame.grid(row=1, pady=10, padx=20)
 
+    # Show header
+    global header_tview
+    header_tview = create_header_label(root, "Test Overview")
+
     # Create a Labels for the Columns of the Question Table
     Label(tviewFrame, text="Test ID").grid(row=0, column=0, ipadx=5)
     Label(tviewFrame, text="Type", anchor='w').grid(row=0, column=1, ipadx=5)
@@ -867,21 +892,17 @@ def testView():
 
     # Connect to Database
     cnx = get_db_connection()
+
     # Create a Cursor
     c = cnx.cursor()
 
     # Query Questions Table for all Questions
     c.execute("""
-        SELECT 
-            t.test_id,
-            tot.test_name,
-            t.test_title,
-            t.test_time
-        FROM 
-            Test t
-        JOIN
-            Types_Of_Test tot ON t.test_type = tot.test_type
+        SELECT t.test_id, tot.test_name, t.test_title, t.test_time
+        FROM Test t
+        JOIN Types_Of_Test tot ON t.test_type = tot.test_type
             """)
+
     records = c.fetchall()
     print_tid, print_ttype, print_ttitle, print_ttime, print_qnum = '', '', '', '', ''
     num_rows = 0
@@ -942,19 +963,11 @@ def testView():
         selected_test_id = selected_tid.get()
 
         query = ("""
-            SELECT 
-                q.question_id, 
-                q.question, 
-                qc.category_name, 
-                q.question_difficulty 
-            FROM 
-                Questions q 
-            JOIN 
-                Test_Questions tq ON q.question_id = tq.question_id 
-            JOIN 
-                Question_Categories qc ON q.category_id = qc.category_id 
-            WHERE 
-                tq.test_id = %s
+            SELECT q.question_id, q.question, qc.category_name, q.question_difficulty 
+            FROM Questions q 
+            JOIN Test_Questions tq ON q.question_id = tq.question_id 
+            JOIN Question_Categories qc ON q.category_id = qc.category_id 
+            WHERE tq.test_id = %s
         """)
         c.execute(query, (selected_test_id,))
         questions = c.fetchall()
@@ -1000,6 +1013,7 @@ def backTestMake():
     show_main_menu()
     tmakeFrame.grid_forget()
     back_btn_tmake.grid_forget()
+    header_tmake.grid_forget()
     return
 
 
@@ -1083,6 +1097,10 @@ def testMake():
     tmakeFrame = Frame(root, bd=2)
     tmakeFrame.grid(row=1, pady=10, padx=20)
 
+    # Show header
+    global header_tmake
+    header_tmake = create_header_label(root, "Create Tests")
+
     # Labels for Test Creation
     Label(tmakeFrame, text="Test ID").grid(row=0, column=0, ipadx=5)
     # Label(tmakeFrame, text="Type", anchor='w').grid(row=0, column=1, ipadx=5)
@@ -1140,6 +1158,7 @@ def backTestModify():
     show_main_menu()
     tmodifyFrame.grid_forget()
     back_btn_tmodify.grid_forget()
+    header_tmodify.gridforget()
     return
 
 
@@ -1151,6 +1170,10 @@ def testModify():
     global tmodifyFrame
     tmodifyFrame = Frame(root, bd=2)
     tmodifyFrame.grid(row=1, pady=10, padx=20)
+
+    # Show header
+    global header_tmodify
+    header_tmodify = create_header_label(root, "Modify Tests")
 
     global back_btn_tmodify
     back_btn_tmodify = create_back_button(root, backTestModify)
@@ -1164,6 +1187,7 @@ def backTestDelete():
     show_main_menu()
     tdeleteFrame.grid_forget()
     back_btn_tdelete.grid_forget()
+    header_tdelete.grid_forget()
     return
 
 
@@ -1175,6 +1199,10 @@ def testDelete():
     global tdeleteFrame
     tdeleteFrame = Frame(root, bd=2)
     tdeleteFrame.grid(row=1, pady=10, padx=20)
+
+    # Show header
+    global header_tdelete
+    header_tdelete = create_header_label(root, "Delete Tests")
 
     # Create a Labels for the Columns of the Question Table
     Label(tdeleteFrame, text="Test ID").grid(row=0, column=0, ipadx=5)
@@ -1282,6 +1310,7 @@ def backTestExtract():
     show_main_menu()
     testExtractFrame.grid_forget()
     back_btn_testExtract.grid_forget()
+    header_textract.grid_forget()
     return
 
 
@@ -1289,21 +1318,21 @@ def backTestExtract():
 def testExtract():
     hide_main_menu()
 
+    # Show header
+    global header_textract
+    header_textract = create_header_label(root, "Export Tests")
+
     # Display a list of Test and Their Names
     # Connect to Database
     cnx = get_db_connection()
+
     # Create a Cursor
     c = cnx.cursor()
 
     c.execute("""
-        SELECT 
-            t.test_id, 
-            t.test_title, 
-            tot.test_name 
-        FROM 
-            Test t
-        JOIN 
-             Types_Of_Test tot ON t.test_type = tot.test_type
+        SELECT t.test_id, t.test_title, tot.test_name 
+        FROM Test t
+        JOIN Types_Of_Test tot ON t.test_type = tot.test_type
             """)
     results = c.fetchall()
 
@@ -1404,6 +1433,7 @@ def backQuestCatAdd():
     show_main_menu()
     questCatAddFrame.grid_forget()
     back_btn_questCatAdd.grid_forget()
+    header_qcatadd.grid_forget()
     return
 
 
@@ -1463,6 +1493,10 @@ def questCatAdd():
     questCatAddFrame = Frame(root, bd=2)
     questCatAddFrame.grid(row=1, pady=10, padx=20)
 
+    # Show header
+    global header_qcatadd
+    header_qcatadd = create_header_label(root, "Add Wuestion Categories")
+
     # Create a Labels for the Columns of the Question Category Table
     ttk.Label(questCatAddFrame, text="Test Category ID").grid(row=0, column=0, ipadx=5)
     ttk.Label(questCatAddFrame, text="Test Category Title", anchor='w').grid(row=0, column=1, ipadx=215)
@@ -1503,7 +1537,7 @@ def questCatAdd():
     qctitle_entry.grid(row=num_rows_qdelete + 4, column=0)
 
     # Add Test Button
-    add_questCat_btn = ttk.Button(questCatAddFrame, text="Add New Category", command=addNewQuestCat)
+    add_questCat_btn = ttk.Button(questCatAddFrame, text="Add New Category", command=addNewQuestCat, style="Accent.TButton")
     add_questCat_btn.grid(row=num_rows_qdelete + 5, column=0, pady=10)
 
     global back_btn_questCatAdd
@@ -1519,6 +1553,7 @@ def backQuestCatModify():
     show_main_menu()
     questCatModifyFrame.grid_forget()
     back_btn_questCatModify.grid_forget()
+    header_qcatmodify.grid_forget()
     return
 
 
@@ -1571,6 +1606,9 @@ def questCatModify():
     questCatModifyFrame = Frame(root, bd=2)
     questCatModifyFrame.grid(row=1, pady=10, padx=20)
 
+    global header_qcatmodify
+    header_qcatmodify = create_header_label(root, "Modify Question Categories")
+
     # Create a Labels for the Columns of the Question Category Table
     ttk.Label(questCatModifyFrame, text="Category ID").grid(row=0, column=0, ipadx=5)
     ttk.Label(questCatModifyFrame, text="Category Title", anchor='w').grid(row=0, column=1, ipadx=215)
@@ -1620,7 +1658,7 @@ def questCatModify():
     qctitle_entry.grid(row=num_rows_qdelete + 4, column=0)
 
     # Button to modify
-    modify_questCat_btn = ttk.Button(questCatModifyFrame, text="Modify Question Category Title", command=submitChanges)
+    modify_questCat_btn = ttk.Button(questCatModifyFrame, text="Modify Question Category Title", command=submitChanges, style="Accent.TButton")
     modify_questCat_btn.grid(row=dropdown_row + 5, column=0, columnspan=1, pady=10)
 
     global back_btn_questCatModify
@@ -1636,6 +1674,7 @@ def backQuestCatDelete():
     show_main_menu()
     questCatDeleteFrame.grid_forget()
     back_btn_questCatDelete.grid_forget()
+    header_qcatdelete.grid_forget()
     return
 
 
@@ -1704,6 +1743,9 @@ def questCatDelete():
     questCatDeleteFrame = Frame(root, bd=2)
     questCatDeleteFrame.grid(row=1, pady=10, padx=20)
 
+    global header_qcatdelete
+    header_qcatdelete = create_header_label(root, "Delete Question Categories")
+
     # Create a Labels for the Columns of the Question Category Table
     ttk.Label(questCatDeleteFrame, text="Category ID").grid(row=0, column=0, ipadx=5)
     ttk.Label(questCatDeleteFrame, text="Category Title", anchor='w').grid(row=0, column=1, ipadx=215)
@@ -1742,7 +1784,7 @@ def questCatDelete():
     cnx.close()
 
     # Adjust button position
-    delete_questCat_btn = ttk.Button(questCatDeleteFrame, text="Delete Question Category", command=deleteQuestCat)
+    delete_questCat_btn = ttk.Button(questCatDeleteFrame, text="Delete Question Category", command=deleteQuestCat, style="Accent.TButton")
     delete_questCat_btn.grid(row=dropdown_row + 1, column=0, columnspan=2, pady=10)
 
     global back_btn_questCatDelete
@@ -1778,6 +1820,7 @@ def backTestCatAdd():
     show_main_menu()
     testCatAddFrame.grid_forget()
     back_btn_testCatAdd.grid_forget()
+    header_tcatadd.grid_forget()
     return
 
 
@@ -1836,6 +1879,9 @@ def testCatAdd():
     testCatAddFrame = Frame(root, bd=2)
     testCatAddFrame.grid(row=1, pady=10, padx=20)
 
+    global header_tcatadd
+    header_tcatadd = create_header_label(root, "Add Test Category")
+
     # Create a Labels for the Columns of the Question Category Table
     ttk.Label(testCatAddFrame, text="Test Category ID").grid(row=0, column=0, ipadx=5)
     ttk.Label(testCatAddFrame, text="Test Category Title", anchor='w').grid(row=0, column=1, ipadx=215)
@@ -1876,7 +1922,7 @@ def testCatAdd():
     tctitle_entry.grid(row=num_rows_qdelete + 4, column=0)
 
     # Add Test Button
-    add_testCat_btn = ttk.Button(testCatAddFrame, text="Add New Category", command=addNewTestCat)
+    add_testCat_btn = ttk.Button(testCatAddFrame, text="Add New Category", command=addNewTestCat, style="Accent.TButton")
     add_testCat_btn.grid(row=num_rows_qdelete + 6, column=0, pady=10)
 
     global back_btn_testCatAdd
@@ -1892,6 +1938,7 @@ def backTestCatModify():
     show_main_menu()
     testCatModifyFrame.grid_forget()
     back_btn_testCatModify.grid_forget()
+    header_tcatadd.grid_forget()
     return
 
 
@@ -1942,6 +1989,9 @@ def testCatModify():
     testCatModifyFrame = Frame(root, bd=2)
     testCatModifyFrame.grid(row=1, pady=10, padx=20)
 
+    global header_tcatadd
+    header_tcatadd = create_header_label(root, "Modify Test Category")
+
     # Create a Labels for the Columns of the Question Category Table
     ttk.Label(testCatModifyFrame, text="Test Category ID").grid(row=0, column=0, ipadx=5)
     ttk.Label(testCatModifyFrame, text="Test Category Title", anchor='w').grid(row=0, column=1, ipadx=215)
@@ -1991,7 +2041,7 @@ def testCatModify():
     qctitle_entry.grid(row=num_rows_qdelete + 4, column=0)
 
     # Button to modify
-    modify_testCat_btn = ttk.Button(testCatModifyFrame, text="Modify Test Category Title", command=submitChanges)
+    modify_testCat_btn = ttk.Button(testCatModifyFrame, text="Modify Test Category Title", command=submitChanges, style="Accent.TButton")
     modify_testCat_btn.grid(row=dropdown_row + 5, column=0, columnspan=1, pady=10)
 
     global back_btn_testCatModify
@@ -2007,6 +2057,7 @@ def backTestCatDelete():
     show_main_menu()
     testCatDeleteFrame.grid_forget()
     back_btn_testCatDelete.grid_forget()
+    header_tcatdelete.grid_forget()
     return
 
 
@@ -2075,6 +2126,9 @@ def testCatDelete():
     testCatDeleteFrame = Frame(root, bd=2)
     testCatDeleteFrame.grid(row=1, pady=10, padx=20)
 
+    global header_tcatdelete
+    header_tcatdelete = create_header_label(root, "Delete Test Category")
+
     # Create a Labels for the Columns of the Question Category Table
     ttk.Label(testCatDeleteFrame, text="Test Category ID").grid(row=0, column=0, ipadx=5)
     ttk.Label(testCatDeleteFrame, text="Test Category Title", anchor='w').grid(row=0, column=1, ipadx=215)
@@ -2111,7 +2165,7 @@ def testCatDelete():
     # Close Connection
     cnx.close()
 
-    delete_testCat_btn = ttk.Button(testCatDeleteFrame, text="Delete Question Category", command=deleteTestCat)
+    delete_testCat_btn = ttk.Button(testCatDeleteFrame, text="Delete Question Category", command=deleteTestCat, style="Accent.TButton")
     delete_testCat_btn.grid(row=dropdown_row + 2, column=0, pady=10)
 
     global back_btn_testCatDelete
