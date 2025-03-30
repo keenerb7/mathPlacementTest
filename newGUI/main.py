@@ -321,9 +321,9 @@ def questionAdd():
     header_qadd = create_header_label(root, "Add Questions")
 
     # Create Labels for the Text Input
-    ttk.Label(qaddFrame, text="Question:").grid(row=0, column=2)
+    ttk.Label(qaddFrame, text="Question:").grid(row=0, column=2, padx=10, pady=10)
     question = ttk.Entry(qaddFrame, width=100)
-    question.grid(row=0, column=3)
+    question.grid(row=0, column=3, padx=10, pady=10)
 
     # Create Dropdown Box for Question Categories
     # Connect to Database
@@ -344,14 +344,14 @@ def questionAdd():
     cnx.close()
 
     # Label(qaddFrame, text="Question Category").grid(row=1, column=0, pady=10)
-    ttk.Label(qaddFrame, text="Question Difficulty").grid(row=4, column=0, pady=10)
+    ttk.Label(qaddFrame, text="Question Difficulty").grid(row=4, column=0, padx=10, pady=10)
     difficulty = ttk.Entry(qaddFrame, width=30)
     difficulty.grid(row=5, column=0, padx=10, pady=10)
 
     # ANSWER SECTION
     # Create Labels for the Answer Choices and note the first one is always correct
-    ttk.Label(qaddFrame, text="(Correct) Answer Number 1:").grid(row=2, column=2)
-    ttk.Label(qaddFrame, text="Answer Number 2:").grid(row=3, column=2)
+    ttk.Label(qaddFrame, text="(Correct) Answer Number 1:").grid(row=2, column=2, padx=10, pady=10)
+    ttk.Label(qaddFrame, text="Answer Number 2:").grid(row=3, column=2, )
     ttk.Label(qaddFrame, text="Answer Number 3:").grid(row=4, column=2)
     ttk.Label(qaddFrame, text="Answer Number 4:").grid(row=5, column=2)
     ttk.Label(qaddFrame, text="Answer Number 5:").grid(row=6, column=2)
@@ -1554,7 +1554,7 @@ def questCatAdd():
 
     # Show header
     global header_qcatadd
-    header_qcatadd = create_header_label(root, "Add Wuestion Categories")
+    header_qcatadd = create_header_label(root, "Add Question Categories")
 
     # Create a Labels for the Columns of the Question Category Table
     ttk.Label(questCatAddFrame, text="Test Category ID").grid(row=0, column=0, ipadx=5)
