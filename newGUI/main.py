@@ -1044,8 +1044,63 @@ def backTestMake():
 
 # Create Function to Make a Test
 def testMake():
+    # Variables to track selected questions
+    selected_questions = set()
+
+    # Realtime counter of selected questions
+    def updateQuestionCounter():
+        question_counter_label.config(text=f"Questions Selected: {len(selected_questions)}")
+
+    # Load all question for each category on screen
+    def loadQuestionsForCategory(event=None):
+        # Clear previous questions
+        for widget in question_frame.winfo_children():
+            widget.destroy()
+
+        selected_category_id = category_ids[category_dropdown.current()]
+
+        # Connect to Database
+        cnx = get_db_connection()
+        c = cnx.cursor()
+
+        # Get questions for the selected category
+        c.execute("""
+            SELECT q.question_id, q.question, q.question_difficulty 
+            FROM Questions q
+            WHERE q.category_id = %s
+            ORDER BY q.question_id
+        """, (selected_category_id,))
+
+        questions = c.fetchall()
+        cnx.close()
+
+        # Set fixed size for question frame
+        # MILLE I NEED YOU TO IMPLEMENT THE SCROLL BAR HERE PLS :)
+        question_frame.config(width=500, height=300)
+
+        # Create headers for question list
+        Label(question_frame, text="Question", font=("Arial", 10, "bold")).grid(row=0, column=0, sticky=W, padx=5)
+        Label(question_frame, text="Difficulty", font=("Arial", 10, "bold")).grid(row=0, column=1, sticky=W, padx=5)
+
+        # Add questions in a list format
+        def toggle_question(qid, var):
+            if var.get():
+                selected_questions.add(qid)
+            else:
+                selected_questions.discard(qid)
+            updateQuestionCounter()
+
+        for i, (q_id, q_text, q_diff) in enumerate(questions, start=1):
+            var = IntVar(value=1 if q_id in selected_questions else 0)
+
+            # When question is longer than 50 characters, the question is shortened
+            shortened_qtitle = q_text[:70] + "..." if len(q_text) > 70 else q_text
+
+            Checkbutton(question_frame, text=shortened_qtitle, variable=var,
+                        command=lambda q=q_id, v=var: toggle_question(q, v)).grid(row=i, column=0, sticky=W, padx=5)
+            Label(question_frame, text=q_diff).grid(row=i, column=1, sticky=W, padx=5)
+
     def addTest():
-        # Validate inputs
         if not var.get().strip():
             messagebox.showerror("Error", "Please enter a Test Type.")
             return
@@ -1054,11 +1109,14 @@ def testMake():
             messagebox.showerror("Error", "Please enter a Test Title.")
             return
 
+        if not selected_questions:
+            messagebox.showerror("Error", "Please select at least one question.")
+            return
+
         try:
             test_time = float(ttime_entry.get())
-            num_questions = int(tnumquestion_entry.get())
         except ValueError:
-            messagebox.showerror("Error", "Time and Number of Questions must be numeric values.")
+            messagebox.showerror("Error", "Time must be a numeric value.")
             return
 
         # Connect to Database
@@ -1066,48 +1124,40 @@ def testMake():
         c = cnx.cursor()
 
         try:
-            # Find the last Test ID and increment
+            # Get new test ID
             c.execute("SELECT COALESCE(MAX(test_id), 0) +1 FROM Test")
-            last_test_id = c.fetchone()[0]
-            new_test_id = last_test_id + 1 if last_test_id else 1
+            new_test_id = c.fetchone()[0]
 
-            # First, get the test_type_id based on the selected test type name
+            # Get test type ID
             c.execute("SELECT test_type FROM Types_Of_Test WHERE test_name = %s", (var.get(),))
             test_type_id = c.fetchone()[0]
 
-            # Insert New Test
-            c.execute(
-                """INSERT INTO Test (test_id, test_type, test_title, test_time) 
-                   VALUES (%s, %s, %s, %s)""",
-                (new_test_id, test_type_id, ttitle_entry.get(), test_time)
-            )
-
-            # Randomly select questions for the test based on the specified number
+            # Insert new test
             c.execute("""
-                SELECT question_id FROM Questions 
-                ORDER BY RAND() 
-                LIMIT %s
-            """, (num_questions,))
+                INSERT INTO Test (test_id, test_type, test_title, test_time) 
+                VALUES (%s, %s, %s, %s)""",
+                      (new_test_id, test_type_id, ttitle_entry.get(), test_time))
 
-            selected_questions = c.fetchall()
+            # Insert selected questions
+            for question_id in selected_questions:
+                c.execute("""
+                    INSERT INTO Test_Questions (test_id, question_id) 
+                    VALUES (%s, %s)""",
+                          (new_test_id, question_id))
 
-            # Insert selected questions into Test_Questions
-            for question in selected_questions:
-                c.execute(
-                    """INSERT INTO Test_Questions (test_id, question_id) 
-                       VALUES (%s, %s)""",
-                    (new_test_id, question[0])
-                )
-
-            # Commit Changes
             cnx.commit()
-            messagebox.showinfo("Success", f"Test {new_test_id} created successfully!")
+            messagebox.showinfo("Success",
+                                f"Test {new_test_id} created successfully with {len(selected_questions)} questions!")
 
-            # Clear input fields
+            # Reset fields
             cate_drop.set('')
             ttitle_entry.delete(0, END)
             ttime_entry.delete(0, END)
-            tnumquestion_entry.delete(0, END)
+            selected_questions.clear()
+            updateQuestionCounter()
+
+            for widget in question_frame.winfo_children():
+                widget.destroy()
 
         except Exception as e:
             messagebox.showerror("Database Error", str(e))
@@ -1117,61 +1167,93 @@ def testMake():
 
     hide_main_menu()
 
-    # Create a Frame for this option
     global tmakeFrame
     tmakeFrame = Frame(root, bd=2)
     tmakeFrame.grid(row=1, pady=10, padx=20)
 
-    # Show header
     global header_tmake
     header_tmake = create_header_label(root, "Create Tests")
 
-    # Labels for Test Creation
-    Label(tmakeFrame, text="Test ID").grid(row=0, column=0, ipadx=5)
-    # Label(tmakeFrame, text="Type", anchor='w').grid(row=0, column=1, ipadx=5)
-    Label(tmakeFrame, text="Title").grid(row=0, column=2, ipadx=100)
-    Label(tmakeFrame, text="Time (minutes)").grid(row=0, column=3, ipadx=5)
-    Label(tmakeFrame, text="# of Questions").grid(row=0, column=4, ipadx=5)
+    Label(tmakeFrame, text="Test ID").grid(row=0, column=0)
+    Label(tmakeFrame, text="Title").grid(row=0, column=3)
+    Label(tmakeFrame, text="Time (minutes)").grid(row=0, column=4)
 
-    # New Test ID will be current number of tests + 1
-    tid_label = Label(tmakeFrame, text=(countTests() + 1), anchor='w')
-    tid_label.grid(row=2, column=0, columnspan=1)
+    # Finding the test ID
 
-    # Create Dropdown Box for Test Type
-    # Connect to Database
+    # Connect to database
     cnx = get_db_connection()
-    # Create a Cursor
     c = cnx.cursor()
-    c.execute("SELECT * FROM Types_Of_Test")
-    results = c.fetchall()
-    test_name = []
-    var = StringVar()
-    for row in results:
-        test_name.append(row[1])
 
-    cate_drop = create_dropdown_ver(tmakeFrame, test_name, var, 0, 1, 2, "normal", text="Type")
-    # Commit Changes
-    cnx.commit()
-    # Close Connection
+    # Get new test ID
+    c.execute("SELECT COALESCE(MAX(test_id), 0) +1 FROM Test")
+    new_test_id = c.fetchone()[0]
+
+    # Close database
     cnx.close()
 
-    # Test Name input
+    tid_label = Label(tmakeFrame, text=(new_test_id))
+    tid_label.grid(row=1, column=0)
+
+    # Connect to Database
+    cnx = get_db_connection()
+    c = cnx.cursor()
+    c.execute("SELECT * FROM Types_Of_Test")
+    test_types = [row[1] for row in c.fetchall()]
+    cnx.close()
+
+    # Make the drop-down menu with all the test types
+    var = StringVar()
+    cate_drop = create_dropdown_ver(tmakeFrame, test_types, var, 0, 1, 2, "normal", text="Type")
+
+    # Label for test title
     ttitle_entry = ttk.Entry(tmakeFrame, width=50)
-    ttitle_entry.grid(row=2, column=2)
+    ttitle_entry.grid(row=1, column=3)
 
-    # Test Time input
+    # Label for test time
     ttime_entry = ttk.Entry(tmakeFrame, width=8)
-    ttime_entry.grid(row=2, column=3)
+    ttime_entry.grid(row=1, column=4)
 
-    # Number of questions input
-    tnumquestion_entry = ttk.Entry(tmakeFrame, width=8)
-    tnumquestion_entry.grid(row=2, column=4)
+    # Label that tells the user how many questions are
+    # currently selected
+    question_counter_label = Label(tmakeFrame, text="Questions Selected: 0", font=("Arial", 10, "bold"))
+    question_counter_label.grid(row=2, column=0, columnspan=3, sticky=W, pady=10)
 
-    # Add Test Button
-    add_test_btn = ttk.Button(tmakeFrame, text="Create Test", command=addTest)
-    add_test_btn.grid(row=4, column=2, pady=10)
+    category_frame = Frame(tmakeFrame)
+    category_frame.grid(row=3, column=0, columnspan=3, sticky=W)
 
-    # Back Button
+    cnx = get_db_connection()
+    c = cnx.cursor()
+    c.execute("SELECT category_id, category_name FROM Question_Categories ORDER BY category_id")
+    categories = c.fetchall()
+
+    # Initialize empty lists
+    category_ids = []
+    category_names = []
+
+    # Populate lists using a loop
+    for category in categories:
+        category_ids.append(category[0])
+        category_names.append(category[1])
+
+    # Close the database
+    cnx.close()
+
+    # Drop down menu to select the question category
+    Label(category_frame, text="Select Question Category:").pack(side=LEFT, padx=10)
+    category_var = StringVar()
+    category_dropdown = ttk.Combobox(category_frame, textvariable=category_var, values=category_names, state="readonly",
+                                     width=30)
+    category_dropdown.pack(side=LEFT)
+    category_dropdown.bind("<<ComboboxSelected>>", loadQuestionsForCategory)
+    category_dropdown.current(0)
+
+    # Create the new questions frame to display all questions from each category
+    question_frame = Frame(tmakeFrame, bd=1, relief=GROOVE)
+    question_frame.grid(row=4, column=0, columnspan=3, sticky=W + E, pady=10)
+    loadQuestionsForCategory()
+
+    ttk.Button(tmakeFrame, text="Create Test", command=addTest).grid(row=5, column=1, pady=10)
+
     global back_btn_tmake
     back_btn_tmake = create_back_button(root, backTestMake)
 
@@ -1514,9 +1596,8 @@ def questCatAdd():
 
         try:
             # Find the last Category ID and increment
-            c.execute("SELECT MAX(category_id) FROM Question_Categories")
-            last_questCat_id = c.fetchone()[0]
-            new_questCat_id = last_questCat_id + 1 if last_questCat_id else 1
+            c.execute("SELECT COALESCE(MAX(category_id), 0) + 1 FROM Question_Categories")
+            new_questCat_id = c.fetchone()[0]
 
             # Insert New Category
             c.execute(
@@ -1901,8 +1982,7 @@ def testCatAdd():
         try:
             # Find the last Category ID and increment
             c.execute("SELECT COALESCE(MAX(test_type), 0) + 1 FROM Types_Of_Test")
-            last_testCat_id = c.fetchone()[0]
-            new_testCat_id = last_testCat_id + 1 if last_testCat_id else 1
+            new_testCat_id = c.fetchone()[0]
 
             # Insert New Category
             c.execute(
