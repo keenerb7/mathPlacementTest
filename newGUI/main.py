@@ -1068,7 +1068,7 @@ def testMake():
             SELECT q.question_id, q.question, q.question_difficulty 
             FROM Questions q
             WHERE q.category_id = %s
-            ORDER BY q.question_id
+            ORDER BY q.question_difficulty
         """, (selected_category_id,))
 
         questions = c.fetchall()
@@ -1093,7 +1093,7 @@ def testMake():
         for i, (q_id, q_text, q_diff) in enumerate(questions, start=1):
             var = IntVar(value=1 if q_id in selected_questions else 0)
 
-            # When question is longer than 50 characters, the question is shortened
+            # When question is longer than 70 characters, the question is shortened
             shortened_qtitle = q_text[:70] + "..." if len(q_text) > 70 else q_text
 
             Checkbutton(question_frame, text=shortened_qtitle, variable=var,
@@ -1197,7 +1197,11 @@ def testMake():
     # Connect to Database
     cnx = get_db_connection()
     c = cnx.cursor()
-    c.execute("SELECT * FROM Types_Of_Test")
+    c.execute("""
+        SELECT * 
+        FROM 
+            Types_Of_Test
+        ORDER BY test_name """)
     test_types = [row[1] for row in c.fetchall()]
     cnx.close()
 
@@ -1223,7 +1227,12 @@ def testMake():
 
     cnx = get_db_connection()
     c = cnx.cursor()
-    c.execute("SELECT category_id, category_name FROM Question_Categories ORDER BY category_id")
+    c.execute("""SELECT 
+                    category_id, 
+                    category_name 
+                FROM 
+                    Question_Categories 
+                ORDER BY category_name""")
     categories = c.fetchall()
 
     # Initialize empty lists
@@ -1267,11 +1276,272 @@ def backTestModify():
     return
 
 
-# Create Function to Modify a Test
 def testModify():
+    # When refreshing the page, destroy previous frame
+    if 'tmodifyFrame' in globals():
+        backTestModify()
+
+
+    # Variables to track selected questions
+    selected_questions = set()
+
+    # Realtime counter of selected questions
+    def updateQuestionCounter():
+        question_counter_label.config(text=f"Questions Selected: {len(selected_questions)}")
+
+    def submitChange():
+
+        # Validate that the title is entered
+        if not title.get().strip():
+            messagebox.showerror("Error", "There is no title submitted.")
+            return
+
+        # Validate a test is selected in the dropdown menu
+        if len(var.get()) == 0:
+            messagebox.showerror("Error", "No test is selected.")
+            return
+
+        # Validate a time is entered
+        if not time.get().strip():
+            messagebox.showerror("Error", "There is no time submitted.")
+            return
+
+        # Validate the time is a number
+        if not time.get().isdigit():
+            messagebox.showerror("Error", "Please enter a number for the time.")
+            return
+
+        # New inputs
+
+        # Get the selected test from dropdown
+        selected_test_title = var.get().strip()
+
+        # Get new title input
+        new_test_title = title.get().strip()
+
+        # Convert input to float
+        new_test_time = float(time.get().strip())
+
+        # Get new test type
+        new_test_type_name = type_var.get().strip()
+
+        # Connect to Database
+        cnx = get_db_connection()
+        c = cnx.cursor()
+
+        try:
+            # Fetch test_id
+            c.execute("SELECT test_id FROM Test WHERE test_title = %s", (selected_test_title,))
+            test_info = c.fetchone()
+
+            if not test_info:
+                messagebox.showerror("Error", "Selected test does not exist.")
+                return
+
+
+            # Extract test_id
+            test_id = test_info[0]
+
+            # Fetch test_type ID based on selected test type name
+            c.execute("SELECT test_type FROM Types_Of_Test WHERE test_name = %s", (new_test_type_name,))
+            test_type_info = c.fetchone()
+
+            if not test_type_info:
+                messagebox.showerror("Error", "Selected test type does not exist.")
+                return
+
+            new_test_type = test_type_info[0]
+
+            # Update test title, time and type
+            c.execute("""
+                    UPDATE Test 
+                    SET test_title = %s, test_time = %s, test_type = %s
+                    WHERE test_id = %s
+                """, (new_test_title, new_test_time, new_test_type, test_id))
+
+            # Clear existing questions for this test
+            c.execute("DELETE FROM Test_Questions WHERE test_id = %s", (test_id,))
+
+            # Insert newly selected questions
+            for qid in selected_questions:
+                c.execute("INSERT INTO Test_Questions (test_id, question_id) VALUES (%s, %s)", (test_id, qid))
+
+            # Commit changes
+            cnx.commit()
+            messagebox.showinfo("Success", "Test has been successfully updated.")
+
+            testModify()
+
+        except Exception as e:
+            cnx.rollback()
+            messagebox.showerror("Database Error", f"An error occurred: {str(e)}")
+
+        finally:
+            cnx.close()
+
+
+    def loadQuestions():
+        # Clear previous questions
+        for widget in question_frame.winfo_children():
+            widget.destroy()
+
+        # Connect to Database
+        cnx = get_db_connection()
+        c = cnx.cursor()
+
+        # Fetch all the question
+        c.execute("""
+                    SELECT 
+                        question_id,
+                        question,
+                        question_difficulty
+                    FROM
+                        Questions
+                    ORDER BY question_difficulty
+                        """)
+        all_questions_in_cat = c.fetchall()
+
+        # Create headers for question list
+        Label(question_frame, text="Question", font=("Arial", 10, "bold")).grid(row=0, column=0, sticky=W, padx=5)
+        Label(question_frame, text="Difficulty", font=("Arial", 10, "bold")).grid(row=0, column=1, sticky=W, padx=5)
+
+        # Display questions in the question frame
+        def toggle_question(qid, var):
+            if var.get():
+                selected_questions.add(qid)
+            else:
+                selected_questions.discard(qid)
+            updateQuestionCounter()
+
+        for i, (q_id, q_text, q_diff) in enumerate(all_questions_in_cat, start=1):
+            var = IntVar(value=1 if q_id in all_questions_in_cat else 0)
+
+            # Cut the question length to 70 characters
+            shortened_qtitle = q_text[:70] + "..." if len(q_text) > 70 else q_text
+
+            Checkbutton(question_frame, text=shortened_qtitle, variable=var,
+                        command=lambda q=q_id, v=var: toggle_question(q, v)).grid(row=i, column=0, sticky=W, padx=5)
+            Label(question_frame, text=q_diff).grid(row=i, column=1, sticky=W, padx=5)
+
+        cnx.close()
+
+        return
+
+    def test_selection_dis(event=None):
+        # Get the selected test title
+        selected_test_title = test_drop.get()
+
+        # Clear out the old results
+        title.delete(0, END)
+        test_type_dropdown.set('')
+        time.delete(0, END)
+
+        # Connect to Database
+        cnx = get_db_connection()
+        c = cnx.cursor()
+
+        # Fetch test details using the selected title
+        c.execute("""
+            SELECT 
+                test_id, 
+                test_type, 
+                test_title, 
+                test_time 
+            FROM 
+                Test 
+            WHERE 
+                test_title = %s""", (selected_test_title,))
+
+        test_info = c.fetchone()
+
+        if not test_info:
+            cnx.close()
+            return  # Exit if no test is found
+
+        test_id, test_type, test_title_value, test_time_value = test_info
+
+        # Update UI elements
+        title.insert(0, test_title_value)
+        time.insert(0, str(test_time_value))
+
+        # Get Category Name for Dropdown
+        c.execute("SELECT test_name FROM Types_Of_Test WHERE test_type = %s", (test_type,))
+        category_name = c.fetchone()
+
+        if category_name:
+            test_type_dropdown.set(category_name[0])
+
+        # Fetch only the selected questions
+        c.execute("""
+            SELECT 
+                q.question_id
+            FROM 
+                Questions q
+            JOIN 
+                Test_Questions tq ON q.question_id = tq.question_id
+            WHERE 
+                tq.test_id = %s
+        """, (test_id,))
+        selected_question_ids = {qid for (qid,) in c.fetchall()}  # Store selected questions in a set
+
+        # Fetch all available questions (not just selected ones)
+        c.execute("""
+            SELECT 
+                question_id,
+                question,
+                question_difficulty
+            FROM
+                Questions
+            ORDER BY question_difficulty
+        """)
+        all_questions = c.fetchall()
+
+        # Clear previous questions
+        for widget in question_frame.winfo_children():
+            widget.destroy()
+
+        # Create headers for question list
+        Label(question_frame, text="Question", font=("Arial", 10, "bold")).grid(row=0, column=0, sticky=W, padx=5)
+        Label(question_frame, text="Difficulty", font=("Arial", 10, "bold")).grid(row=0, column=1, sticky=W, padx=5)
+
+        # Clear and update selected questions
+        selected_questions.clear()
+
+        def toggle_question(qid, var):
+            if var.get():
+                selected_questions.add(qid)
+            else:
+                selected_questions.discard(qid)
+            updateQuestionCounter()
+
+        # Display all questions but check only the selected ones
+        for i, (q_id, q_text, q_diff) in enumerate(all_questions, start=1):
+            is_selected = q_id in selected_question_ids
+            var = IntVar(value=1 if is_selected else 0)
+
+            if is_selected:
+                selected_questions.add(q_id)  # Track initially selected questions
+
+            # Cut the question length to 70 characters
+            shortened_qtitle = q_text[:70] + "..." if len(q_text) > 70 else q_text
+
+            Checkbutton(question_frame, text=shortened_qtitle, variable=var,
+                        command=lambda q=q_id, v=var: toggle_question(q, v)).grid(row=i, column=0, sticky=W, padx=5)
+            Label(question_frame, text=q_diff).grid(row=i, column=1, sticky=W, padx=5)
+
+        # Update question counter to reflect initially selected questions
+        updateQuestionCounter()
+
+        # Close database connection
+        cnx.close()
+
     hide_main_menu()
 
-    # Create a Frame this option
+    # Number of rows
+    global num_rows_qdelete
+    num_rows_qdelete = 0
+
+    # Create a Frame
     global tmodifyFrame
     tmodifyFrame = Frame(root, bd=2)
     tmodifyFrame.grid(row=1, pady=10, padx=20)
@@ -1280,11 +1550,111 @@ def testModify():
     global header_tmodify
     header_tmodify = create_header_label(root, "Modify Tests")
 
+    # Create labels for the Test ID and test title
+    ttk.Label(tmodifyFrame, text="Test ID").grid(row=0, column=0, ipadx= 5)
+    ttk.Label(tmodifyFrame, text="Test Title", anchor=W).grid(row=0, column=1, ipadx= 100)
+    ttk.Label(tmodifyFrame, text="Test Category", anchor=W).grid(row=0, column=2, ipadx= 5)
+
+    # Create Dropdown box to select test
+    cnx = get_db_connection()
+    c = cnx.cursor()
+    c.execute("""
+        SELECT 
+            t.test_id,
+            t.test_title,
+            tot.test_name
+        FROM 
+            Test t 
+        JOIN
+            Types_Of_Test tot ON t.test_type = tot.test_type
+        ORDER BY 
+            tot.test_name""")
+    results = c.fetchall()
+
+    test_title = []
+    var = StringVar()
+    for row in results:
+        test_title.append(row[1])
+
+        tid_lbl = ttk.Label(tmodifyFrame, text=str(row[0]), anchor='w')
+        tid_lbl.grid(row=num_rows_qdelete + 2, column=0, columnspan=1)
+
+        ttitle_lbl = Label(tmodifyFrame, text=str(row[1]), anchor='w', justify='left')
+        ttitle_lbl.grid(row=num_rows_qdelete + 2, column=1, columnspan=2, sticky='w')
+
+        type_lbl = Label(tmodifyFrame, text=str(row[2]), anchor='w', justify='left')
+        type_lbl.grid(row=num_rows_qdelete + 2, column=2, columnspan=2, sticky='w')
+
+        num_rows_qdelete += 1
+
+    # Dropdown positioned right after the list of tests
+    dropdown_row = num_rows_qdelete + 2
+
+    test_drop = create_dropdown_ver(tmodifyFrame, test_title, var, dropdown_row, 0, 2, "normal", text="Select Test by Title")
+
+    # Create a Binding for the Dropdown menu to change the Question ID
+    test_drop.bind("<<ComboboxSelected>>", test_selection_dis)
+    cnx.commit()
+    cnx.close()
+
+    # Label that tells the user how many questions are
+    # currently selected
+    question_counter_label = Label(tmodifyFrame, text="Questions Selected: 0", font=("Arial", 10, "bold"))
+    question_counter_label.grid(row=dropdown_row + 2, column=0, columnspan=3, sticky=W, pady=10)
+
+    # QUESTIONS FRAME
+
+    category_frame = Frame(tmodifyFrame)
+    category_frame.grid(row=dropdown_row + 3, column=0, columnspan=3, sticky=W)
+
+    cnx = get_db_connection()
+    c = cnx.cursor()
+    c.execute("""SELECT 
+                        test_type, 
+                        test_name 
+                    FROM 
+                        Types_Of_Test 
+                    ORDER BY test_name""")
+    types = c.fetchall()
+
+    # Initialize empty lists
+    test_type = []
+    test_name = []
+
+    # Populate lists using a loop
+    for type in types:
+        test_type.append(type[0])
+        test_name.append(type[1])
+
+    # Close the database
+    cnx.close()
+
+    # Create a dropdown for selecting the Test Type
+    type_var = StringVar()
+    test_type_dropdown = create_dropdown_ver(category_frame, test_name, type_var, 0, 0, 3, "readonly",
+                                            "Current Test Type")
+
+
+    # Create the new questions frame to display all questions from each category
+    question_frame = Frame(tmodifyFrame, bd=1, relief=GROOVE)
+    question_frame.grid(row=0, column=4, columnspan=3, rowspan= 10, sticky=W, pady=10, padx=50)
+    loadQuestions()
+
+    # Label and text box for test title
+    Label(tmodifyFrame, text="Test Title").grid(row=11, column=4, sticky=W)
+    title = ttk.Entry(tmodifyFrame, width=70)
+    title.grid(row=12, column=4, columnspan=2, sticky=W)
+
+    Label(tmodifyFrame, text="Test Time").grid(row=13, column=4, sticky=W)
+    time = ttk.Entry(tmodifyFrame, width=10)
+    time.grid(row=14, column=4, columnspan=2, sticky=W)
+
+    ttk.Button(tmodifyFrame, text="Modify Test", command=submitChange).grid(row=dropdown_row + 6, column=1, pady=10)
+
     global back_btn_tmodify
     back_btn_tmodify = create_back_button(root, backTestModify)
 
     return
-
 
 ###################################################Test Delete##########################################################
 
@@ -2291,7 +2661,7 @@ def testCatDelete():
 
         num_rows_qdelete += 1
 
-        # Dropdown positioned right after the list of categories
+    # Dropdown positioned right after the list of categories
     dropdown_row = num_rows_qdelete + 2
     # Label(questCatDeleteFrame, text="Select a Question Category:").grid(row=dropdown_row, column=0, columnspan=2, sticky='w')
 
