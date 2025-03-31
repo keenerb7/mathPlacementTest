@@ -1238,18 +1238,16 @@ def testMake():
     # Close the database
     cnx.close()
 
-    # Drop down menu to select the question category
-    Label(category_frame, text="Select Question Category:").pack(side=LEFT, padx=10)
+    # Create a dropdown for selecting the question category
     category_var = StringVar()
-    category_dropdown = ttk.Combobox(category_frame, textvariable=category_var, values=category_names, state="readonly",
-                                     width=30)
-    category_dropdown.pack(side=LEFT)
+    category_dropdown = create_dropdown_ver(category_frame, category_names, category_var, 0, 0, 3, "readonly", "Select Question Category:")
+
     category_dropdown.bind("<<ComboboxSelected>>", loadQuestionsForCategory)
     category_dropdown.current(0)
 
     # Create the new questions frame to display all questions from each category
     question_frame = Frame(tmakeFrame, bd=1, relief=GROOVE)
-    question_frame.grid(row=4, column=0, columnspan=3, sticky=W + E, pady=10)
+    question_frame.grid(row=4, column=0, columnspan=3, sticky=W, pady=10)
     loadQuestionsForCategory()
 
     ttk.Button(tmakeFrame, text="Create Test", command=addTest).grid(row=5, column=1, pady=10)
