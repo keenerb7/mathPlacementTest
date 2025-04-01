@@ -2406,35 +2406,42 @@ def testCatAdd():
     global header_tcatadd
     header_tcatadd = create_header_label(root, "Add Test Category")
 
-    # Create a Labels for the Columns of the Question Category Table
-    ttk.Label(testCatAddFrame, text="Test Category ID").grid(row=0, column=0, ipadx=5)
-    ttk.Label(testCatAddFrame, text="Test Category Title", anchor='w').grid(row=0, column=1, ipadx=215)
+    # Create a treeview for displaying categories
+    tree = ttk.Treeview(testCatAddFrame, columns=("tcid", "tcat"), show="headings", height=5)
+    tree.heading("tcid", text="Test Category ID", anchor="w")
+    tree.heading("tcat", text="Test Category Title", anchor="w")
+
+    # Define column width
+    tree.column("tcid", width=100)
+    tree.column("tcat", width=300)
+
+    # Add a scrollbar to the treeview
+    scrollbar = ttk.Scrollbar(testCatAddFrame, orient="vertical", command=tree.yview)
+
+    # Configure tree to use the scrollbar
+    tree.configure(yscrollcommand=scrollbar.set)
+
+    tree.grid(row=0, column=0, columnspan=2, pady=10)
+    scrollbar.grid(row=0, column=2, sticky="ns", pady=10)
 
     # Connect to Database
     cnx = get_db_connection()
+
     # Create a Cursor
     c = cnx.cursor()
+
     c.execute("SELECT * FROM Types_Of_Test")
     results = c.fetchall()
-    cat_name = []
-    var = StringVar()
+
     for row in results:
-        cat_name.append(row[1])
-
-        cid_lbl = ttk.Label(testCatAddFrame, text=str(row[0]), anchor='w')
-        cid_lbl.grid(row=num_rows_qdelete + 2, column=0, columnspan=1)
-
-        ct_lbl = Label(testCatAddFrame, text=str(row[1]), anchor='w', justify='left')
-        ct_lbl.grid(row=num_rows_qdelete + 2, column=1, columnspan=2, sticky='w')
-
-        num_rows_qdelete += 1
+        tree.insert("", "end", values=(row[0], row[1]))
 
     # Commit Changes
     cnx.commit()
     # Close Connection
     cnx.close()
 
-    Label(testCatAddFrame, text="New Test Category Name").grid(row=num_rows_qdelete + 3, column=0, ipadx=5)
+    Label(testCatAddFrame, text="Enter new test category title:").grid(row=2, column=0, ipadx=5)
 
     # If we have time, they would like to have a comment section next to the category name
     # this means editing the database and adding category_label in the Questions_Categories table
@@ -2443,7 +2450,7 @@ def testCatAdd():
 
     # Test Name input
     tctitle_entry = ttk.Entry(testCatAddFrame, width=50)
-    tctitle_entry.grid(row=num_rows_qdelete + 4, column=0)
+    tctitle_entry.grid(row=4, column=0)
 
     # Add Test Button
     add_testCat_btn = ttk.Button(testCatAddFrame, text="Add New Category", command=addNewTestCat,
@@ -2517,30 +2524,39 @@ def testCatModify():
     global header_tcatadd
     header_tcatadd = create_header_label(root, "Modify Test Category")
 
-    # Create a Labels for the Columns of the Question Category Table
-    ttk.Label(testCatModifyFrame, text="Test Category ID").grid(row=0, column=0, ipadx=5)
-    ttk.Label(testCatModifyFrame, text="Test Category Title", anchor='w').grid(row=0, column=1, ipadx=215)
+    # Create a treeview for displaying categories
+    tree = ttk.Treeview(testCatModifyFrame, columns=("tcid", "tcat"), show="headings", height=5)
+    tree.heading("tcid", text="Test Category ID", anchor="w")
+    tree.heading("tcat", text="Test Category Title", anchor="w")
 
-    # Create Dropdown Box for Question Category
+    # Define column width
+    tree.column("tcid", width=100)
+    tree.column("tcat", width=300)
+
+    # Add a scrollbar to the treeview
+    scrollbar = ttk.Scrollbar(testCatModifyFrame, orient="vertical", command=tree.yview)
+
+    # Configure tree to use the scrollbar
+    tree.configure(yscrollcommand=scrollbar.set)
+
+    tree.grid(row=0, column=0, columnspan=2, pady=10)
+    scrollbar.grid(row=0, column=2, sticky="ns", pady=10)
 
     # Connect to Database
     cnx = get_db_connection()
+
     # Create a Cursor
     c = cnx.cursor()
+
     c.execute("SELECT * FROM Types_Of_Test")
     results = c.fetchall()
     cat_name = []
     var = StringVar()
+
+    # Insert categories into treeview
     for row in results:
         cat_name.append(row[1])
-
-        cid_lbl = ttk.Label(testCatModifyFrame, text=str(row[0]), anchor='w')
-        cid_lbl.grid(row=num_rows_qdelete + 2, column=0, columnspan=1)
-
-        ct_lbl = Label(testCatModifyFrame, text=str(row[1]), anchor='w', justify='left')
-        ct_lbl.grid(row=num_rows_qdelete + 2, column=1, columnspan=2, sticky='w')
-
-        num_rows_qdelete += 1
+        tree.insert("", "end", values=(row[0], row[1]))
 
     # Dropdown positioned right after the list of categories
     dropdown_row = num_rows_qdelete + 2
@@ -2552,9 +2568,12 @@ def testCatModify():
         qctitle_entry.delete(0, END)
         qctitle_entry.insert(0, selected_category)
 
-    cate_drop = create_dropdown_ver(testCatModifyFrame, cat_name, var, dropdown_row, 0, 2, "normal",
+    cate_drop = create_dropdown_hor(testCatModifyFrame, cat_name, var, 2, 0, 1, "normal",
                                     text="Select a Test Category")
+    cate_drop.grid(pady=15)
+
     cate_drop.bind('<<ComboboxSelected>>', on_category_select)
+
 
     # Commit Changes
     cnx.commit()
@@ -2563,12 +2582,12 @@ def testCatModify():
 
     # Test Name input
     qctitle_entry = ttk.Entry(testCatModifyFrame, width=50)
-    qctitle_entry.grid(row=num_rows_qdelete + 4, column=0)
+    qctitle_entry.grid(row=4, column=0, columnspan=2)
 
     # Button to modify
     modify_testCat_btn = ttk.Button(testCatModifyFrame, text="Modify Test Category Title", command=submitChanges,
                                     style="Accent.TButton")
-    modify_testCat_btn.grid(row=dropdown_row + 5, column=0, columnspan=1, pady=10)
+    modify_testCat_btn.grid(row=5, column=0, columnspan=2, pady=10)
 
     global back_btn_testCatModify
     back_btn_testCatModify = create_back_button(root, backTestCatModify)
