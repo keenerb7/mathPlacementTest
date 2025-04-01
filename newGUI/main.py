@@ -2006,10 +2006,6 @@ def questCatAdd():
 
     hide_main_menu()
 
-    # Number of rows after for loop
-    global num_rows_qdelete
-    num_rows_qdelete = 0
-
     # Create a Frame this option
     global questCatAddFrame
     questCatAddFrame = Frame(root, bd=2)
@@ -2019,35 +2015,43 @@ def questCatAdd():
     global header_qcatadd
     header_qcatadd = create_header_label(root, "Add Question Categories")
 
-    # Create a Labels for the Columns of the Question Category Table
-    ttk.Label(questCatAddFrame, text="Test Category ID").grid(row=0, column=0, ipadx=5)
-    ttk.Label(questCatAddFrame, text="Test Category Title", anchor='w').grid(row=0, column=1, ipadx=215)
+    # Create a treeview for displaying categories
+    tree = ttk.Treeview(questCatAddFrame, columns=("tcid", "tcat"), show="headings", height=5)
+    tree.heading("tcid", text="Test Category ID", anchor="w")
+    tree.heading("tcat", text="Test Category Title", anchor="w")
+
+    # Define column width
+    tree.column("tcid", width=100)
+    tree.column("tcat", width=300)
+
+    # Add a scrollbar to the treeview
+    scrollbar = ttk.Scrollbar(questCatAddFrame, orient="vertical", command=tree.yview)
+
+    # Configure tree to use the scrollbar
+    tree.configure(yscrollcommand=scrollbar.set)
+
+    tree.grid(row=0, column=0, columnspan=2, pady=10)
+    scrollbar.grid(row=0, column=2, sticky="ns", pady=10)
 
     # Connect to Database
     cnx = get_db_connection()
+
     # Create a Cursor
     c = cnx.cursor()
+
     c.execute("SELECT * FROM Question_Categories")
     results = c.fetchall()
-    cat_name = []
-    var = StringVar()
+
     for row in results:
-        cat_name.append(row[1])
+        tree.insert("", "end", values=(row[0], row[1]))
 
-        cid_lbl = ttk.Label(questCatAddFrame, text=str(row[0]), anchor='w')
-        cid_lbl.grid(row=num_rows_qdelete + 2, column=0, columnspan=1)
-
-        ct_lbl = Label(questCatAddFrame, text=str(row[1]), anchor='w', justify='left')
-        ct_lbl.grid(row=num_rows_qdelete + 2, column=1, columnspan=2, sticky='w')
-
-        num_rows_qdelete += 1
 
     # Commit Changes
     cnx.commit()
     # Close Connection
     cnx.close()
 
-    Label(questCatAddFrame, text="Question Category Name").grid(row=num_rows_qdelete + 3, column=0, ipadx=5)
+    Label(questCatAddFrame, text="Question Category Name").grid(row=1, column=0, ipadx=5)
 
     # If we have time, they would like to have a comment section next to the category name
     # this means editing the database and adding category_label in the Questions_Categories table
@@ -2056,12 +2060,12 @@ def questCatAdd():
 
     # Test Name input
     qctitle_entry = ttk.Entry(questCatAddFrame, width=50)
-    qctitle_entry.grid(row=num_rows_qdelete + 4, column=0)
+    qctitle_entry.grid(row=2, column=0)
 
     # Add Test Button
     add_questCat_btn = ttk.Button(questCatAddFrame, text="Add New Category", command=addNewQuestCat,
                                   style="Accent.TButton")
-    add_questCat_btn.grid(row=num_rows_qdelete + 5, column=0, pady=10)
+    add_questCat_btn.grid(row=3, column=0, pady=10)
 
     global back_btn_questCatAdd
     back_btn_questCatAdd = create_back_button(root, backQuestCatAdd)
@@ -2120,10 +2124,6 @@ def questCatModify():
 
     hide_main_menu()
 
-    # Counts number of rows in for loop
-    global num_rows_qdelete
-    num_rows_qdelete = 0
-
     # Create a Frame this option
     global questCatModifyFrame
     questCatModifyFrame = Frame(root, bd=2)
@@ -2132,33 +2132,44 @@ def questCatModify():
     global header_qcatmodify
     header_qcatmodify = create_header_label(root, "Modify Question Categories")
 
-    # Create a Labels for the Columns of the Question Category Table
-    ttk.Label(questCatModifyFrame, text="Category ID").grid(row=0, column=0, ipadx=5)
-    ttk.Label(questCatModifyFrame, text="Category Title", anchor='w').grid(row=0, column=1, ipadx=215)
+    # Create a treeview for displaying categories
+    tree = ttk.Treeview(questCatModifyFrame, columns=("tcid", "tcat"), show="headings", height=5)
+    tree.heading("tcid", text="Test Category ID", anchor="w")
+    tree.heading("tcat", text="Test Category Title", anchor="w")
+
+
+    # Define column width
+    tree.column("tcid", width=100)
+    tree.column("tcat", width=300)
+
+    # Add a scrollbar to the treeview
+    scrollbar = ttk.Scrollbar(questCatModifyFrame, orient="vertical", command=tree.yview)
+
+    # Configure tree to use the scrollbar
+    tree.configure(yscrollcommand=scrollbar.set)
+
+    tree.grid(row=0, column=0, columnspan=2, pady=10)
+    scrollbar.grid(row=0, column=2, sticky="ns", pady=10)
+
 
     # Create Dropdown Box for Question Category
 
     # Connect to Database
     cnx = get_db_connection()
+
     # Create a Cursor
     c = cnx.cursor()
+
     c.execute("SELECT * FROM Question_Categories")
     results = c.fetchall()
     cat_name = []
     var = StringVar()
+
+    # Insert categories into treeview
     for row in results:
         cat_name.append(row[1])
 
-        cid_lbl = ttk.Label(questCatModifyFrame, text=str(row[0]), anchor='w')
-        cid_lbl.grid(row=num_rows_qdelete + 2, column=0, columnspan=1)
-
-        ct_lbl = Label(questCatModifyFrame, text=str(row[1]), anchor='w', justify='left')
-        ct_lbl.grid(row=num_rows_qdelete + 2, column=1, columnspan=2, sticky='w')
-
-        num_rows_qdelete += 1
-
-    # Dropdown positioned right after the list of categories
-    dropdown_row = num_rows_qdelete + 2
+        tree.insert("","end", values=(row[0], row[1]))
 
     # Create dropdown for category selection
     def on_category_select(event):
@@ -2167,7 +2178,7 @@ def questCatModify():
         qctitle_entry.delete(0, END)
         qctitle_entry.insert(0, selected_category)
 
-    cate_drop = create_dropdown_ver(questCatModifyFrame, cat_name, var, dropdown_row, 0, 2, "normal",
+    cate_drop = create_dropdown_hor(questCatModifyFrame, cat_name, var, 2, 0, 1, "normal",
                                     text="Select a Question Category")
     cate_drop.bind('<<ComboboxSelected>>', on_category_select)
 
@@ -2178,12 +2189,12 @@ def questCatModify():
 
     # Test Name input
     qctitle_entry = ttk.Entry(questCatModifyFrame, width=50)
-    qctitle_entry.grid(row=num_rows_qdelete + 4, column=0)
+    qctitle_entry.grid(row=4, column=0, columnspan=2)
 
     # Button to modify
     modify_questCat_btn = ttk.Button(questCatModifyFrame, text="Modify Question Category Title", command=submitChanges,
                                      style="Accent.TButton")
-    modify_questCat_btn.grid(row=dropdown_row + 5, column=0, columnspan=1, pady=10)
+    modify_questCat_btn.grid(row=5, column=0, columnspan=2, pady=10)
 
     global back_btn_questCatModify
     back_btn_questCatModify = create_back_button(root, backQuestCatModify)
@@ -2394,10 +2405,6 @@ def testCatAdd():
 
     hide_main_menu()
 
-    # Number of rows
-    global num_rows_qdelete
-    num_rows_qdelete = 0
-
     # Create a Frame this option
     global testCatAddFrame
     testCatAddFrame = Frame(root, bd=2)
@@ -2512,10 +2519,6 @@ def testCatModify():
 
     hide_main_menu()
 
-    # Counts number of rows in for loop
-    global num_rows_qdelete
-    num_rows_qdelete = 0
-
     # Create a Frame this option
     global testCatModifyFrame
     testCatModifyFrame = Frame(root, bd=2)
@@ -2557,9 +2560,6 @@ def testCatModify():
     for row in results:
         cat_name.append(row[1])
         tree.insert("", "end", values=(row[0], row[1]))
-
-    # Dropdown positioned right after the list of categories
-    dropdown_row = num_rows_qdelete + 2
 
     # Create dropdown for category selection
     def on_category_select(event):
