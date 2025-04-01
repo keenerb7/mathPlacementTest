@@ -145,8 +145,9 @@ def questionView():
     selected_qid = StringVar()
     selected_qid.set(question_ids[0])  # Set the first question ID as default
 
-    text = "Select question ID to display answers:"
+    text = "Select question ID to display answers: "
     question_dropdown = create_dropdown_hor(answerFrame, question_ids, selected_qid, 1, 1, 2, "normal", text)
+    question_dropdown.grid(pady=10)
 
     # Get answers for selected question ID
     def getAnswers(event=None):
@@ -164,13 +165,13 @@ def questionView():
 
         # Clear previous answers
         for i in range(5):
-            for answer in answerFrame.grid_slaves(row=4 + i, column=2):
+            for answer in answerFrame.grid_slaves(row=4 + i, column=3):
                 answer.grid_forget()
 
         # Display answers
         j = 4
         for answer in answers:
-            Label(answerFrame, text=answer, anchor='w', justify='left').grid(row=j, column=2, sticky="w")
+            Label(answerFrame, text=answer, anchor='w', justify='left').grid(row=j, column=4, sticky="w")
             j += 1
 
         # Close connection and cursor
@@ -180,11 +181,11 @@ def questionView():
     question_dropdown.bind("<<ComboboxSelected>>", getAnswers)
 
     # Display Labels for answers
-    ttk.Label(answerFrame, text="(Correct) Answer Number 1:").grid(row=4, column=1, columnspan=1, sticky="w")
-    ttk.Label(answerFrame, text="Answer Number 2:").grid(row=5, column=1, columnspan=1, sticky="w")
-    ttk.Label(answerFrame, text="Answer Number 3:").grid(row=6, column=1, columnspan=1, sticky="w")
-    ttk.Label(answerFrame, text="Answer Number 4:").grid(row=7, column=1, columnspan=1, sticky="w")
-    ttk.Label(answerFrame, text="Answer Number 5:").grid(row=8, column=1, columnspan=1, sticky="w")
+    ttk.Label(answerFrame, text="(Correct) Answer Number 1:", font=("Arial", 10, "bold")).grid(row=4, column=1, columnspan=1, sticky="e", pady=5)
+    ttk.Label(answerFrame, text="Answer Number 2:").grid(row=5, column=1, columnspan=1, sticky="e", pady=5)
+    ttk.Label(answerFrame, text="Answer Number 3:").grid(row=6, column=1, columnspan=1, sticky="e", pady=5)
+    ttk.Label(answerFrame, text="Answer Number 4:").grid(row=7, column=1, columnspan=1, sticky="e", pady=5)
+    ttk.Label(answerFrame, text="Answer Number 5:").grid(row=8, column=1, columnspan=1, sticky="e", pady=5)
 
     # Show answers for the first question as default
     getAnswers()
@@ -322,7 +323,7 @@ def questionAdd():
     header_qadd = create_header_label(root, "Add Questions")
 
     # Create Labels for the Text Input
-    ttk.Label(qaddFrame, text="Question: ").grid(row=0, column=2, sticky="e")
+    ttk.Label(qaddFrame, text="Question: ", font=("Arial", 10, "bold")).grid(row=0, column=2, sticky="e")
     question = ttk.Entry(qaddFrame, width=99)
     question.grid(row=0, column=3, padx=10, pady=15)
 
@@ -351,7 +352,7 @@ def questionAdd():
 
     # ANSWER SECTION
     # Create Labels for the Answer Choices and note the first one is always correct
-    ttk.Label(qaddFrame, text="Answer Number 1 (Correct): ").grid(row=2, column=2, sticky="e", pady=10)
+    ttk.Label(qaddFrame, text="Answer Number 1 (Correct): ", font=("Arial", 10, "bold")).grid(row=2, column=2, sticky="e", pady=10)
     ttk.Label(qaddFrame, text="Answer Number 2: ").grid(row=3, column=2, sticky="e", pady=10)
     ttk.Label(qaddFrame, text="Answer Number 3: ").grid(row=4, column=2, sticky="e", pady=10)
     ttk.Label(qaddFrame, text="Answer Number 4: ").grid(row=5, column=2, sticky="e", pady=10)
@@ -814,7 +815,7 @@ def questionDelete():
     # Set the first question ID as default
     selected_qid.set(question_ids[0])
 
-    text = "Select Question ID to be deleted:"
+    text = "Select Question ID to be deleted: "
     question_dropdown = create_dropdown_hor(delFrame, question_ids, selected_qid, 0, 0, 2,
                                             "normal", text)
 
@@ -828,7 +829,7 @@ def questionDelete():
     # delete_box = ttk.Entry(qdeleteFrame, width=10)
     # delete_box.grid(row=num_rows_qdelete + 2, column=1)
     deleteQuestion_btn = ttk.Button(delFrame, text="Delete Question", command=deleteQuestion, style="Accent.TButton")
-    deleteQuestion_btn.grid(row=0, column=5, sticky='e')
+    deleteQuestion_btn.grid(row=0, column=5, sticky='e', padx=10, ipadx=20)
 
     # Create a Back Button to Hide Current View and Reshow Original View
     global back_btn_qdelete
