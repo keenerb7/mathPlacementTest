@@ -25,6 +25,7 @@ notebook.add(testType_frame, text="Test Category Options")
 # I think we should ask if they want a consistent size or variable zie
 # Without setting the size beforehand it is variable
 root.geometry("1200x600")
+root.columnconfigure(0, weight=1)
 
 
 ########################################Helper function that need to be in main#########################################
@@ -1049,12 +1050,12 @@ def testMake():
 
     # Realtime counter of selected questions
     def updateQuestionCounter():
-        question_counter_label.config(text=f"Questions Selected: {len(selected_questions)}")
+        question_counter_label.config(text=f"Questions selected: {len(selected_questions)}")
 
     # Load all questions for each category on screen
     def loadQuestionsForCategory(event=None):
         # Clear previous questions
-        for widget in question_frame.winfo_children():
+        for widget in scrollable_frame.winfo_children():
             widget.destroy()
 
         selected_category_id = category_ids[category_dropdown.current()]
@@ -1074,10 +1075,6 @@ def testMake():
         questions = c.fetchall()
         cnx.close()
 
-        # Set fixed size for question frame
-        # MILLE I NEED YOU TO IMPLEMENT THE SCROLL BAR HERE PLS :)
-        question_frame.config(width=500, height=300)
-
         # Create headers for a question list
         Label(question_frame, text="Question", font=("Arial", 10, "bold")).grid(row=0, column=0, sticky=W, padx=5)
         Label(question_frame, text="Difficulty", font=("Arial", 10, "bold")).grid(row=0, column=1, sticky=W, padx=5)
@@ -1096,9 +1093,9 @@ def testMake():
             # When question is longer than 70 characters, the question is shortened
             shortened_qtitle = q_text[:70] + "..." if len(q_text) > 70 else q_text
 
-            Checkbutton(question_frame, text=shortened_qtitle, variable=var,
-                        command=lambda q=q_id, v=var: toggle_question(q, v)).grid(row=i, column=0, sticky=W, padx=5)
-            Label(question_frame, text=q_diff).grid(row=i, column=1, sticky=W, padx=5)
+            ttk.Checkbutton(scrollable_frame, text=q_text, variable=var,
+                        command=lambda q=q_id, v=var: toggle_question(q, v)).grid(row=i, column=0, columnspan=4, sticky="w", padx=10)
+            Label(scrollable_frame, text=q_diff, anchor="e").grid(row=i, column=4, sticky="e", padx=15)
 
     def addTest():
         if not var.get().strip():
@@ -1174,9 +1171,38 @@ def testMake():
     global header_tmake
     header_tmake = create_header_label(root, "Create Tests")
 
-    Label(tmakeFrame, text="Test ID").grid(row=0, column=0)
-    Label(tmakeFrame, text="Title").grid(row=0, column=3)
-    Label(tmakeFrame, text="Time (minutes)").grid(row=0, column=4)
+    test_frame = Frame(tmakeFrame)
+    test_frame.grid(row=0, column=0, sticky="nsew")
+    test_frame.columnconfigure(5, weight=1)
+
+
+    question_frame = LabelFrame(tmakeFrame, text="")
+    question_frame.grid(row=2, column=0, sticky="nsew")
+
+    canvas = Canvas(question_frame, width=1000)
+    canvas.grid(row=1, column=0, columnspan=4, sticky="nsew")
+    scrollbar = ttk.Scrollbar(question_frame, orient="vertical", command=canvas.yview)
+    canvas.config(yscrollcommand=scrollbar.set)
+    scrollbar.grid(row=1, column=4, sticky="ns")
+
+    # Create scrollable frame inside canvas
+    global scrollable_frame
+    scrollable_frame = Frame(canvas)
+    canvas.create_window((0, 0), window=scrollable_frame, anchor="nw", width=1000)
+    scrollable_frame.grid_columnconfigure(0, weight=1)
+
+
+    def on_frame_configure(event):
+        canvas.config(scrollregion=canvas.bbox("all"))
+
+    scrollable_frame.bind("<Configure>", on_frame_configure)
+
+    question_frame.grid_rowconfigure(0, weight=1)  # Make sure row 0 (where canvas is) expands
+    question_frame.grid_columnconfigure(0, weight=1)
+
+    Label(test_frame, text="Test ID").grid(row=0, column=0)
+    Label(test_frame, text="Title").grid(row=0, column=3, sticky="w")
+    Label(test_frame, text="Time (minutes)").grid(row=0, column=6, sticky="w")
 
     # Finding the test ID
 
@@ -1191,48 +1217,41 @@ def testMake():
     # Close database
     cnx.close()
 
-    tid_label = Label(tmakeFrame, text=new_test_id)
-    tid_label.grid(row=1, column=0)
+    tid_label = Label(test_frame, text=new_test_id)
+    tid_label.grid(row=1, column=0, sticky="w")
 
     # Connect to Database
     cnx = get_db_connection()
     c = cnx.cursor()
     c.execute("""
-        SELECT * 
-        FROM 
-            Types_Of_Test
+        SELECT * FROM Types_Of_Test
         ORDER BY test_name """)
     test_types = [row[1] for row in c.fetchall()]
     cnx.close()
 
     # Make the drop-down menu with all the test types
     var = StringVar()
-    cate_drop = create_dropdown_ver(tmakeFrame, test_types, var, 0, 1, 2, "normal", text="Type")
+    cate_drop = create_dropdown_ver(test_frame, test_types, var, 0, 1, 2, "normal", text="Type")
+    cate_drop.grid(ipadx=25)
 
     # Label for test title
-    ttitle_entry = ttk.Entry(tmakeFrame, width=50)
-    ttitle_entry.grid(row=1, column=3)
+    ttitle_entry = ttk.Entry(test_frame)
+    ttitle_entry.grid(row=1, column=3, columnspan=3, sticky="ew", padx=2)
 
     # Label for test time
-    ttime_entry = ttk.Entry(tmakeFrame, width=8)
-    ttime_entry.grid(row=1, column=4)
+    ttime_entry = ttk.Entry(test_frame)
+    ttime_entry.grid(row=1, column=6, sticky="ew", padx=2)
 
     # Label that tells the user how many questions are
     # currently selected
-    question_counter_label = Label(tmakeFrame, text="Questions Selected: 0", font=("Arial", 10, "bold"))
-    question_counter_label.grid(row=2, column=0, columnspan=3, sticky=W, pady=10)
-
-    category_frame = Frame(tmakeFrame)
-    category_frame.grid(row=3, column=0, columnspan=3, sticky=W)
+    question_counter_label = Label(test_frame, text="Questions selected: 0", font=("Arial", 10, "bold"), anchor="e")
+    question_counter_label.grid(row=2, column=4, columnspan=3, sticky="e")
 
     cnx = get_db_connection()
     c = cnx.cursor()
-    c.execute("""SELECT 
-                    category_id, 
-                    category_name 
-                FROM 
-                    Question_Categories 
-                ORDER BY category_name""")
+    c.execute("""SELECT category_id, category_name 
+                 FROM Question_Categories 
+                 ORDER BY category_name""")
     categories = c.fetchall()
 
     # Initialize empty lists
@@ -1249,18 +1268,17 @@ def testMake():
 
     # Create a dropdown for selecting the question category
     category_var = StringVar()
-    category_dropdown = create_dropdown_ver(category_frame, category_names, category_var, 0, 0, 3, "readonly",
-                                            "Select Question Category:")
+    category_dropdown = create_dropdown_hor(test_frame, category_names, category_var, 2, 0, 2, "readonly",
+                                            "Select question category: ")
+    category_dropdown.grid(pady=10)
 
     category_dropdown.bind("<<ComboboxSelected>>", loadQuestionsForCategory)
     category_dropdown.current(0)
 
-    # Create the new questions frame to display all questions from each category
-    question_frame = Frame(tmakeFrame, bd=1, relief=GROOVE)
-    question_frame.grid(row=4, column=0, columnspan=3, sticky=W, pady=10)
+
     loadQuestionsForCategory()
 
-    ttk.Button(tmakeFrame, text="Create Test", command=addTest).grid(row=5, column=1, pady=10)
+    ttk.Button(tmakeFrame, text="Create Test", command=addTest, style="Accent.TButton", width=20).grid(row=3, column=0, sticky="e", pady=15)
 
     global back_btn_tmake
     back_btn_tmake = create_back_button(root, backTestMake)
@@ -1287,7 +1305,7 @@ def testModify():
 
     # Realtime counter of selected questions
     def updateQuestionCounter():
-        question_counter_label.config(text=f"Questions Selected: {len(selected_questions)}")
+        question_counter_label.config(text=f"Questions selected: {len(selected_questions)}")
 
     def submitChange():
 
@@ -1389,12 +1407,8 @@ def testModify():
 
         # Fetch all the question
         c.execute("""
-                    SELECT 
-                        question_id,
-                        question,
-                        question_difficulty
-                    FROM
-                        Questions
+                    SELECT question_id, question, question_difficulty
+                    FROM Questions
                     ORDER BY question_difficulty
                         """)
         all_questions_in_cat = c.fetchall()
@@ -1525,7 +1539,7 @@ def testModify():
 
             Checkbutton(question_frame, text=shortened_qtitle, variable=var,
                         command=lambda q=q_id, v=var: toggle_question(q, v)).grid(row=i, column=0, sticky=W, padx=5)
-            Label(question_frame, text=q_diff).grid(row=i, column=1, sticky=W, padx=5)
+            Label(question_frame, text=q_diff).grid(row=i, column=1, sticky="w", padx=5)
 
         # Update question counter to reflect initially selected questions
         updateQuestionCounter()
@@ -2285,7 +2299,7 @@ def questCatDelete():
     #Label(questCatDeleteFrame, text="Select a Question Category:").grid(row=dropdown_row, column=0, columnspan=2, sticky='w')
 
     cate_drop = create_dropdown_ver(questCatDeleteFrame, cat_name, var, dropdown_row, 0, 2, "normal",
-                                    text="Select a Question Category")
+                                    text="Select a question category")
 
     # Commit Changes
     cnx.commit()
