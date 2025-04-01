@@ -2310,10 +2310,6 @@ def questCatDelete():
 
     hide_main_menu()
 
-    # Number of rows
-    global num_rows_qdelete
-    num_rows_qdelete = 0
-
     # Create a Frame this option
     global questCatDeleteFrame
     questCatDeleteFrame = Frame(root, bd=2)
@@ -2322,38 +2318,46 @@ def questCatDelete():
     global header_qcatdelete
     header_qcatdelete = create_header_label(root, "Delete Question Categories")
 
-    # Create a Labels for the Columns of the Question Category Table
-    ttk.Label(questCatDeleteFrame, text="Category ID").grid(row=0, column=0, ipadx=5)
-    ttk.Label(questCatDeleteFrame, text="Category Title", anchor='w').grid(row=0, column=1, ipadx=215)
+    # Create Dropdown Box for Test Category
 
-    # Create Dropdown Box for Question Category
+    # Create a treeview for displaying categories
+    tree = ttk.Treeview(questCatDeleteFrame, columns=("tcid", "tcat"), show="headings", height=5)
+    tree.heading("tcid", text="Test Category ID", anchor="w")
+    tree.heading("tcat", text="Test Category Title", anchor="w")
+
+    # Define column width
+    tree.column("tcid", width=100)
+    tree.column("tcat", width=300)
+
+    # Add a scrollbar to the treeview
+    scrollbar = ttk.Scrollbar(questCatDeleteFrame, orient="vertical", command=tree.yview)
+
+    # Configure tree to use the scrollbar
+    tree.configure(yscrollcommand=scrollbar.set)
+
+    tree.grid(row=0, column=0, columnspan=2, pady=10)
+    scrollbar.grid(row=0, column=2, sticky="ns", pady=10)
 
     # Connect to Database
     cnx = get_db_connection()
+
     # Create a Cursor
     c = cnx.cursor()
+
     c.execute("SELECT * FROM Question_Categories")
     results = c.fetchall()
     cat_name = []
+
     var = StringVar()
+
     for row in results:
         cat_name.append(row[1])
+        tree.insert("", "end", values=(row[0], row[1]))
 
-        cid_lbl = ttk.Label(questCatDeleteFrame, text=str(row[0]), anchor='w')
-        cid_lbl.grid(row=num_rows_qdelete + 2, column=0, columnspan=1)
 
-        ct_lbl = Label(questCatDeleteFrame, text=str(row[1]), anchor='w', justify='left')
-        ct_lbl.grid(row=num_rows_qdelete + 2, column=1, columnspan=2, sticky='w')
-
-        num_rows_qdelete += 1
-
-    # Dropdown positioned right after the list of categories
-    dropdown_row = num_rows_qdelete + 2
-    #Label(questCatDeleteFrame, text="Select a Question Category:").grid(row=dropdown_row, column=0, columnspan=2, sticky='w')
-
-    cate_drop = create_dropdown_ver(questCatDeleteFrame, cat_name, var, dropdown_row, 0, 2, "normal",
+    cate_drop = create_dropdown_hor(questCatDeleteFrame, cat_name, var, 2, 0, 1, "normal",
                                     text="Select a question category")
-
+    cate_drop.grid(padx=10)
     # Commit Changes
     cnx.commit()
     # Close Connection
@@ -2362,7 +2366,7 @@ def questCatDelete():
     # Adjust button position
     delete_questCat_btn = ttk.Button(questCatDeleteFrame, text="Delete Question Category", command=deleteQuestCat,
                                      style="Accent.TButton")
-    delete_questCat_btn.grid(row=dropdown_row + 1, column=0, columnspan=2, pady=10)
+    delete_questCat_btn.grid(row=3, column=0, columnspan=2, pady=10)
 
     global back_btn_questCatDelete
     back_btn_questCatDelete = create_back_button(root, backQuestCatDelete)
