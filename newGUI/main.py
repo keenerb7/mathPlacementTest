@@ -142,7 +142,7 @@ def questionView():
     question_ids = sorted(question_ids)
 
     selected_qid = StringVar()
-    selected_qid.set(question_ids[0])  # Set first question ID as default
+    selected_qid.set(question_ids[0])  # Set the first question ID as default
 
     text = "Select question ID to display answers:"
     question_dropdown = create_dropdown_hor(answerFrame, question_ids, selected_qid, 1, 1, 2, "normal", text)
@@ -286,7 +286,7 @@ def questionAdd():
                 c.execute("""
                         INSERT INTO Question_Choices (choice_id, question_id, choice_text, is_correct)
                         VALUES (%s, %s, %s, %s)""",
-                        (choice_id, newID, answers[i].get(), is_correct))
+                          (choice_id, newID, answers[i].get(), is_correct))
 
             # Commit Changes
             cnx.commit()
@@ -453,7 +453,7 @@ def questionModify():
 
     selected_qid = StringVar()
 
-    # Set first question ID as default
+    # Set the first question ID as default
     selected_qid.set(question_ids[0])
 
     text = "Select Question ID to be modified:"
@@ -655,7 +655,7 @@ def questionModify():
     question_dropdown.bind("<<ComboboxSelected>>", question_selection_dis)
 
     # Create Button to Trigger the Submission of Changes
-    # Should probably have a message box saying that once these changes are made there is no going back
+    # Should probably have a message box saying that once these changes are made, there is no going back
     # Create Add Button to Trigger the Addition of the new Record
     submit_btn = ttk.Button(modFrame, text="Submit Changes", command=submitChanges, style='Accent.TButton', width=25)
     submit_btn.grid(row=6, column=6, padx=10, pady=10, sticky='e')
@@ -790,7 +790,7 @@ def questionDelete():
         # Explicitly remove the back button before refreshing the UI
         back_btn_qdelete.grid_forget()
 
-        # Refresh the UI to show updated list of questions
+        # Refresh the UI to show an updated list of questions
         qdeleteFrame.destroy()
         back_btn_qdelete.grid_forget()
         header_qdelete.grid_forget()
@@ -810,7 +810,7 @@ def questionDelete():
 
     selected_qid = StringVar()
 
-    # Set first question ID as default
+    # Set the first question ID as default
     selected_qid.set(question_ids[0])
 
     text = "Select Question ID to be deleted:"
@@ -943,7 +943,7 @@ def testView():
     # Loop through and display each question in the treeview
     for row in records:
         num_questions = countQuestions(row[0])
-        tree.insert("", "end", values=row+(num_questions,))
+        tree.insert("", "end", values=row + (num_questions,))
 
     # Create a Frame for displaying questions
     questionFrame = Frame(tviewFrame, bd=2)
@@ -957,7 +957,7 @@ def testView():
     test_ids = sorted(test_ids)
 
     selected_tid = StringVar()
-    selected_tid.set(test_ids[0])  # Set first question ID as default
+    selected_tid.set(test_ids[0])  # Set the first question ID as default
 
     text = "Select test ID to display questions: "
     test_dropdown = create_dropdown_hor(questionFrame, test_ids, selected_tid, 0, 0, 2, "normal", text)
@@ -1051,7 +1051,7 @@ def testMake():
     def updateQuestionCounter():
         question_counter_label.config(text=f"Questions Selected: {len(selected_questions)}")
 
-    # Load all question for each category on screen
+    # Load all questions for each category on screen
     def loadQuestionsForCategory(event=None):
         # Clear previous questions
         for widget in question_frame.winfo_children():
@@ -1078,7 +1078,7 @@ def testMake():
         # MILLE I NEED YOU TO IMPLEMENT THE SCROLL BAR HERE PLS :)
         question_frame.config(width=500, height=300)
 
-        # Create headers for question list
+        # Create headers for a question list
         Label(question_frame, text="Question", font=("Arial", 10, "bold")).grid(row=0, column=0, sticky=W, padx=5)
         Label(question_frame, text="Difficulty", font=("Arial", 10, "bold")).grid(row=0, column=1, sticky=W, padx=5)
 
@@ -1191,7 +1191,7 @@ def testMake():
     # Close database
     cnx.close()
 
-    tid_label = Label(tmakeFrame, text=(new_test_id))
+    tid_label = Label(tmakeFrame, text=new_test_id)
     tid_label.grid(row=1, column=0)
 
     # Connect to Database
@@ -1249,7 +1249,8 @@ def testMake():
 
     # Create a dropdown for selecting the question category
     category_var = StringVar()
-    category_dropdown = create_dropdown_ver(category_frame, category_names, category_var, 0, 0, 3, "readonly", "Select Question Category:")
+    category_dropdown = create_dropdown_ver(category_frame, category_names, category_var, 0, 0, 3, "readonly",
+                                            "Select Question Category:")
 
     category_dropdown.bind("<<ComboboxSelected>>", loadQuestionsForCategory)
     category_dropdown.current(0)
@@ -1277,10 +1278,9 @@ def backTestModify():
 
 
 def testModify():
-    # When refreshing the page, destroy previous frame
+    # When refreshing the page, destroy the previous frame
     if 'tmodifyFrame' in globals():
         backTestModify()
-
 
     # Variables to track selected questions
     selected_questions = set()
@@ -1322,7 +1322,7 @@ def testModify():
         # Convert input to float
         new_test_time = float(time.get().strip())
 
-        # Get new test type
+        # Get the new test type
         new_test_type_name = type_var.get().strip()
 
         # Connect to Database
@@ -1337,7 +1337,6 @@ def testModify():
             if not test_info:
                 messagebox.showerror("Error", "Selected test does not exist.")
                 return
-
 
             # Extract test_id
             test_id = test_info[0]
@@ -1379,7 +1378,6 @@ def testModify():
         finally:
             cnx.close()
 
-
     def loadQuestions():
         # Clear previous questions
         for widget in question_frame.winfo_children():
@@ -1401,7 +1399,7 @@ def testModify():
                         """)
         all_questions_in_cat = c.fetchall()
 
-        # Create headers for question list
+        # Create headers for the question list
         Label(question_frame, text="Question", font=("Arial", 10, "bold")).grid(row=0, column=0, sticky=W, padx=5)
         Label(question_frame, text="Difficulty", font=("Arial", 10, "bold")).grid(row=0, column=1, sticky=W, padx=5)
 
@@ -1500,7 +1498,7 @@ def testModify():
         for widget in question_frame.winfo_children():
             widget.destroy()
 
-        # Create headers for question list
+        # Create headers for the question list
         Label(question_frame, text="Question", font=("Arial", 10, "bold")).grid(row=0, column=0, sticky=W, padx=5)
         Label(question_frame, text="Difficulty", font=("Arial", 10, "bold")).grid(row=0, column=1, sticky=W, padx=5)
 
@@ -1551,9 +1549,9 @@ def testModify():
     header_tmodify = create_header_label(root, "Modify Tests")
 
     # Create labels for the Test ID and test title
-    ttk.Label(tmodifyFrame, text="Test ID").grid(row=0, column=0, ipadx= 5)
-    ttk.Label(tmodifyFrame, text="Test Title", anchor=W).grid(row=0, column=1, ipadx= 100)
-    ttk.Label(tmodifyFrame, text="Test Category", anchor=W).grid(row=0, column=2, ipadx= 5)
+    ttk.Label(tmodifyFrame, text="Test ID").grid(row=0, column=0, ipadx=5)
+    ttk.Label(tmodifyFrame, text="Test Title", anchor=W).grid(row=0, column=1, ipadx=100)
+    ttk.Label(tmodifyFrame, text="Test Category", anchor=W).grid(row=0, column=2, ipadx=5)
 
     # Create Dropdown box to select test
     cnx = get_db_connection()
@@ -1590,7 +1588,8 @@ def testModify():
     # Dropdown positioned right after the list of tests
     dropdown_row = num_rows_qdelete + 2
 
-    test_drop = create_dropdown_ver(tmodifyFrame, test_title, var, dropdown_row, 0, 2, "normal", text="Select Test by Title")
+    test_drop = create_dropdown_ver(tmodifyFrame, test_title, var, dropdown_row, 0, 2, "normal",
+                                    text="Select Test by Title")
 
     # Create a Binding for the Dropdown menu to change the Question ID
     test_drop.bind("<<ComboboxSelected>>", test_selection_dis)
@@ -1632,12 +1631,11 @@ def testModify():
     # Create a dropdown for selecting the Test Type
     type_var = StringVar()
     test_type_dropdown = create_dropdown_ver(category_frame, test_name, type_var, 0, 0, 3, "readonly",
-                                            "Current Test Type")
-
+                                             "Current Test Type")
 
     # Create the new questions frame to display all questions from each category
     question_frame = Frame(tmodifyFrame, bd=1, relief=GROOVE)
-    question_frame.grid(row=0, column=4, columnspan=3, rowspan= 10, sticky=W, pady=10, padx=50)
+    question_frame.grid(row=0, column=4, columnspan=3, rowspan=10, sticky=W, pady=10, padx=50)
     loadQuestions()
 
     # Label and text box for test title
@@ -1655,6 +1653,7 @@ def testModify():
     back_btn_tmodify = create_back_button(root, backTestModify)
 
     return
+
 
 ###################################################Test Delete##########################################################
 
@@ -1757,7 +1756,7 @@ def testDelete():
     test_ids = sorted(test_ids)
 
     selected_tid = StringVar()
-    selected_tid.set(test_ids[0])  # Set first question ID as default
+    selected_tid.set(test_ids[0])  # Set the first question ID as default
 
     text = "Select test ID to delete: "
     test_dropdown = create_dropdown_hor(tdeleteFrame, test_ids, selected_tid, num_rows + 2, 0, 2, "normal", text)
@@ -1889,7 +1888,7 @@ def testExtract():
     test_ids = sorted(test_ids)
 
     selected_tid = StringVar()
-    selected_tid.set(test_ids[0])  # Set first question ID as default
+    selected_tid.set(test_ids[0])  # Set the first question ID as default
 
     text = "Select test ID to Export to QTI .zip file: "
     test_dropdown = create_dropdown_hor(butFrame, test_ids, selected_tid, 1, 0, 2, "normal", text)
@@ -1947,7 +1946,7 @@ def backQuestCatAdd():
 
 
 def questCatAdd():
-    # When refreshing the page, destroy previous frame
+    # When refreshing the page, destroy the previous frame
     if 'questCatAddFrame' in globals():
         backQuestCatAdd()
 
@@ -2035,7 +2034,7 @@ def questCatAdd():
 
     Label(questCatAddFrame, text="Question Category Name").grid(row=num_rows_qdelete + 3, column=0, ipadx=5)
 
-    # If we have time they would like to have a comment section next to the category name
+    # If we have time, they would like to have a comment section next to the category name
     # this means editing the database and adding category_label in the Questions_Categories table
 
     #Label(questCatAddFrame, text="Question Type Comment").grid(row=0, column=0, ipadx=5)
@@ -2045,7 +2044,8 @@ def questCatAdd():
     qctitle_entry.grid(row=num_rows_qdelete + 4, column=0)
 
     # Add Test Button
-    add_questCat_btn = ttk.Button(questCatAddFrame, text="Add New Category", command=addNewQuestCat, style="Accent.TButton")
+    add_questCat_btn = ttk.Button(questCatAddFrame, text="Add New Category", command=addNewQuestCat,
+                                  style="Accent.TButton")
     add_questCat_btn.grid(row=num_rows_qdelete + 5, column=0, pady=10)
 
     global back_btn_questCatAdd
@@ -2066,7 +2066,7 @@ def backQuestCatModify():
 
 
 def questCatModify():
-    # When refreshing the page, destroy previous frame
+    # When refreshing the page, destroy the previous frame
     if 'questCatModifyFrame' in globals():
         backQuestCatModify()
 
@@ -2166,7 +2166,8 @@ def questCatModify():
     qctitle_entry.grid(row=num_rows_qdelete + 4, column=0)
 
     # Button to modify
-    modify_questCat_btn = ttk.Button(questCatModifyFrame, text="Modify Question Category Title", command=submitChanges, style="Accent.TButton")
+    modify_questCat_btn = ttk.Button(questCatModifyFrame, text="Modify Question Category Title", command=submitChanges,
+                                     style="Accent.TButton")
     modify_questCat_btn.grid(row=dropdown_row + 5, column=0, columnspan=1, pady=10)
 
     global back_btn_questCatModify
@@ -2187,7 +2188,7 @@ def backQuestCatDelete():
 
 
 def questCatDelete():
-    # When refreshing the page, destroy previous frame
+    # When refreshing the page, destroy the previous frame
     if 'questCatDeleteFrame' in globals():
         backQuestCatDelete()
 
@@ -2225,7 +2226,7 @@ def questCatDelete():
                 # Commit changes
                 cnx.commit()
 
-                # Show success message
+                # Show a success message
                 messagebox.showinfo("Success", f"Category '{selected_category}' has been deleted.")
 
                 # Clear the current selection
@@ -2292,7 +2293,8 @@ def questCatDelete():
     cnx.close()
 
     # Adjust button position
-    delete_questCat_btn = ttk.Button(questCatDeleteFrame, text="Delete Question Category", command=deleteQuestCat, style="Accent.TButton")
+    delete_questCat_btn = ttk.Button(questCatDeleteFrame, text="Delete Question Category", command=deleteQuestCat,
+                                     style="Accent.TButton")
     delete_questCat_btn.grid(row=dropdown_row + 1, column=0, columnspan=2, pady=10)
 
     global back_btn_questCatDelete
@@ -2333,7 +2335,7 @@ def backTestCatAdd():
 
 
 def testCatAdd():
-    # When refreshing the page, destroy previous frame
+    # When refreshing the page, destroy the previous frame
     if 'testCatAddFrame' in globals():
         backTestCatAdd()
 
@@ -2419,7 +2421,7 @@ def testCatAdd():
 
     Label(testCatAddFrame, text="New Test Category Name").grid(row=num_rows_qdelete + 3, column=0, ipadx=5)
 
-    # If we have time they would like to have a comment section next to the category name
+    # If we have time, they would like to have a comment section next to the category name
     # this means editing the database and adding category_label in the Questions_Categories table
 
     #Label(questCatAddFrame, text="Question Type Comment").grid(row=0, column=0, ipadx=5)
@@ -2429,7 +2431,8 @@ def testCatAdd():
     tctitle_entry.grid(row=num_rows_qdelete + 4, column=0)
 
     # Add Test Button
-    add_testCat_btn = ttk.Button(testCatAddFrame, text="Add New Category", command=addNewTestCat, style="Accent.TButton")
+    add_testCat_btn = ttk.Button(testCatAddFrame, text="Add New Category", command=addNewTestCat,
+                                 style="Accent.TButton")
     add_testCat_btn.grid(row=num_rows_qdelete + 6, column=0, pady=10)
 
     global back_btn_testCatAdd
@@ -2450,7 +2453,7 @@ def backTestCatModify():
 
 
 def testCatModify():
-    # When refreshing the page, destroy previous frame
+    # When refreshing the page, destroy the previous frame
     if 'testCatModifyFrame' in globals():
         backTestCatModify()
 
@@ -2548,7 +2551,8 @@ def testCatModify():
     qctitle_entry.grid(row=num_rows_qdelete + 4, column=0)
 
     # Button to modify
-    modify_testCat_btn = ttk.Button(testCatModifyFrame, text="Modify Test Category Title", command=submitChanges, style="Accent.TButton")
+    modify_testCat_btn = ttk.Button(testCatModifyFrame, text="Modify Test Category Title", command=submitChanges,
+                                    style="Accent.TButton")
     modify_testCat_btn.grid(row=dropdown_row + 5, column=0, columnspan=1, pady=10)
 
     global back_btn_testCatModify
@@ -2569,7 +2573,7 @@ def backTestCatDelete():
 
 
 def testCatDelete():
-    # When refreshing the page, destroy previous frame
+    # When refreshing the page, destroy the previous frame
     if 'testCatDeleteFrame' in globals():
         backTestCatDelete()
 
@@ -2607,7 +2611,7 @@ def testCatDelete():
                 # Commit changes
                 cnx.commit()
 
-                # Show success message
+                # Show a success message
                 messagebox.showinfo("Success", f"Category '{selected_category}' has been deleted.")
 
                 # Clear the current selection
@@ -2672,7 +2676,8 @@ def testCatDelete():
     # Close Connection
     cnx.close()
 
-    delete_testCat_btn = ttk.Button(testCatDeleteFrame, text="Delete Question Category", command=deleteTestCat, style="Accent.TButton")
+    delete_testCat_btn = ttk.Button(testCatDeleteFrame, text="Delete Question Category", command=deleteTestCat,
+                                    style="Accent.TButton")
     delete_testCat_btn.grid(row=dropdown_row + 2, column=0, pady=10)
 
     global back_btn_testCatDelete
