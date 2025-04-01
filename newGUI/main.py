@@ -165,13 +165,13 @@ def questionView():
 
         # Clear previous answers
         for i in range(5):
-            for answer in answerFrame.grid_slaves(row=4 + i, column=3):
+            for answer in answerFrame.grid_slaves(row=4 + i, column=4):
                 answer.grid_forget()
 
         # Display answers
         j = 4
         for answer in answers:
-            Label(answerFrame, text=answer, anchor='w', justify='left').grid(row=j, column=4, sticky="w")
+            Label(answerFrame, text=answer, anchor='w', justify="left").grid(row=j, column=4, sticky="w")
             j += 1
 
         # Close connection and cursor
@@ -323,7 +323,7 @@ def questionAdd():
     header_qadd = create_header_label(root, "Add Questions")
 
     # Create Labels for the Text Input
-    ttk.Label(qaddFrame, text="Question: ", font=("Arial", 10, "bold")).grid(row=0, column=2, sticky="e")
+    ttk.Label(qaddFrame, text="Question: ", font=("Arial", 10, "bold"), foreground="#047bf9").grid(row=0, column=2, sticky="e")
     question = ttk.Entry(qaddFrame, width=99)
     question.grid(row=0, column=3, padx=10, pady=15)
 
@@ -468,7 +468,7 @@ def questionModify():
 
     # Create the label and text boxes for the selected question
     # Create Labels for the Text Input
-    Label(modFrame, text="Question: ").grid(row=0, column=3, sticky='w')
+    Label(modFrame, text="Question: ", foreground="#047bf9", font=("Arial", 10, "bold")).grid(row=0, column=3, sticky='w')
     question = ttk.Entry(modFrame, width=110)
     question.grid(row=0, column=4, columnspan=3, sticky='e')
 
@@ -501,7 +501,7 @@ def questionModify():
 
     # ANSWER SECTION
     # Create Labels for the Answer Choices and note the first one is always correct
-    Label(modFrame, text="Answer Number 1 (Correct): ").grid(row=1, column=4, sticky='e')
+    Label(modFrame, text="Answer Number 1 (Correct): ", font=("Arial", 10, "bold")).grid(row=1, column=4, sticky='e')
     Label(modFrame, text="Answer Number 2: ").grid(row=2, column=4, sticky='e')
     Label(modFrame, text="Answer Number 3: ").grid(row=3, column=4, sticky='e')
     Label(modFrame, text="Answer Number 4: ").grid(row=4, column=4, sticky='e')
@@ -1011,15 +1011,10 @@ def testView():
         questions = c.fetchall()
 
         for row in qTree.get_children():
-            tree.delete(row)
+            qTree.delete(row)
 
         for item in questions:
             qTree.insert("", "end", values=item)
-
-        # Clear previous answers
-        for question in questionFrame.grid_slaves():
-            if int(question.grid_info()["row"]) >= 4:
-                question.grid_forget()
 
         # Close connection and cursor
         c.close()
@@ -1090,9 +1085,6 @@ def testMake():
 
         for i, (q_id, q_text, q_diff) in enumerate(questions, start=1):
             var = IntVar(value=1 if q_id in selected_questions else 0)
-
-            # When question is longer than 70 characters, the question is shortened
-            shortened_qtitle = q_text[:70] + "..." if len(q_text) > 70 else q_text
 
             ttk.Checkbutton(scrollable_frame, text=q_text, variable=var,
                         command=lambda q=q_id, v=var: toggle_question(q, v)).grid(row=i, column=0, columnspan=4, sticky="w", padx=10)
@@ -1686,6 +1678,11 @@ def testDelete():
 
     # Create a Frame this option
     global tdeleteFrame
+
+    # Destroy existing frame to prevent duplicates
+    if 'tdeleteFrame' in globals() and tdeleteFrame.winfo_exists():
+        tdeleteFrame.destroy()
+
     tdeleteFrame = Frame(root, bd=2)
     tdeleteFrame.grid(row=1, pady=10, padx=20)
 
@@ -1693,24 +1690,72 @@ def testDelete():
     global header_tdelete
     header_tdelete = create_header_label(root, "Delete Tests")
 
-    # Create a Labels for the Columns of the Question Table
-    Label(tdeleteFrame, text="Test ID").grid(row=0, column=0, ipadx=5)
-    Label(tdeleteFrame, text="Test", anchor='w').grid(row=0, column=1)
+    # Create a Frame for the treeview
+    treeFrame = Frame(tdeleteFrame, bd=10)
+    treeFrame.grid(row=0, column=0, sticky="nsew", columnspan=5)
+
+    # Define columns for the treeview
+    columns = ("tid", "ttype", "ttitle", "ttime", "numq")
+
+    # Create a treeview with the defined columns
+    global tree
+    tree = ttk.Treeview(treeFrame, columns=columns, show="headings", height=6)
+
+    # Set headers
+    tree.heading("tid", text="ID", anchor="w")
+    tree.heading("ttype", text="Type", anchor="w")
+    tree.heading("ttitle", text="Title", anchor="w")
+    tree.heading("ttime", text="Time", anchor="w")
+    tree.heading("numq", text="# of Questions", anchor="w")
+
+    # Set the columns
+    tree.column("tid", width=40, anchor="w")
+    tree.column("ttype", width=200, anchor="w")
+    tree.column("ttitle", width=620, anchor="w")
+    tree.column("ttime", width=100, anchor="w")
+    tree.column("numq", width=100, anchor="w")
+
+    tree.grid(row=0, column=0, sticky="nsew")
+
+    scrollbar = ttk.Scrollbar(treeFrame, orient="vertical", command=tree.yview)
+    scrollbar.grid(row=0, column=1, sticky="ns")
+    tree.configure(yscrollcommand=scrollbar.set)
 
     def showTestForDelete():
+        # Clear the tree completely before inserting new data
+        tree.delete(*tree.get_children())
+
         # Connect to Database
         cnx = get_db_connection()
+
         # Create a Cursor
         c = cnx.cursor()
+
         # Query Questions Table for all Questions
-        c.execute("SELECT * FROM Test")
+        c.execute("""
+                SELECT t.test_id, tot.test_name, t.test_title, t.test_time
+                FROM Test t
+                JOIN Types_Of_Test tot ON t.test_type = tot.test_type
+                    """)
+
         records = c.fetchall()
-        print_tid, print_t, print_ttd, print_td = '', '', '', ''
-        num_rows = 0
+
+        def countQuestions(t_id):
+            # Query Test Questions table for count of questions
+            c.execute("SELECT COUNT(question_id) AS num_questions FROM Test_Questions WHERE test_id = %s", (t_id,))
+
+            # Get the result
+            result = c.fetchone()
+
+            # Get the count if any questions were found, else set to 0
+            num_questions = result[0] if result else 0
+
+            return num_questions
+
+        # Loop through and display each question in the treeview
         for row in records:
-            print_tid += str(row[0]) + "\n"
-            print_t += str(row[2]) + "\n"
-            num_rows += 1
+            num_questions = countQuestions(row[0])
+            tree.insert("", "end", values=row + (num_questions,))
 
         # Commit Changes
         cnx.commit()
@@ -1718,12 +1763,7 @@ def testDelete():
         # Close Connection
         cnx.close()
 
-        qid_label = Label(tdeleteFrame, text=print_tid, anchor='w')
-        qid_label.grid(row=2, column=0, columnspan=1)
-        q_label = Label(tdeleteFrame, text=print_t, anchor='w')
-        q_label.grid(row=2, column=1, columnspan=1)
-
-        return num_rows
+        return
 
     # Create a Function to Delete the Typed Question ID From the Question Table
     # and to Delete all the Questions Answers in Question Choices
@@ -1753,12 +1793,14 @@ def testDelete():
             cnx.commit()
             # Close Connection
             cnx.close()
+
+            testDelete()
         else:
             return
 
         showTestForDelete()
 
-    num_rows = showTestForDelete()
+    showTestForDelete()
     # Connect to Database
     cnx = get_db_connection()
     # Create a Cursor
@@ -1774,7 +1816,7 @@ def testDelete():
     selected_tid.set(test_ids[0])  # Set the first question ID as default
 
     text = "Select test ID to delete: "
-    test_dropdown = create_dropdown_hor(tdeleteFrame, test_ids, selected_tid, num_rows + 2, 0, 2, "normal", text)
+    test_dropdown = create_dropdown_hor(tdeleteFrame, test_ids, selected_tid, 1, 0, 1, "normal", text)
 
     # Commit Changes
     cnx.commit()
@@ -1784,8 +1826,8 @@ def testDelete():
     # Label(tdeleteFrame, text="Test ID to Delete: ").grid(row=3, column=0)
     # delete_box = ttk.Entry(tdeleteFrame, width=10)
     # delete_box.grid(row=3, column=1)
-    deleteQuestion_btn = ttk.Button(tdeleteFrame, text="Delete Test", command=deleteQuestion)
-    deleteQuestion_btn.grid(row=num_rows + 4, column=1)
+    deleteQuestion_btn = ttk.Button(tdeleteFrame, text="Delete Test", command=deleteQuestion, style="Accent.TButton")
+    deleteQuestion_btn.grid(row=1, column=1, sticky="e", padx=10, ipadx=20)
 
     global back_btn_tdelete
     back_btn_tdelete = create_back_button(root, backTestDelete)
@@ -2018,6 +2060,9 @@ def questCatAdd():
     # Show header
     global header_qcatadd
     header_qcatadd = create_header_label(root, "Add Question Categories")
+
+
+
 
     # Create a Labels for the Columns of the Question Category Table
     ttk.Label(questCatAddFrame, text="Test Category ID").grid(row=0, column=0, ipadx=5)
@@ -2558,8 +2603,6 @@ def testCatModify():
         cat_name.append(row[1])
         tree.insert("", "end", values=(row[0], row[1]))
 
-    # Dropdown positioned right after the list of categories
-    dropdown_row = num_rows_qdelete + 2
 
     # Create dropdown for category selection
     def on_category_select(event):
@@ -2573,7 +2616,6 @@ def testCatModify():
     cate_drop.grid(pady=15)
 
     cate_drop.bind('<<ComboboxSelected>>', on_category_select)
-
 
     # Commit Changes
     cnx.commit()
@@ -2662,10 +2704,6 @@ def testCatDelete():
 
     hide_main_menu()
 
-    # Number of rows
-    global num_rows_qdelete
-    num_rows_qdelete = 0
-
     # Create a Frame this option
     global testCatDeleteFrame
     testCatDeleteFrame = Frame(root, bd=2)
@@ -2674,37 +2712,45 @@ def testCatDelete():
     global header_tcatdelete
     header_tcatdelete = create_header_label(root, "Delete Test Category")
 
-    # Create a Labels for the Columns of the Question Category Table
-    ttk.Label(testCatDeleteFrame, text="Test Category ID").grid(row=0, column=0, ipadx=5)
-    ttk.Label(testCatDeleteFrame, text="Test Category Title", anchor='w').grid(row=0, column=1, ipadx=215)
-
     # Create Dropdown Box for Test Category
+
+    # Create a treeview for displaying categories
+    tree = ttk.Treeview(testCatDeleteFrame, columns=("tcid", "tcat"), show="headings", height=5)
+    tree.heading("tcid", text="Test Category ID", anchor="w")
+    tree.heading("tcat", text="Test Category Title", anchor="w")
+
+    # Define column width
+    tree.column("tcid", width=100)
+    tree.column("tcat", width=300)
+
+    # Add a scrollbar to the treeview
+    scrollbar = ttk.Scrollbar(testCatDeleteFrame, orient="vertical", command=tree.yview)
+
+    # Configure tree to use the scrollbar
+    tree.configure(yscrollcommand=scrollbar.set)
+
+    tree.grid(row=0, column=0, columnspan=2, pady=10)
+    scrollbar.grid(row=0, column=2, sticky="ns", pady=10)
 
     # Connect to Database
     cnx = get_db_connection()
+
     # Create a Cursor
     c = cnx.cursor()
+
     c.execute("SELECT * FROM Types_Of_Test")
     results = c.fetchall()
     cat_name = []
+
     var = StringVar()
+
     for row in results:
         cat_name.append(row[1])
+        tree.insert("", "end", values=(row[0], row[1]))
 
-        cid_lbl = ttk.Label(testCatDeleteFrame, text=str(row[0]), anchor='w')
-        cid_lbl.grid(row=num_rows_qdelete + 2, column=0, columnspan=1)
-
-        ct_lbl = Label(testCatDeleteFrame, text=str(row[1]), anchor='w', justify='left')
-        ct_lbl.grid(row=num_rows_qdelete + 2, column=1, columnspan=2, sticky='w')
-
-        num_rows_qdelete += 1
-
-    # Dropdown positioned right after the list of categories
-    dropdown_row = num_rows_qdelete + 2
-    # Label(questCatDeleteFrame, text="Select a Question Category:").grid(row=dropdown_row, column=0, columnspan=2, sticky='w')
-
-    cate_drop = create_dropdown_ver(testCatDeleteFrame, cat_name, var, dropdown_row, 0, 2, "normal",
-                                    text="Select a Test Category")
+    cate_drop = create_dropdown_hor(testCatDeleteFrame, cat_name, var, 2, 0, 1, "normal",
+                                    text="Select a test category: ")
+    cate_drop.grid(padx=10)
     # Commit Changes
     cnx.commit()
     # Close Connection
@@ -2712,7 +2758,7 @@ def testCatDelete():
 
     delete_testCat_btn = ttk.Button(testCatDeleteFrame, text="Delete Question Category", command=deleteTestCat,
                                     style="Accent.TButton")
-    delete_testCat_btn.grid(row=dropdown_row + 2, column=0, pady=10)
+    delete_testCat_btn.grid(row=3, column=0, pady=10, columnspan=2)
 
     global back_btn_testCatDelete
     back_btn_testCatDelete = create_back_button(root, backTestCatDelete)
