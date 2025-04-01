@@ -322,9 +322,9 @@ def questionAdd():
     header_qadd = create_header_label(root, "Add Questions")
 
     # Create Labels for the Text Input
-    ttk.Label(qaddFrame, text="Question:").grid(row=0, column=2, padx=10, pady=10)
-    question = ttk.Entry(qaddFrame, width=100)
-    question.grid(row=0, column=3, padx=10, pady=10)
+    ttk.Label(qaddFrame, text="Question: ").grid(row=0, column=2, sticky="e")
+    question = ttk.Entry(qaddFrame, width=99)
+    question.grid(row=0, column=3, padx=10, pady=15)
 
     # Create Dropdown Box for Question Categories
     # Connect to Database
@@ -345,27 +345,27 @@ def questionAdd():
     cnx.close()
 
     # Label(qaddFrame, text="Question Category").grid(row=1, column=0, pady=10)
-    ttk.Label(qaddFrame, text="Question Difficulty").grid(row=4, column=0, padx=10, pady=10)
+    ttk.Label(qaddFrame, text="Question Difficulty").grid(row=4, column=0, sticky="w", padx=5, pady=5)
     difficulty = ttk.Entry(qaddFrame, width=30)
-    difficulty.grid(row=5, column=0, padx=10, pady=10)
+    difficulty.grid(row=5, column=0, padx=5, pady=5)
 
     # ANSWER SECTION
     # Create Labels for the Answer Choices and note the first one is always correct
-    ttk.Label(qaddFrame, text="(Correct) Answer Number 1:").grid(row=2, column=2, padx=10, pady=10)
-    ttk.Label(qaddFrame, text="Answer Number 2:").grid(row=3, column=2, )
-    ttk.Label(qaddFrame, text="Answer Number 3:").grid(row=4, column=2)
-    ttk.Label(qaddFrame, text="Answer Number 4:").grid(row=5, column=2)
-    ttk.Label(qaddFrame, text="Answer Number 5:").grid(row=6, column=2)
+    ttk.Label(qaddFrame, text="Answer Number 1 (Correct): ").grid(row=2, column=2, sticky="e", pady=10)
+    ttk.Label(qaddFrame, text="Answer Number 2: ").grid(row=3, column=2, sticky="e", pady=10)
+    ttk.Label(qaddFrame, text="Answer Number 3: ").grid(row=4, column=2, sticky="e", pady=10)
+    ttk.Label(qaddFrame, text="Answer Number 4: ").grid(row=5, column=2, sticky="e", pady=10)
+    ttk.Label(qaddFrame, text="Answer Number 5: ").grid(row=6, column=2, sticky="e", pady=10)
 
     # Create Text Boxes for Each Answer
     answers = []
     for i in range(5):
-        entry = ttk.Entry(qaddFrame, width=100)
-        entry.grid(row=2 + i, column=3)
+        entry = ttk.Entry(qaddFrame, width=99)
+        entry.grid(row=2 + i, column=3, padx=5)
         answers.append(entry)
 
     # Create Add Button to Trigger the Addition of the new Record
-    add_btn = ttk.Button(qaddFrame, text="Add Question", command=addQuestion, width=30)
+    add_btn = ttk.Button(qaddFrame, text="Add Question", command=addQuestion, width=30, style="Accent.TButton")
     add_btn.grid(row=8, column=3, padx=10, pady=10)
 
     # Create a Back Button to Hide Current View and Reshow Original View
