@@ -1,4 +1,4 @@
-from test2qti import *
+qti import *
 from tkinter import ttk
 from latexCheck import *
 
@@ -276,7 +276,7 @@ def questionAdd():
 
             # Insert New Question into Questions Table
             c.execute(
-                """INSERT INTO Questions (question_id, question, category_id, question_difficulty) 
+                """INSERT INTO Questions (question_id, question, category_id, question_difficulty)
                    VALUES (%s, %s, %s, %s)""",
                 (newID, question.get(), cat_id, difficulty.get())
             )
@@ -388,175 +388,6 @@ def backQuestionModify():
 
 # Create Question Modify Function to Update Records in Question Table
 def questionModify():
-    def question_selection_dis(event=None):
-        # Save the Question ID that we want to change
-        qID = question_dropdown.get()
-
-        # Clear out the old results
-        question.delete(0, END)
-        cate_dropdown.set('')  # Corrected clearing method for dropdown
-        difficulty.delete(0, END)
-        for i in range(5):
-            answers[i].delete(0, END)
-
-        # Connect to Database
-        cnx = get_db_connection()
-        c = cnx.cursor()
-
-        # Fetch question details
-        c.execute("SELECT * FROM Questions WHERE question_id = %s", (qID,))
-        questionInfo = c.fetchone()
-
-        # Fetch answers for the selected question
-        c.execute("SELECT choice_text FROM Question_Choices WHERE question_id = %s", (qID,))
-        questionAns = c.fetchall()
-
-        # Close database connection
-        cnx.close()
-
-        if questionInfo:
-            # Get Category Name for Drop Down
-            cat_name = str(getCategoryName(questionInfo[2]))  # Fetch category name
-            cat_name = cat_name.strip("(),''")
-            cate_dropdown.set(cat_name)  # Correctly update dropdown value
-
-            # Update the text fields with the retrieved data
-            question.insert(0, questionInfo[1])  # Question text
-            difficulty.insert(0, questionInfo[3])  # Difficulty level
-
-            # Update answer choices
-            for i, ans in enumerate(questionAns):
-                answers[i].insert(0, ans[0])  # Insert the actual text value
-
-    def refresh_tree():
-        # Clear existing treeview
-        for item in tree.get_children():
-            tree.delete(item)
-
-        # Connect to database and create cursor
-        cnx = get_db_connection()
-        c = cnx.cursor()
-
-        c.execute("""
-                SELECT q.question_id, q.question, qc.category_name, q.question_difficulty
-                FROM Questions q
-                JOIN Question_Categories qc ON q.category_id = qc.category_id
-                ORDER BY q.question_id
-                            """)
-
-        records = c.fetchall()
-
-        # Insert updated records into the treeview
-        for row in records:
-            tree.insert("", "end", values=row)
-
-        # Close connection
-        cnx.close()
-
-    # Create Function to Submit the Changes to the Database
-    # MUST USE THE UPDATE SQL COMMANDS GOODLUCK BUDDY
-    def submitChanges():
-        # Validate that there is a question in the form
-        if not question.get().strip():
-            messagebox.showerror("Error", "There is no Question submitted.")
-            return
-
-        # Validates that there is a selection in the dropdown box
-        if len(var.get()) == 0:
-            messagebox.showerror("Error", "There is no Question Category Selected.")
-            return
-
-        valid, texResult = check_latex_validity(f'{question.get()}')
-        if not valid:
-            messagebox.showerror("LaTeX is not valid.", f"Error: {texResult}\nCheck Question.")
-            return
-
-        # Validate that there is a difficulty input
-        if not difficulty.get().strip():
-            messagebox.showerror("Error", "There is no Question Difficulty submitted.")
-            return
-
-        # Validate that Difficulty is a number
-        if difficulty.get().isalpha():
-            messagebox.showerror("Error", "Please enter an integer for Question Difficulty.")
-            return
-
-        # Validate that each answer is not empty
-        for i in range(5):
-            answer = answers[i].get()
-            if not answers[i].get().strip():
-                messagebox.showerror("Error", f"Answer {i + 1} is not submitted.")
-                return
-
-            valid, texResult = check_latex_validity(f'{answer}')
-            if not valid:
-                messagebox.showerror("LaTeX is not valid.", f"Error: {texResult}\nCheck Answer {i + 1}")
-                return
-
-        # Connect to Database
-        cnx = get_db_connection()
-
-        # Create a Cursor
-        c = cnx.cursor()
-
-        # FInd new ID for the New Question
-        # newID = countQuestionsTotal()
-        qid = question_dropdown.get()
-
-        # Find Category ID for the selection Category
-        c.execute("SELECT category_id FROM Question_Categories WHERE category_name= %s", (var.get(),))
-        qcatResults = c.fetchone()
-        cat_id = qcatResults[0]
-
-        # Update existing question in the Questions Table
-        c.execute(
-            """UPDATE Questions 
-               SET question = %s, category_id = %s, question_difficulty = %s 
-               WHERE question_id = %s""",
-            (question.get(), cat_id, difficulty.get(), qid)
-        )
-
-        # Update existing question choices in the Question_Choices Table
-        letter = ['a', 'b', 'c', 'd', 'e']
-        for i in range(5):
-            if i == 0:
-                c.execute(
-                    """UPDATE Question_Choices 
-                       SET choice_text = %s, is_correct = %s 
-                       WHERE choice_id = %s AND question_id = %s""",
-                    (answers[i].get(), '1', str(f"{qid}{letter[i]}"), qid)
-                )
-            else:
-                c.execute(
-                    """UPDATE Question_Choices 
-                       SET choice_text = %s, is_correct = %s 
-                       WHERE choice_id = %s AND question_id = %s""",
-                    (answers[i].get(), '0', str(f"{qid}{letter[i]}"), qid)
-                )
-
-        print("Supposed to be updated.")
-        print()
-
-        # Commit Changes
-        cnx.commit()
-
-        # Close Connection
-        cnx.close()
-
-        # Clear Text Boxes and Dropdown
-        question.delete(0, END)
-        cate_dropdown.set('')
-        difficulty.delete(0, END)
-
-        for i in range(5):
-            answers[i].delete(0, END)
-
-        question_dropdown.set('')
-
-        refresh_tree()
-
-        return
-
     hide_main_menu()
 
     # Create a Frame this option
@@ -600,8 +431,17 @@ def questionModify():
     # Create a Cursor
     c = cnx.cursor()
 
-    # Create treeview
-    refresh_tree()
+    # Query Questions Table for all Questions
+    c.execute("""
+                SELECT q.question_id, q.question, qc.category_name, q.question_difficulty
+                FROM Questions q
+                JOIN Question_Categories qc ON q.category_id = qc.category_id
+                    """)
+    records = c.fetchall()
+
+    # Loop through and display each question
+    for row in records:
+        tree.insert("", "end", values=row)
 
     modFrame = Frame(qmodifyFrame, bd=2)
     modFrame.grid(row=1, column=0, pady=5, padx=5, sticky="nsew")
@@ -675,6 +515,145 @@ def questionModify():
         entry.grid(row=1 + i, column=5, columnspan=3, sticky='e')
         answers.append(entry)
 
+    def question_selection_dis(event=None):
+        # Save the Question ID that we want to change
+        qID = question_dropdown.get()
+
+        # Clear out the old results
+        question.delete(0, END)
+        cate_dropdown.set('')  # Corrected clearing method for dropdown
+        difficulty.delete(0, END)
+        for i in range(5):
+            answers[i].delete(0, END)
+
+        # Connect to Database
+        cnx = get_db_connection()
+        c = cnx.cursor()
+
+        # Fetch question details
+        c.execute("SELECT * FROM Questions WHERE question_id = %s", (qID,))
+        questionInfo = c.fetchone()
+
+        # Fetch answers for the selected question
+        c.execute("SELECT choice_text FROM Question_Choices WHERE question_id = %s", (qID,))
+        questionAns = c.fetchall()
+
+        # Close database connection
+        cnx.close()
+
+        if questionInfo:
+            # Get Category Name for Drop Down
+            cat_name = str(getCategoryName(questionInfo[2]))  # Fetch category name
+            cat_name = cat_name.strip("(),''")
+            cate_dropdown.set(cat_name)  # Correctly update dropdown value
+
+            # Update the text fields with the retrieved data
+            question.insert(0, questionInfo[1])  # Question text
+            difficulty.insert(0, questionInfo[3])  # Difficulty level
+
+            # Update answer choices
+            for i, ans in enumerate(questionAns):
+                answers[i].insert(0, ans[0])  # Insert the actual text value
+
+    # Create Function to Submit the Changes to the Database
+    # MUST USE THE UPDATE SQL COMMANDS GOODLUCK BUDDY
+    def submitChanges():
+        # Validate that there is a question in the form
+        if not question.get().strip():
+            messagebox.showerror("Error", "There is no Question submitted.")
+            return
+
+        # Validates that there is a selection in the dropdown box
+        if len(var.get()) == 0:
+            messagebox.showerror("Error", "There is no Question Category Selected.")
+            return
+
+        valid, texResult = check_latex_validity(f'{question.get()}')
+        if not valid:
+            messagebox.showerror("LaTeX is not valid.", f"Error: {texResult}\nCheck Question.")
+            return
+
+        # Validate that there is a difficulty input
+        if not difficulty.get().strip():
+            messagebox.showerror("Error", "There is no Question Difficulty submitted.")
+            return
+
+        # Validate that Difficulty is a number
+        if difficulty.get().isalpha():
+            messagebox.showerror("Error", "Please enter an integer for Question Difficulty.")
+            return
+
+        # Validate that each answer is not empty
+        for i in range(5):
+            answer = answers[i].get()
+            if not answers[i].get().strip():
+                messagebox.showerror("Error", f"Answer {i + 1} is not submitted.")
+                return
+
+            valid, texResult = check_latex_validity(f'{answer}')
+            if not valid:
+                messagebox.showerror("LaTeX is not valid.", f"Error: {texResult}\nCheck Answer {i + 1}")
+                return
+
+        # Connect to Database
+        cnx = get_db_connection()
+
+        # Create a Cursor
+        c = cnx.cursor()
+
+        # FInd new ID for the New Question
+        # newID = countQuestionsTotal()
+        qid = question_dropdown.get()
+
+        # Find Category ID for the selection Category
+        c.execute("SELECT category_id FROM Question_Categories WHERE category_name= %s", (var.get(),))
+        qcatResults = c.fetchone()
+        cat_id = qcatResults[0]
+
+        # Update existing question in the Questions Table
+        c.execute(
+            """UPDATE Questions
+               SET question = %s, category_id = %s, question_difficulty = %s
+               WHERE question_id = %s""",
+            (question.get(), cat_id, difficulty.get(), qid)
+        )
+
+        # Update existing question choices in the Question_Choices Table
+        letter = ['a', 'b', 'c', 'd', 'e']
+        for i in range(5):
+            if i == 0:
+                c.execute(
+                    """UPDATE Question_Choices
+                       SET choice_text = %s, is_correct = %s
+                       WHERE choice_id = %s AND question_id = %s""",
+                    (answers[i].get(), '1', str(f"{qid}{letter[i]}"), qid)
+                )
+            else:
+                c.execute(
+                    """UPDATE Question_Choices
+                       SET choice_text = %s, is_correct = %s
+                       WHERE choice_id = %s AND question_id = %s""",
+                    (answers[i].get(), '0', str(f"{qid}{letter[i]}"), qid)
+                )
+
+        print("Supposed to be Updated.")
+        print()
+
+        # Commit Changes
+        cnx.commit()
+
+        # Close Connection
+        cnx.close()
+
+        # Clear Text Boxes
+        question.delete(0, END)
+        cate_dropdown.set('')
+        difficulty.delete(0, END)
+        for i in range(5):
+            answers[i].delete(0, END)
+        question_dropdown.set('')
+        return
+
     # Create a Binding for the Dropdown menu to change the Question ID
     question_dropdown.bind("<<ComboboxSelected>>", question_selection_dis)
 
@@ -747,7 +726,6 @@ def questionDelete():
                 SELECT q.question_id, q.question, qc.category_name
                 FROM Questions q
                 JOIN Question_Categories qc ON q.category_id = qc.category_id
-                ORDER BY q.question_id
                     """)
     records = c.fetchall()
 
@@ -1025,10 +1003,10 @@ def testView():
         selected_test_id = selected_tid.get()
 
         query = ("""
-            SELECT q.question_id, q.question, qc.category_name, q.question_difficulty 
-            FROM Questions q 
-            JOIN Test_Questions tq ON q.question_id = tq.question_id 
-            JOIN Question_Categories qc ON q.category_id = qc.category_id 
+            SELECT q.question_id, q.question, qc.category_name, q.question_difficulty
+            FROM Questions q
+            JOIN Test_Questions tq ON q.question_id = tq.question_id
+            JOIN Question_Categories qc ON q.category_id = qc.category_id
             WHERE tq.test_id = %s
         """)
         c.execute(query, (selected_test_id,))
@@ -1086,7 +1064,7 @@ def testMake():
 
         # Get questions for the selected category
         c.execute("""
-            SELECT q.question_id, q.question, q.question_difficulty 
+            SELECT q.question_id, q.question, q.question_difficulty
             FROM Questions q
             WHERE q.category_id = %s
             ORDER BY q.question_difficulty
@@ -1153,14 +1131,14 @@ def testMake():
 
             # Insert new test
             c.execute("""
-                INSERT INTO Test (test_id, test_type, test_title, test_time) 
+                INSERT INTO Test (test_id, test_type, test_title, test_time)
                 VALUES (%s, %s, %s, %s)""",
                       (new_test_id, test_type_id, ttitle_entry.get(), test_time))
 
             # Insert selected questions
             for question_id in selected_questions:
                 c.execute("""
-                    INSERT INTO Test_Questions (test_id, question_id) 
+                    INSERT INTO Test_Questions (test_id, question_id)
                     VALUES (%s, %s)""",
                           (new_test_id, question_id))
 
@@ -1274,8 +1252,8 @@ def testMake():
 
     cnx = get_db_connection()
     c = cnx.cursor()
-    c.execute("""SELECT category_id, category_name 
-                 FROM Question_Categories 
+    c.execute("""SELECT category_id, category_name
+                 FROM Question_Categories
                  ORDER BY category_name""")
     categories = c.fetchall()
 
@@ -1401,7 +1379,7 @@ def testModify():
 
             # Update test title, time and type
             c.execute("""
-                    UPDATE Test 
+                    UPDATE Test
                     SET test_title = %s, test_time = %s, test_type = %s
                     WHERE test_id = %s
                 """, (new_test_title, new_test_time, new_test_type, test_id))
@@ -1485,8 +1463,8 @@ def testModify():
 
         # Fetch test details using the selected title
         c.execute("""
-            SELECT test_id, test_type, test_title, test_time 
-            FROM Test 
+            SELECT test_id, test_type, test_title, test_time
+            FROM Test
             WHERE test_id = %s""",
                   (selected_test_id,))
 
@@ -1639,7 +1617,7 @@ def testModify():
     question_frame.grid(row=2, column=0, sticky="nw", columnspan=2)
 
     # Create Canvas
-    canvas = Canvas(question_frame, width=600, height=200)
+    canvas = Canvas(question_frame, width=700, height=200)
     canvas.grid(row=1, column=0, columnspan=4, sticky="nw")
     scrollbar = ttk.Scrollbar(question_frame, orient="vertical", command=canvas.yview)
     canvas.config(yscrollcommand=scrollbar.set)
@@ -1648,7 +1626,7 @@ def testModify():
     # Create scrollable frame inside canvas
     global scrollable_frame
     scrollable_frame = Frame(canvas)
-    canvas.create_window((0, 0), window=scrollable_frame, anchor="nw", width=600)
+    canvas.create_window((0, 0), window=scrollable_frame, anchor="nw", width=700)
     scrollable_frame.grid_columnconfigure(0, weight=1)
 
 
@@ -1686,8 +1664,8 @@ def testModify():
 
     cnx = get_db_connection()
     c = cnx.cursor()
-    c.execute("""SELECT test_type, test_name 
-                 FROM Types_Of_Test 
+    c.execute("""SELECT test_type, test_name
+                 FROM Types_Of_Test
                  ORDER BY test_name""")
     types = c.fetchall()
 
@@ -1706,8 +1684,8 @@ def testModify():
     # Create a dropdown for selecting the Test Type
     type_var = StringVar()
     test_type_dropdown = create_dropdown_hor(modify_frame, test_name, type_var, 1, 3, 3, "readonly",
-                                             "   Current test type: ")
-
+                                             "   Current Test Type: ")
+    test_type_dropdown.grid(sticky="e")
 
     # Label and text box for test title
     Label(modify_frame, text="Test Title:").grid(row=2, column=3, sticky="w", padx=10)
@@ -1718,7 +1696,7 @@ def testModify():
     time = ttk.Entry(modify_frame, width=10)
     time.grid(row=4, column=4, columnspan=2, sticky="e")
 
-    ttk.Button(modify_frame, text="Modify Test", command=submitChange, style="Accent.TButton").grid(row=4, column=6, pady=10)
+    ttk.Button(modify_frame, text="Modify Test", command=submitChange, style="Accent.TButton").grid(row=4, column=5, pady=10)
 
     global back_btn_tmodify
     back_btn_tmodify = create_back_button(root, backTestModify)
@@ -2092,7 +2070,7 @@ def questCatAdd():
 
             # Insert New Category
             c.execute(
-                """INSERT INTO Question_Categories (category_id, category_name) 
+                """INSERT INTO Question_Categories (category_id, category_name)
                    VALUES (%s, %s)""",
                 (new_questCat_id, qctitle_entry.get())
             )
@@ -2377,6 +2355,10 @@ def questCatDelete():
 
     hide_main_menu()
 
+    # Number of rows
+    global num_rows_qdelete
+    num_rows_qdelete = 0
+
     # Create a Frame this option
     global questCatDeleteFrame
     questCatDeleteFrame = Frame(root, bd=2)
@@ -2385,46 +2367,38 @@ def questCatDelete():
     global header_qcatdelete
     header_qcatdelete = create_header_label(root, "Delete Question Categories")
 
-    # Create Dropdown Box for Test Category
+    # Create a Labels for the Columns of the Question Category Table
+    ttk.Label(questCatDeleteFrame, text="Category ID").grid(row=0, column=0, ipadx=5)
+    ttk.Label(questCatDeleteFrame, text="Category Title", anchor='w').grid(row=0, column=1, ipadx=215)
 
-    # Create a treeview for displaying categories
-    tree = ttk.Treeview(questCatDeleteFrame, columns=("tcid", "tcat"), show="headings", height=5)
-    tree.heading("tcid", text="Test Category ID", anchor="w")
-    tree.heading("tcat", text="Test Category Title", anchor="w")
-
-    # Define column width
-    tree.column("tcid", width=100)
-    tree.column("tcat", width=300)
-
-    # Add a scrollbar to the treeview
-    scrollbar = ttk.Scrollbar(questCatDeleteFrame, orient="vertical", command=tree.yview)
-
-    # Configure tree to use the scrollbar
-    tree.configure(yscrollcommand=scrollbar.set)
-
-    tree.grid(row=0, column=0, columnspan=2, pady=10)
-    scrollbar.grid(row=0, column=2, sticky="ns", pady=10)
+    # Create Dropdown Box for Question Category
 
     # Connect to Database
     cnx = get_db_connection()
-
     # Create a Cursor
     c = cnx.cursor()
-
     c.execute("SELECT * FROM Question_Categories")
     results = c.fetchall()
     cat_name = []
-
     var = StringVar()
-
     for row in results:
         cat_name.append(row[1])
-        tree.insert("", "end", values=(row[0], row[1]))
 
+        cid_lbl = ttk.Label(questCatDeleteFrame, text=str(row[0]), anchor='w')
+        cid_lbl.grid(row=num_rows_qdelete + 2, column=0, columnspan=1)
 
-    cate_drop = create_dropdown_hor(questCatDeleteFrame, cat_name, var, 2, 0, 1, "normal",
+        ct_lbl = Label(questCatDeleteFrame, text=str(row[1]), anchor='w', justify='left')
+        ct_lbl.grid(row=num_rows_qdelete + 2, column=1, columnspan=2, sticky='w')
+
+        num_rows_qdelete += 1
+
+    # Dropdown positioned right after the list of categories
+    dropdown_row = num_rows_qdelete + 2
+    #Label(questCatDeleteFrame, text="Select a Question Category:").grid(row=dropdown_row, column=0, columnspan=2, sticky='w')
+
+    cate_drop = create_dropdown_ver(questCatDeleteFrame, cat_name, var, dropdown_row, 0, 2, "normal",
                                     text="Select a question category")
-    cate_drop.grid(padx=10)
+
     # Commit Changes
     cnx.commit()
     # Close Connection
@@ -2433,7 +2407,7 @@ def questCatDelete():
     # Adjust button position
     delete_questCat_btn = ttk.Button(questCatDeleteFrame, text="Delete Question Category", command=deleteQuestCat,
                                      style="Accent.TButton")
-    delete_questCat_btn.grid(row=3, column=0, columnspan=2, pady=10)
+    delete_questCat_btn.grid(row=dropdown_row + 1, column=0, columnspan=2, pady=10)
 
     global back_btn_questCatDelete
     back_btn_questCatDelete = create_back_button(root, backQuestCatDelete)
@@ -2494,7 +2468,7 @@ def testCatAdd():
 
             # Insert New Category
             c.execute(
-                """INSERT INTO Types_Of_Test (test_type, test_name) 
+                """INSERT INTO Types_Of_Test (test_type, test_name)
                    VALUES (%s, %s)""",
                 (new_testCat_id, tctitle_entry.get())
             )
