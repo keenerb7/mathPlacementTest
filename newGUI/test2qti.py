@@ -1,13 +1,22 @@
 import os
 import shutil
 import subprocess
+import re
 from collections import defaultdict
 from tkinter import messagebox, filedialog
 
 from mainHelper import *
 
 
+# def open_new_window():
+# new_window = Toplevel()
+# new_window.title("New Window")
+# Label(new_window, text="This is a new window").pack()
+
+
 def test2qti(createTest):
+    # open_new_window()
+
     if messagebox.askokcancel("Confirmation", f"Would you like to Export a QTI .zip file for Test ID: {createTest}?"):
         cnx = get_db_connection()
 
@@ -74,8 +83,12 @@ def test2qti(createTest):
         # Write out the questions to the text file
         grouped_answers = defaultdict(list)
         for ans in questionAnswers:
-            q_num = int(ans[0][0])  # Extract the question number
-            grouped_answers[q_num].append(ans)
+            match = re.match(r"(\d+)", ans[0])  # Extract full question number at the start
+            if match:
+                q_num = int(match.group(1))
+                grouped_answers[q_num].append(ans)
+            else:
+                print(f"Could not extract question number from: {ans[0]}")
 
         # Formatting
         for q in questionsText:
@@ -83,9 +96,15 @@ def test2qti(createTest):
             f.write(f"{q_num}. {q_text}\n")
 
             for ans in grouped_answers[q_num]:
-                ans_label = ans[0][1]  # extract the letter
-                ans_text = ans[1]  # answer text
-                is_correct = "*" if ans[2] == 1 else ""  # mark correct answers
+                match = re.match(r"(\d+)([a-eA-E])", ans[0])  # assuming labels are A–E
+                if match:
+                    ans_label = match.group(2).lower()
+                else:
+                    print(f"Couldn't extract answer label from: {ans[0]}")
+                    ans_label = "?"
+
+                ans_text = ans[1]
+                is_correct = "*" if ans[2] == 1 else ""  # space if not correct
 
                 f.write(f"{is_correct}{ans_label}) {ans_text}\n")
 
@@ -97,6 +116,15 @@ def test2qti(createTest):
 
         # Open the directory selection dialog
         folder_path = filedialog.askdirectory(initialdir=os.path.expanduser("~"), title="Select a folder")
+
+        # Ensures that there is a folder path selected
+        if not folder_path:
+            return
+
+        # # Start Progress Bar
+        # progressbar = ttk.Progressbar()
+        # progressbar.place(x=30, y=60, width=200)
+        # progressbar.step(50)
 
         # Create Solution File Name
         solution_file_path = text_file_name.strip() + " Solutions.pdf"
@@ -118,7 +146,8 @@ def test2qti(createTest):
             shutil.move(zip_source_path, zip_dest_path)
             messagebox.showinfo("Success", f"QTI .zip File Exported to {zip_dest_path}")
         else:
-            messagebox.showerror("Error", f"Could not find {zip_filename}.zip , Please Try Again.")
+            messagebox.showerror("Error", f"Could not find {zip_filename}.zip , Please Try Again.\n"
+                                          f"Double Check for duplicate questions and answers in test.")
 
         # Find the generated solutions file
         pdf_filename = solution_file_path
@@ -132,3 +161,6 @@ def test2qti(createTest):
         return
     else:
         return
+
+
+# test2qti(1)
