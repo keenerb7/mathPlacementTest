@@ -85,6 +85,46 @@ def backQuestionView():
 
 # Create Question View Function To Query From Questions Table
 def questionView():
+
+    # Sort the tree view
+    def load_categories(sort_order):
+        for item in tree.get_children():
+            tree.delete(item)
+
+        cnx = get_db_connection()
+        c = cnx.cursor()
+
+        # Build the ORDER BY clause based on the selected sort order
+        if sort_order == "ID":
+            order_by = "q.question_id"
+        elif sort_order == "Title":
+            order_by = "q.question"
+        elif sort_order == "Category":
+            order_by = "qc.category_name"
+        elif sort_order == "Difficulty":
+            order_by = "q.question_difficulty"
+        else:
+            order_by = "q.question_id"  # Fallback
+
+        c.execute(f"""
+            SELECT q.question_id, q.question, qc.category_name, q.question_difficulty
+            FROM Questions q
+            JOIN Question_Categories qc ON q.category_id = qc.category_id
+            ORDER BY {order_by}
+        """)
+        results = c.fetchall()
+
+        for row in results:
+            tree.insert("", "end", values=row)
+
+        cnx.commit()
+        cnx.close()
+
+
+    def on_sort_change(*args):
+        selected_sort = sort_var.get()
+        load_categories(selected_sort)
+
     hide_main_menu()
 
     # Show header
@@ -95,6 +135,14 @@ def questionView():
     global qviewFrame
     qviewFrame = Frame(root, bd=2)
     qviewFrame.grid(row=1, pady=10, padx=20)
+
+    # DROPDOWN: Add sorting selection
+    sort_var = StringVar()
+    sort_var.set("ID")  # default sort
+    sort_var.trace("w", on_sort_change)
+
+    sort_dropdown = create_dropdown_ver(header_qview, ["ID", "Title", "Category", "Difficulty"], sort_var, row=0, col=0, cspan=2, state="readonly",
+                        text="Sort questions by:")
 
     # Create a Frame for the treeview
     treeFrame = Frame(qviewFrame, bd=10)
@@ -358,9 +406,9 @@ def questionAdd():
     cnx.close()
 
     # Label(qaddFrame, text="Question Category").grid(row=1, column=0, pady=10)
-    ttk.Label(qaddFrame, text="Question Difficulty").grid(row=4, column=0, sticky="w", padx=5, pady=5)
+    ttk.Label(qaddFrame, text="Question Difficulty").grid(row=4, column=0, sticky="w", padx=0, pady=5)
     difficulty = ttk.Entry(qaddFrame, width=30)
-    difficulty.grid(row=5, column=0, padx=5, pady=5)
+    difficulty.grid(row=5, column=0, padx=0, pady=5)
 
     # ANSWER SECTION
     # Create Labels for the Answer Choices and note the first one is always correct
@@ -568,6 +616,44 @@ def questionModify():
 
         return
 
+    # Sort the tree view
+    def load_categories(sort_order):
+        for item in tree.get_children():
+            tree.delete(item)
+
+        cnx = get_db_connection()
+        c = cnx.cursor()
+
+        # Build the ORDER BY clause based on the selected sort order
+        if sort_order == "ID":
+            order_by = "q.question_id"
+        elif sort_order == "Title":
+            order_by = "q.question"
+        elif sort_order == "Category":
+            order_by = "qc.category_name"
+        elif sort_order == "Difficulty":
+            order_by = "q.question_difficulty"
+        else:
+            order_by = "q.question_id"  # Fallback
+
+        c.execute(f"""
+            SELECT q.question_id, q.question, qc.category_name, q.question_difficulty
+            FROM Questions q
+            JOIN Question_Categories qc ON q.category_id = qc.category_id
+            ORDER BY {order_by}
+        """)
+        results = c.fetchall()
+
+        for row in results:
+            tree.insert("", "end", values=row)
+
+        cnx.commit()
+        cnx.close()
+
+    def on_sort_change(*args):
+        selected_sort = sort_var.get()
+        load_categories(selected_sort)
+
     hide_main_menu()
 
     # Create a Frame this option
@@ -578,6 +664,15 @@ def questionModify():
     # Show header
     global header_qmodify
     header_qmodify = create_header_label(root, "Modify Questions")
+
+    # DROPDOWN: Add sorting selection
+    sort_var = StringVar()
+    sort_var.set("ID")  # default sort
+    sort_var.trace("w", on_sort_change)
+
+    sort_dropdown = create_dropdown_ver(header_qmodify, ["ID", "Title", "Category", "Difficulty"], sort_var, row=0, col=0,
+                                        cspan=2, state="readonly",
+                                        text="Sort questions by:")
 
     treeFrame = Frame(qmodifyFrame, bd=5)
     treeFrame.grid(row=0, column=0, sticky="nsew")
@@ -667,9 +762,9 @@ def questionModify():
     # Close Connection
     cnx.close()
 
-    Label(modFrame, text="Question Difficulty").grid(row=4, column=0, pady=5, padx=5, sticky='w')
+    Label(modFrame, text="Question Difficulty").grid(row=4, column=0, pady=5, padx=0, sticky='w')
     difficulty = ttk.Entry(modFrame, width=30)
-    difficulty.grid(row=5, column=0, padx=5, pady=5)
+    difficulty.grid(row=5, column=0, padx=0, pady=5)
 
     # ANSWER SECTION
     # Create Labels for the Answer Choices and note the first one is always correct
@@ -712,6 +807,45 @@ def backQuestionDelete():
 
 # Create Question Delete Function to Delete a Record in Question Table
 def questionDelete():
+    # Sort the tree view
+    def load_categories(sort_order):
+        for item in tree.get_children():
+            tree.delete(item)
+
+        cnx = get_db_connection()
+        c = cnx.cursor()
+
+        # Build the ORDER BY clause based on the selected sort order
+        if sort_order == "ID":
+            order_by = "q.question_id"
+        elif sort_order == "Title":
+            order_by = "q.question"
+        elif sort_order == "Category":
+            order_by = "qc.category_name"
+        elif sort_order == "Difficulty":
+            order_by = "q.question_difficulty"
+        else:
+            order_by = "q.question_id"  # Fallback
+
+        c.execute(f"""
+                SELECT q.question_id, q.question, qc.category_name, q.question_difficulty
+                FROM Questions q
+                JOIN Question_Categories qc ON q.category_id = qc.category_id
+                ORDER BY {order_by}
+            """)
+        results = c.fetchall()
+
+        for row in results:
+            tree.insert("", "end", values=row)
+
+        cnx.commit()
+        cnx.close()
+
+    def on_sort_change(*args):
+        selected_sort = sort_var.get()
+        load_categories(selected_sort)
+
+
     hide_main_menu()
 
     # Create a Frame this option
@@ -722,6 +856,18 @@ def questionDelete():
     # Show header
     global header_qdelete
     header_qdelete = create_header_label(root, "Delete Questions")
+
+
+    # DROPDOWN: Add sorting selection
+    sort_var = StringVar()
+    sort_var.set("ID")  # default sort
+    sort_var.trace("w", on_sort_change)
+
+    sort_dropdown = create_dropdown_ver(header_qdelete, ["ID", "Title", "Category", "Difficulty"], sort_var, row=0,
+                                        col=0,
+                                        cspan=2, state="readonly",
+                                        text="Sort questions by:")
+
 
     treeFrame = Frame(qdeleteFrame, bd=10)
     treeFrame.grid(row=0, column=0, sticky="nsew")
@@ -908,6 +1054,47 @@ def backTestView():
 
 # Create Function to View a Test
 def testView():
+    # Sort the tree view
+    def load_categories(sort_order):
+        for item in tree.get_children():
+            tree.delete(item)
+
+        cnx = get_db_connection()
+        c = cnx.cursor()
+
+        # Build the ORDER BY clause based on the selected sort order
+        if sort_order == "ID":
+            order_by = "q.question_id"
+        elif sort_order == "Type":
+            order_by = "q.question"
+        elif sort_order == "Title":
+            order_by = "qc.category_name"
+        elif sort_order == "Time":
+            order_by = "q.question_difficulty"
+        elif sort_order == "# of Questions":
+            order_by = "q.question_difficulty"
+        else:
+            order_by = "q.question_id"  # Fallback
+
+        c.execute(f"""
+                SELECT q.question_id, q.question, qc.category_name, q.question_difficulty
+                FROM Questions q
+                JOIN Question_Categories qc ON q.category_id = qc.category_id
+                ORDER BY {order_by}
+            """)
+        results = c.fetchall()
+
+        for row in results:
+            tree.insert("", "end", values=row)
+
+        cnx.commit()
+        cnx.close()
+
+    def on_sort_change(*args):
+        selected_sort = sort_var.get()
+        load_categories(selected_sort)
+
+
     hide_main_menu()
 
     # Create a Frame this option
@@ -918,6 +1105,16 @@ def testView():
     # Show header
     global header_tview
     header_tview = create_header_label(root, "Test Overview")
+
+    # DROPDOWN: Add sorting selection
+    sort_var = StringVar()
+    sort_var.set("ID")  # default sort
+    sort_var.trace("w", on_sort_change)
+
+    sort_dropdown = create_dropdown_ver(header_tview, ["ID", "Type", "Title", "Time", "# of Questions"], sort_var, row=0,
+                                        col=0,
+                                        cspan=2, state="readonly",
+                                        text="Sort questions by:")
 
     #Create a Frame for the treeview
     treeFrame = Frame(tviewFrame, bd=10)
@@ -2124,6 +2321,29 @@ def questCatAdd():
         finally:
             cnx.close()
 
+    def load_categories(sort_order):
+        for item in tree.get_children():
+            tree.delete(item)
+
+        cnx = get_db_connection()
+        c = cnx.cursor()
+
+        if sort_order == "ID":
+            c.execute("SELECT * FROM Question_Categories ORDER BY category_id")
+        elif sort_order == "Title":
+            c.execute("SELECT * FROM Question_Categories ORDER BY category_name")
+
+        results = c.fetchall()
+        for row in results:
+            tree.insert("", "end", values=(row[0], row[1]))
+
+        cnx.commit()
+        cnx.close()
+
+    def on_sort_change(*args):
+        selected_sort = sort_var.get()
+        load_categories(selected_sort)
+
     hide_main_menu()
 
     # Create a Frame this option
@@ -2134,6 +2354,14 @@ def questCatAdd():
     # Show header
     global header_qcatadd
     header_qcatadd = create_header_label(root, "Add Question Categories")
+
+
+    # DROPDOWN: Add sorting selection
+    sort_var = StringVar()
+    sort_var.set("ID")  # default sort
+    sort_var.trace("w", on_sort_change)
+
+    sort_dropdown = create_dropdown_ver(questCatAddFrame, ["ID", "Title"], sort_var, row=0, col=0, cspan=2, state="readonly", text="Sort categories by:")
 
     # Create a treeview for displaying categories
     tree = ttk.Treeview(questCatAddFrame, columns=("tcid", "tcat"), show="headings", height=5)
@@ -2150,8 +2378,8 @@ def questCatAdd():
     # Configure tree to use the scrollbar
     tree.configure(yscrollcommand=scrollbar.set)
 
-    tree.grid(row=0, column=0, columnspan=2, pady=10)
-    scrollbar.grid(row=0, column=2, sticky="ns", pady=10)
+    tree.grid(row=2, column=0, columnspan=2, pady=10)
+    scrollbar.grid(row=2, column=2, sticky="ns", pady=10)
 
     # Connect to Database
     cnx = get_db_connection()
@@ -2171,7 +2399,7 @@ def questCatAdd():
     # Close Connection
     cnx.close()
 
-    Label(questCatAddFrame, text="Question Category Name").grid(row=1, column=0, ipadx=5)
+    Label(questCatAddFrame, text="Question Category Name").grid(row=3, column=0, ipadx=5)
 
     # If we have time, they would like to have a comment section next to the category name
     # this means editing the database and adding category_label in the Questions_Categories table
@@ -2180,12 +2408,12 @@ def questCatAdd():
 
     # Test Name input
     qctitle_entry = ttk.Entry(questCatAddFrame, width=50)
-    qctitle_entry.grid(row=2, column=0)
+    qctitle_entry.grid(row=4, column=0)
 
     # Add Test Button
     add_questCat_btn = ttk.Button(questCatAddFrame, text="Add New Category", command=addNewQuestCat,
                                   style="Accent.TButton")
-    add_questCat_btn.grid(row=3, column=0, pady=10)
+    add_questCat_btn.grid(row=5, column=0, pady=10)
 
     global back_btn_questCatAdd
     back_btn_questCatAdd = create_back_button(root, backQuestCatAdd)
@@ -2242,6 +2470,29 @@ def questCatModify():
             # Close Connection
             cnx.close()
 
+    def load_categories(sort_order):
+        for item in tree.get_children():
+            tree.delete(item)
+
+        cnx = get_db_connection()
+        c = cnx.cursor()
+
+        if sort_order == "ID":
+            c.execute("SELECT * FROM Question_Categories ORDER BY category_id")
+        elif sort_order == "Title":
+            c.execute("SELECT * FROM Question_Categories ORDER BY category_name")
+
+        results = c.fetchall()
+        for row in results:
+            tree.insert("", "end", values=(row[0], row[1]))
+
+        cnx.commit()
+        cnx.close()
+
+    def on_sort_change(*args):
+        selected_sort = sort_var.get()
+        load_categories(selected_sort)
+
     hide_main_menu()
 
     # Create a Frame this option
@@ -2251,6 +2502,15 @@ def questCatModify():
 
     global header_qcatmodify
     header_qcatmodify = create_header_label(root, "Modify Question Categories")
+
+    # DROPDOWN: Add sorting selection
+    sort_var = StringVar()
+    sort_var.set("ID")  # default sort
+    sort_var.trace("w", on_sort_change)
+
+    create_dropdown_ver(questCatModifyFrame, ["ID", "Title"], sort_var, row=0, col=0, cspan=2, state="readonly",
+                        text="Sort categories by:")
+
 
     # Create a treeview for displaying categories
     tree = ttk.Treeview(questCatModifyFrame, columns=("tcid", "tcat"), show="headings", height=5)
@@ -2268,8 +2528,8 @@ def questCatModify():
     # Configure tree to use the scrollbar
     tree.configure(yscrollcommand=scrollbar.set)
 
-    tree.grid(row=0, column=0, columnspan=2, pady=10)
-    scrollbar.grid(row=0, column=2, sticky="ns", pady=10)
+    tree.grid(row=2, column=0, columnspan=2, pady=10)
+    scrollbar.grid(row=2, column=2, sticky="ns", pady=10)
 
 
     # Create Dropdown Box for Question Category
@@ -2297,7 +2557,7 @@ def questCatModify():
         qctitle_entry.delete(0, END)
         qctitle_entry.insert(0, selected_category)
 
-    cate_drop = create_dropdown_hor(questCatModifyFrame, cat_name, var, 2, 0, 1, "normal",
+    cate_drop = create_dropdown_hor(questCatModifyFrame, cat_name, var, 4, 0, 1, "normal",
                                     text="Select a Question Category")
     cate_drop.bind('<<ComboboxSelected>>', on_category_select)
 
@@ -2308,12 +2568,12 @@ def questCatModify():
 
     # Test Name input
     qctitle_entry = ttk.Entry(questCatModifyFrame, width=50)
-    qctitle_entry.grid(row=4, column=0, columnspan=2)
+    qctitle_entry.grid(row=6, column=0, columnspan=2)
 
     # Button to modify
     modify_questCat_btn = ttk.Button(questCatModifyFrame, text="Modify Question Category Title", command=submitChanges,
                                      style="Accent.TButton")
-    modify_questCat_btn.grid(row=5, column=0, columnspan=2, pady=10)
+    modify_questCat_btn.grid(row=7, column=0, columnspan=2, pady=10)
 
     global back_btn_questCatModify
     back_btn_questCatModify = create_back_button(root, backQuestCatModify)
@@ -2386,6 +2646,29 @@ def questCatDelete():
             finally:
                 cnx.close()
 
+    def load_categories(sort_order):
+        for item in tree.get_children():
+            tree.delete(item)
+
+        cnx = get_db_connection()
+        c = cnx.cursor()
+
+        if sort_order == "ID":
+            c.execute("SELECT * FROM Question_Categories ORDER BY category_id")
+        elif sort_order == "Title":
+            c.execute("SELECT * FROM Question_Categories ORDER BY category_name")
+
+        results = c.fetchall()
+        for row in results:
+            tree.insert("", "end", values=(row[0], row[1]))
+
+        cnx.commit()
+        cnx.close()
+
+    def on_sort_change(*args):
+        selected_sort = sort_var.get()
+        load_categories(selected_sort)
+
     hide_main_menu()
 
     # Create a Frame this option
@@ -2395,6 +2678,14 @@ def questCatDelete():
 
     global header_qcatdelete
     header_qcatdelete = create_header_label(root, "Delete Question Categories")
+
+    # DROPDOWN: Add sorting selection
+    sort_var = StringVar()
+    sort_var.set("ID")  # default sort
+    sort_var.trace("w", on_sort_change)
+
+    create_dropdown_ver(questCatDeleteFrame, ["ID", "Title"], sort_var, row=0, col=0, cspan=2, state="readonly",
+                        text="Sort categories by:")
 
     # Create Dropdown Box for Test Category
 
@@ -2413,8 +2704,8 @@ def questCatDelete():
     # Configure tree to use the scrollbar
     tree.configure(yscrollcommand=scrollbar.set)
 
-    tree.grid(row=0, column=0, columnspan=2, pady=10)
-    scrollbar.grid(row=0, column=2, sticky="ns", pady=10)
+    tree.grid(row=2, column=0, columnspan=2, pady=10)
+    scrollbar.grid(row=2, column=2, sticky="ns", pady=10)
 
     # Connect to Database
     cnx = get_db_connection()
@@ -2433,7 +2724,7 @@ def questCatDelete():
         tree.insert("", "end", values=(row[0], row[1]))
 
 
-    cate_drop = create_dropdown_hor(questCatDeleteFrame, cat_name, var, 2, 0, 1, "normal",
+    cate_drop = create_dropdown_hor(questCatDeleteFrame, cat_name, var, 4, 0, 1, "normal",
                                     text="Select a question category")
     cate_drop.grid(padx=10)
     # Commit Changes
@@ -2441,10 +2732,11 @@ def questCatDelete():
     # Close Connection
     cnx.close()
 
+
     # Adjust button position
     delete_questCat_btn = ttk.Button(questCatDeleteFrame, text="Delete Question Category", command=deleteQuestCat,
                                      style="Accent.TButton")
-    delete_questCat_btn.grid(row=3, column=0, columnspan=2, pady=10)
+    delete_questCat_btn.grid(row=5, column=0, columnspan=2, pady=10)
 
     global back_btn_questCatDelete
     back_btn_questCatDelete = create_back_button(root, backQuestCatDelete)
@@ -2526,6 +2818,29 @@ def testCatAdd():
         finally:
             cnx.close()
 
+    def load_categories(sort_order):
+        for item in tree.get_children():
+            tree.delete(item)
+
+        cnx = get_db_connection()
+        c = cnx.cursor()
+
+        if sort_order == "ID":
+            c.execute("SELECT * FROM Types_Of_Test ORDER BY test_type")
+        elif sort_order == "Title":
+            c.execute("SELECT * FROM Types_Of_Test ORDER BY test_name")
+
+        results = c.fetchall()
+        for row in results:
+            tree.insert("", "end", values=(row[0], row[1]))
+
+        cnx.commit()
+        cnx.close()
+
+    def on_sort_change(*args):
+        selected_sort = sort_var.get()
+        load_categories(selected_sort)
+
     hide_main_menu()
 
     # Create a Frame this option
@@ -2535,6 +2850,14 @@ def testCatAdd():
 
     global header_tcatadd
     header_tcatadd = create_header_label(root, "Add Test Category")
+
+    # DROPDOWN: Add sorting selection
+    sort_var = StringVar()
+    sort_var.set("ID")  # default sort
+    sort_var.trace("w", on_sort_change)
+
+    create_dropdown_ver(testCatAddFrame, ["ID", "Title"], sort_var, row=0, col=0, cspan=2, state="readonly",
+                        text="Sort categories by:")
 
     # Create a treeview for displaying categories
     tree = ttk.Treeview(testCatAddFrame, columns=("tcid", "tcat"), show="headings", height=5)
@@ -2551,8 +2874,8 @@ def testCatAdd():
     # Configure tree to use the scrollbar
     tree.configure(yscrollcommand=scrollbar.set)
 
-    tree.grid(row=0, column=0, columnspan=2, pady=10)
-    scrollbar.grid(row=0, column=2, sticky="ns", pady=10)
+    tree.grid(row=2, column=0, columnspan=2, pady=10)
+    scrollbar.grid(row=2, column=2, sticky="ns", pady=10)
 
     # Connect to Database
     cnx = get_db_connection()
@@ -2571,7 +2894,7 @@ def testCatAdd():
     # Close Connection
     cnx.close()
 
-    Label(testCatAddFrame, text="Enter new test category title:").grid(row=2, column=0, ipadx=5)
+    Label(testCatAddFrame, text="Enter new test category title:").grid(row=4, column=0, ipadx=5)
 
     # If we have time, they would like to have a comment section next to the category name
     # this means editing the database and adding category_label in the Questions_Categories table
@@ -2580,12 +2903,12 @@ def testCatAdd():
 
     # Test Name input
     tctitle_entry = ttk.Entry(testCatAddFrame, width=50)
-    tctitle_entry.grid(row=4, column=0)
+    tctitle_entry.grid(row=6, column=0)
 
     # Add Test Button
     add_testCat_btn = ttk.Button(testCatAddFrame, text="Add New Category", command=addNewTestCat,
                                  style="Accent.TButton")
-    add_testCat_btn.grid(row=num_rows_qdelete + 6, column=0, pady=10)
+    add_testCat_btn.grid(row=8, column=0, pady=10)
 
     global back_btn_testCatAdd
     back_btn_testCatAdd = create_back_button(root, backTestCatAdd)
@@ -2640,6 +2963,29 @@ def testCatModify():
             # Close Connection
             cnx.close()
 
+    def load_categories(sort_order):
+        for item in tree.get_children():
+            tree.delete(item)
+
+        cnx = get_db_connection()
+        c = cnx.cursor()
+
+        if sort_order == "ID":
+            c.execute("SELECT * FROM Types_Of_Test ORDER BY test_type")
+        elif sort_order == "Title":
+            c.execute("SELECT * FROM Types_Of_Test ORDER BY test_name")
+
+        results = c.fetchall()
+        for row in results:
+            tree.insert("", "end", values=(row[0], row[1]))
+
+        cnx.commit()
+        cnx.close()
+
+    def on_sort_change(*args):
+        selected_sort = sort_var.get()
+        load_categories(selected_sort)
+
     hide_main_menu()
 
     # Create a Frame this option
@@ -2649,6 +2995,14 @@ def testCatModify():
 
     global header_tcatadd
     header_tcatadd = create_header_label(root, "Modify Test Category")
+
+    # DROPDOWN: Add sorting selection
+    sort_var = StringVar()
+    sort_var.set("ID")  # default sort
+    sort_var.trace("w", on_sort_change)
+
+    create_dropdown_ver(testCatModifyFrame, ["ID", "Title"], sort_var, row=0, col=0, cspan=2, state="readonly",
+                        text="Sort categories by:")
 
     # Create a treeview for displaying categories
     tree = ttk.Treeview(testCatModifyFrame, columns=("tcid", "tcat"), show="headings", height=5)
@@ -2665,8 +3019,8 @@ def testCatModify():
     # Configure tree to use the scrollbar
     tree.configure(yscrollcommand=scrollbar.set)
 
-    tree.grid(row=0, column=0, columnspan=2, pady=10)
-    scrollbar.grid(row=0, column=2, sticky="ns", pady=10)
+    tree.grid(row=2, column=0, columnspan=2, pady=10)
+    scrollbar.grid(row=2, column=2, sticky="ns", pady=10)
 
     # Connect to Database
     cnx = get_db_connection()
@@ -2692,7 +3046,7 @@ def testCatModify():
         qctitle_entry.delete(0, END)
         qctitle_entry.insert(0, selected_category)
 
-    cate_drop = create_dropdown_hor(testCatModifyFrame, cat_name, var, 2, 0, 1, "normal",
+    cate_drop = create_dropdown_hor(testCatModifyFrame, cat_name, var, 4, 0, 1, "normal",
                                     text="Select a Test Category")
     cate_drop.grid(pady=15)
 
@@ -2706,12 +3060,12 @@ def testCatModify():
 
     # Test Name input
     qctitle_entry = ttk.Entry(testCatModifyFrame, width=50)
-    qctitle_entry.grid(row=4, column=0, columnspan=2)
+    qctitle_entry.grid(row=6, column=0, columnspan=2)
 
     # Button to modify
     modify_testCat_btn = ttk.Button(testCatModifyFrame, text="Modify Test Category Title", command=submitChanges,
                                     style="Accent.TButton")
-    modify_testCat_btn.grid(row=5, column=0, columnspan=2, pady=10)
+    modify_testCat_btn.grid(row=7, column=0, columnspan=2, pady=10)
 
     global back_btn_testCatModify
     back_btn_testCatModify = create_back_button(root, backTestCatModify)
@@ -2784,6 +3138,29 @@ def testCatDelete():
             finally:
                 cnx.close()
 
+    def load_categories(sort_order):
+        for item in tree.get_children():
+            tree.delete(item)
+
+        cnx = get_db_connection()
+        c = cnx.cursor()
+
+        if sort_order == "ID":
+            c.execute("SELECT * FROM Types_Of_Test ORDER BY test_type")
+        elif sort_order == "Title":
+            c.execute("SELECT * FROM Types_Of_Test ORDER BY test_name")
+
+        results = c.fetchall()
+        for row in results:
+            tree.insert("", "end", values=(row[0], row[1]))
+
+        cnx.commit()
+        cnx.close()
+
+    def on_sort_change(*args):
+        selected_sort = sort_var.get()
+        load_categories(selected_sort)
+
     hide_main_menu()
 
     # Create a Frame this option
@@ -2793,6 +3170,14 @@ def testCatDelete():
 
     global header_tcatdelete
     header_tcatdelete = create_header_label(root, "Delete Test Category")
+
+    # DROPDOWN: Add sorting selection
+    sort_var = StringVar()
+    sort_var.set("ID")  # default sort
+    sort_var.trace("w", on_sort_change)
+
+    create_dropdown_ver(testCatDeleteFrame, ["ID", "Title"], sort_var, row=0, col=0, cspan=2, state="readonly",
+                        text="Sort categories by:")
 
     # Create Dropdown Box for Test Category
 
@@ -2811,8 +3196,8 @@ def testCatDelete():
     # Configure tree to use the scrollbar
     tree.configure(yscrollcommand=scrollbar.set)
 
-    tree.grid(row=0, column=0, columnspan=2, pady=10)
-    scrollbar.grid(row=0, column=2, sticky="ns", pady=10)
+    tree.grid(row=2, column=0, columnspan=2, pady=10)
+    scrollbar.grid(row=2, column=2, sticky="ns", pady=10)
 
     # Connect to Database
     cnx = get_db_connection()
@@ -2830,7 +3215,7 @@ def testCatDelete():
         cat_name.append(row[1])
         tree.insert("", "end", values=(row[0], row[1]))
 
-    cate_drop = create_dropdown_hor(testCatDeleteFrame, cat_name, var, 2, 0, 1, "normal",
+    cate_drop = create_dropdown_hor(testCatDeleteFrame, cat_name, var, 4, 0, 1, "normal",
                                     text="Select a test category: ")
     cate_drop.grid(padx=10)
     # Commit Changes
@@ -2840,7 +3225,7 @@ def testCatDelete():
 
     delete_testCat_btn = ttk.Button(testCatDeleteFrame, text="Delete Question Category", command=deleteTestCat,
                                     style="Accent.TButton")
-    delete_testCat_btn.grid(row=3, column=0, pady=10, columnspan=2)
+    delete_testCat_btn.grid(row=5, column=0, pady=10, columnspan=2)
 
     global back_btn_testCatDelete
     back_btn_testCatDelete = create_back_button(root, backTestCatDelete)
