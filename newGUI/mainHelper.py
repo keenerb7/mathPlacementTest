@@ -2,14 +2,12 @@ from tkinter import *
 from tkinter.ttk import Combobox
 from tkinter import ttk
 
-import mysql.connector
+import sqlite3
 
 
 def get_db_connection():
-    return mysql.connector.connect(
-        user='sql5764680', password='yK8gNIyhZm',
-        host='sql5.freesqldatabase.com', database='sql5764680'
-    )
+    # Connect to SQLite database file
+    return sqlite3.connect("math_placement_test.db")
 
 # Create a function to make the header
 def create_header_label(parent, headerText):
@@ -52,7 +50,7 @@ def countQuestionsTestID(t_id):
     c = cnx.cursor()
 
     # Query Test Questions table for count of questions
-    c.execute("SELECT COUNT(question_id) AS num_questions FROM Test_Questions WHERE test_id = %s", (t_id,))
+    c.execute("SELECT COUNT(question_id) AS num_questions FROM Test_Questions WHERE test_id = ?", (t_id,))
 
     # Get the result
     result = c.fetchone()
@@ -119,7 +117,7 @@ def getCategoryName(cat_id):
     c = cnx.cursor()
 
     # Query Test table for count of Test ID
-    c.execute("SELECT category_name FROM Question_Categories WHERE category_id = %s", (cat_id,))
+    c.execute("SELECT category_name FROM Question_Categories WHERE category_id = ?", (cat_id,))
 
     # Get the result
     result = c.fetchone()

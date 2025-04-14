@@ -161,7 +161,7 @@ def questionView():
         # Get the selected question ID
         selected_question_id = selected_qid.get()
 
-        c.execute("SELECT choice_text FROM Question_Choices WHERE question_id = %s", (selected_question_id,))
+        c.execute("SELECT choice_text FROM Question_Choices WHERE question_id = ?", (selected_question_id,))
         answers = [answer[0] for answer in c.fetchall()]
 
         # Clear previous answers
@@ -264,7 +264,7 @@ def questionAdd():
             newID = c.fetchone()[0]
 
             # Find Category ID for the selected Category
-            c.execute("SELECT category_id FROM Question_Categories WHERE category_name = %s", (var.get(),))
+            c.execute("SELECT category_id FROM Question_Categories WHERE category_name = ?", (var.get(),))
             qcatResults = c.fetchone()
 
             if not qcatResults:
@@ -277,7 +277,7 @@ def questionAdd():
             # Insert New Question into Questions Table
             c.execute(
                 """INSERT INTO Questions (question_id, question, category_id, question_difficulty) 
-                   VALUES (%s, %s, %s, %s)""",
+                   VALUES (?, ?, ?, ?)""",
                 (newID, question.get(), cat_id, difficulty.get())
             )
 
@@ -288,7 +288,7 @@ def questionAdd():
                 is_correct = '1' if i == 0 else '0'
                 c.execute("""
                         INSERT INTO Question_Choices (choice_id, question_id, choice_text, is_correct)
-                        VALUES (%s, %s, %s, %s)""",
+                        VALUES (?, ?, ?, ?)""",
                           (choice_id, newID, answers[i].get(), is_correct))
 
             # Commit Changes
@@ -303,7 +303,7 @@ def questionAdd():
 
             messagebox.showinfo("Success", "Question added successfully!")
 
-        except mysql.connector.Error as err:
+        except sql.connector.Error as err:
             messagebox.showerror("Database Error", f"An error occurred: {err}")
             cnx.rollback()
         finally:
@@ -404,11 +404,11 @@ def questionModify():
         c = cnx.cursor()
 
         # Fetch question details
-        c.execute("SELECT * FROM Questions WHERE question_id = %s", (qID,))
+        c.execute("SELECT * FROM Questions WHERE question_id = ?", (qID,))
         questionInfo = c.fetchone()
 
         # Fetch answers for the selected question
-        c.execute("SELECT choice_text FROM Question_Choices WHERE question_id = %s", (qID,))
+        c.execute("SELECT choice_text FROM Question_Choices WHERE question_id = ?", (qID,))
         questionAns = c.fetchall()
 
         # Close database connection
@@ -504,15 +504,15 @@ def questionModify():
         qid = question_dropdown.get()
 
         # Find Category ID for the selection Category
-        c.execute("SELECT category_id FROM Question_Categories WHERE category_name= %s", (var.get(),))
+        c.execute("SELECT category_id FROM Question_Categories WHERE category_name= ?", (var.get(),))
         qcatResults = c.fetchone()
         cat_id = qcatResults[0]
 
         # Update existing question in the Questions Table
         c.execute(
             """UPDATE Questions 
-               SET question = %s, category_id = %s, question_difficulty = %s 
-               WHERE question_id = %s""",
+               SET question = ?, category_id = ?, question_difficulty = ? 
+               WHERE question_id = ?""",
             (question.get(), cat_id, difficulty.get(), qid)
         )
 
@@ -522,15 +522,15 @@ def questionModify():
             if i == 0:
                 c.execute(
                     """UPDATE Question_Choices 
-                       SET choice_text = %s, is_correct = %s 
-                       WHERE choice_id = %s AND question_id = %s""",
+                       SET choice_text = ?, is_correct = ? 
+                       WHERE choice_id = ? AND question_id = ?""",
                     (answers[i].get(), '1', str(f"{qid}{letter[i]}"), qid)
                 )
             else:
                 c.execute(
                     """UPDATE Question_Choices 
-                       SET choice_text = %s, is_correct = %s 
-                       WHERE choice_id = %s AND question_id = %s""",
+                       SET choice_text = ?, is_correct = ? 
+                       WHERE choice_id = ? AND question_id = ?""",
                     (answers[i].get(), '0', str(f"{qid}{letter[i]}"), qid)
                 )
 
@@ -776,7 +776,7 @@ def questionDelete():
             c = cnx.cursor()
 
             # Data Validation to Ensure Proper Question ID
-            c.execute("SELECT * FROM Questions WHERE question_id= %s", (question_id,))
+            c.execute("SELECT * FROM Questions WHERE question_id= ?", (question_id,))
             results = c.fetchall()
             if len(results) == 0:
                 messagebox.showerror("Error", f"{question_id} is not a valid Question ID.")
@@ -792,9 +792,9 @@ def questionDelete():
             # noinspection PyBroadException
             try:
                 # Delete Answers for the same Question ID
-                c.execute("DELETE FROM Question_Choices WHERE question_id= %s", (question_id,))
+                c.execute("DELETE FROM Question_Choices WHERE question_id= ?", (question_id,))
                 # Delete Proper Question ID From Questions Table
-                c.execute("DELETE from Questions WHERE question_id= %s", (question_id,))
+                c.execute("DELETE from Questions WHERE question_id= ?", (question_id,))
 
                 # Commit Changes
                 cnx.commit()
@@ -956,7 +956,7 @@ def testView():
 
     def countQuestions(t_id):
         # Query Test Questions table for count of questions
-        c.execute("SELECT COUNT(question_id) AS num_questions FROM Test_Questions WHERE test_id = %s", (t_id,))
+        c.execute("SELECT COUNT(question_id) AS num_questions FROM Test_Questions WHERE test_id = ?", (t_id,))
 
         # Get the result
         result = c.fetchone()
@@ -1029,7 +1029,7 @@ def testView():
             FROM Questions q 
             JOIN Test_Questions tq ON q.question_id = tq.question_id 
             JOIN Question_Categories qc ON q.category_id = qc.category_id 
-            WHERE tq.test_id = %s
+            WHERE tq.test_id = ?
         """)
         c.execute(query, (selected_test_id,))
         questions = c.fetchall()
@@ -1086,10 +1086,10 @@ def testMake():
 
         # Get questions for the selected category
         c.execute("""
-            SELECT q.question_id, q.question, q.question_difficulty 
-            FROM Questions q
-            WHERE q.category_id = %s
-            ORDER BY q.question_difficulty
+            SELECT question_id, question, category_id, question_difficulty
+            FROM Questions
+            WHERE category_id = ?
+            ORDER BY question_difficulty
         """, (selected_category_id,))
 
         questions = c.fetchall()
@@ -1148,20 +1148,20 @@ def testMake():
             new_test_id = c.fetchone()[0]
 
             # Get test type ID
-            c.execute("SELECT test_type FROM Types_Of_Test WHERE test_name = %s", (var.get(),))
+            c.execute("SELECT test_type FROM Types_Of_Test WHERE test_name = ?", (var.get(),))
             test_type_id = c.fetchone()[0]
 
             # Insert new test
             c.execute("""
                 INSERT INTO Test (test_id, test_type, test_title, test_time) 
-                VALUES (%s, %s, %s, %s)""",
+                VALUES (?, ?, ?, ?)""",
                       (new_test_id, test_type_id, ttitle_entry.get(), test_time))
 
             # Insert selected questions
             for question_id in selected_questions:
                 c.execute("""
                     INSERT INTO Test_Questions (test_id, question_id) 
-                    VALUES (%s, %s)""",
+                    VALUES (?, ?)""",
                           (new_test_id, question_id))
 
             cnx.commit()
@@ -1379,7 +1379,7 @@ def testModify():
 
         try:
             # Fetch test_id
-            c.execute("SELECT test_id FROM Test WHERE test_id = %s", (selected_test_title,))
+            c.execute("SELECT test_id FROM Test WHERE test_id = ?", (selected_test_title,))
             test_info = c.fetchone()
 
             if not test_info:
@@ -1390,7 +1390,7 @@ def testModify():
             test_id = test_info[0]
 
             # Fetch test_type ID based on selected test type name
-            c.execute("SELECT test_type FROM Types_Of_Test WHERE test_name = %s", (new_test_type_name,))
+            c.execute("SELECT test_type FROM Types_Of_Test WHERE test_name = ?", (new_test_type_name,))
             test_type_info = c.fetchone()
 
             if not test_type_info:
@@ -1402,16 +1402,16 @@ def testModify():
             # Update test title, time and type
             c.execute("""
                     UPDATE Test 
-                    SET test_title = %s, test_time = %s, test_type = %s
-                    WHERE test_id = %s
+                    SET test_title = ?, test_time = ?, test_type = ?
+                    WHERE test_id = ?
                 """, (new_test_title, new_test_time, new_test_type, test_id))
 
             # Clear existing questions for this test
-            c.execute("DELETE FROM Test_Questions WHERE test_id = %s", (test_id,))
+            c.execute("DELETE FROM Test_Questions WHERE test_id = ?", (test_id,))
 
             # Insert newly selected questions
             for qid in selected_questions:
-                c.execute("INSERT INTO Test_Questions (test_id, question_id) VALUES (%s, %s)", (test_id, qid))
+                c.execute("INSERT INTO Test_Questions (test_id, question_id) VALUES (?, ?)", (test_id, qid))
 
             # Commit changes
             cnx.commit()
@@ -1487,7 +1487,7 @@ def testModify():
         c.execute("""
             SELECT test_id, test_type, test_title, test_time 
             FROM Test 
-            WHERE test_id = %s""",
+            WHERE test_id = ?""",
                   (selected_test_id,))
 
         test_info = c.fetchone()
@@ -1503,7 +1503,7 @@ def testModify():
         time.insert(0, str(test_time_value))
 
         # Get Category Name for Dropdown
-        c.execute("SELECT test_name FROM Types_Of_Test WHERE test_type = %s", (test_type,))
+        c.execute("SELECT test_name FROM Types_Of_Test WHERE test_type = ?", (test_type,))
         category_name = c.fetchone()
 
         if category_name:
@@ -1514,7 +1514,7 @@ def testModify():
             SELECT q.question_id
             FROM Questions q
             JOIN Test_Questions tq ON q.question_id = tq.question_id
-            WHERE tq.test_id = %s
+            WHERE tq.test_id = ?
         """, (test_id,))
         selected_question_ids = {qid for (qid,) in c.fetchall()}  # Store selected questions in a set
 
@@ -1806,7 +1806,7 @@ def testDelete():
 
         def countQuestions(t_id):
             # Query Test Questions table for count of questions
-            c.execute("SELECT COUNT(question_id) AS num_questions FROM Test_Questions WHERE test_id = %s", (t_id,))
+            c.execute("SELECT COUNT(question_id) AS num_questions FROM Test_Questions WHERE test_id = ?", (t_id,))
 
             # Get the result
             result = c.fetchone()
@@ -1842,16 +1842,16 @@ def testDelete():
             c = cnx.cursor()
 
             # Data Validation to Ensure Proper Question ID
-            c.execute("SELECT * FROM Test WHERE test_id= %s", (question_id,))
+            c.execute("SELECT * FROM Test WHERE test_id= ?", (question_id,))
             results = c.fetchall()
             if len(results) == 0:
                 messagebox.showerror("Error", f"{question_id} is not a valid Test ID.")
                 return
 
             # Delete Answers for the same Question ID
-            c.execute("DELETE FROM Test_Questions WHERE test_id= %s", (question_id,))
+            c.execute("DELETE FROM Test_Questions WHERE test_id= ?", (question_id,))
             # Delete Proper Question ID From Questions Table
-            c.execute("DELETE from Test WHERE test_id= %s", (question_id,))
+            c.execute("DELETE from Test WHERE test_id= ?", (question_id,))
 
             # Commit Changes
             cnx.commit()
@@ -1972,7 +1972,7 @@ def testExtract():
 
     def countQuestions(t_id):
         # Query Test Questions table for count of questions
-        c.execute("SELECT COUNT(question_id) AS num_questions FROM Test_Questions WHERE test_id = %s", (t_id,))
+        c.execute("SELECT COUNT(question_id) AS num_questions FROM Test_Questions WHERE test_id = ?", (t_id,))
 
         # Get the result
         result = c.fetchone()
@@ -2093,7 +2093,7 @@ def questCatAdd():
             # Insert New Category
             c.execute(
                 """INSERT INTO Question_Categories (category_id, category_name) 
-                   VALUES (%s, %s)""",
+                   VALUES (?, ?)""",
                 (new_questCat_id, qctitle_entry.get())
             )
 
@@ -2217,7 +2217,7 @@ def questCatModify():
 
         try:
             # Update the category title in the database
-            c.execute("UPDATE Question_Categories SET category_name = %s WHERE category_name = %s",
+            c.execute("UPDATE Question_Categories SET category_name = ? WHERE category_name = ?",
                       (new_title, selected_category))
             cnx.commit()
             messagebox.showinfo("Success", f"Category '{selected_category}' updated to '{new_title}'")
@@ -2348,14 +2348,14 @@ def questCatDelete():
 
             try:
                 # First, get the category_id for the selected category
-                c.execute("SELECT category_id FROM Question_Categories WHERE category_name = %s", (selected_category,))
+                c.execute("SELECT category_id FROM Question_Categories WHERE category_name = ?", (selected_category,))
                 category_id = c.fetchone()[0]
 
                 # Delete questions associated with this category
-                c.execute("DELETE FROM Questions WHERE category_id = %s", (category_id,))
+                c.execute("DELETE FROM Questions WHERE category_id = ?", (category_id,))
 
                 # Then delete the category from Question_Categories
-                c.execute("DELETE FROM Question_Categories WHERE category_id = %s", (category_id,))
+                c.execute("DELETE FROM Question_Categories WHERE category_id = ?", (category_id,))
 
                 # Commit changes
                 cnx.commit()
@@ -2495,7 +2495,7 @@ def testCatAdd():
             # Insert New Category
             c.execute(
                 """INSERT INTO Types_Of_Test (test_type, test_name) 
-                   VALUES (%s, %s)""",
+                   VALUES (?, ?)""",
                 (new_testCat_id, tctitle_entry.get())
             )
 
@@ -2616,7 +2616,7 @@ def testCatModify():
 
         try:
             # Update the category title in the database
-            c.execute("UPDATE Types_Of_Test SET test_name = %s WHERE test_name = %s", (new_title, selected_category))
+            c.execute("UPDATE Types_Of_Test SET test_name = ? WHERE test_name = ?", (new_title, selected_category))
             cnx.commit()
             messagebox.showinfo("Success", f"Test Category '{selected_category}' updated to '{new_title}'")
 
@@ -2746,14 +2746,14 @@ def testCatDelete():
 
             try:
                 # First, get the test_type for the selected category
-                c.execute("SELECT test_type FROM Types_Of_Test WHERE test_name = %s", (selected_category,))
+                c.execute("SELECT test_type FROM Types_Of_Test WHERE test_name = ?", (selected_category,))
                 category_id = c.fetchone()[0]
 
                 # Delete tests associated with this category
-                c.execute("DELETE FROM Test WHERE test_type = %s", (category_id,))
+                c.execute("DELETE FROM Test WHERE test_type = ?", (category_id,))
 
                 # Then delete the category from Question_Categories
-                c.execute("DELETE FROM Types_Of_Test WHERE test_type = %s", (category_id,))
+                c.execute("DELETE FROM Types_Of_Test WHERE test_type = ?", (category_id,))
 
                 # Commit changes
                 cnx.commit()
