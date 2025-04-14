@@ -1,6 +1,17 @@
+import os
+from initialize_db import initialize_database
 from test2qti import *
 from tkinter import ttk
 from latexCheck import *
+
+# Check if the database file exists
+db_file = "math_placement_test.db"
+if not os.path.exists(db_file):
+    print(f"Database file '{db_file}' not found. Initializing database...")
+    initialize_database()
+    print(f"Database '{db_file}' has been created.")
+else:
+    print(f"Database file '{db_file}' found.")
 
 # Create the main window
 root = Tk()
