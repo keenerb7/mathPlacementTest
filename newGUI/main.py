@@ -136,23 +136,28 @@ def questionView():
     qviewFrame = Frame(root, bd=2)
     qviewFrame.grid(row=1, pady=10, padx=20)
 
+    # Create a Frame for the sort dropdown menu
+    sortFrame = Frame(qviewFrame, bd=1)
+    sortFrame.grid(row=0, column=0, padx=10, sticky="nsew")
+
     # DROPDOWN: Add sorting selection
     sort_var = StringVar()
     sort_var.set("ID")  # default sort
     sort_var.trace("w", on_sort_change)
 
-    sort_dropdown = create_dropdown_ver(header_qview, ["ID", "Title", "Category", "Difficulty"], sort_var, row=0, col=0, cspan=2, state="readonly",
+    sort_dropdown = create_dropdown_hor(sortFrame, ["ID", "Title", "Category", "Difficulty"], sort_var, row=0, col=0, cspan=2, state="readonly",
                         text="Sort questions by:")
+    sort_dropdown.grid(padx=10)
 
     # Create a Frame for the treeview
-    treeFrame = Frame(qviewFrame, bd=10)
-    treeFrame.grid(row=0, column=0, sticky="nsew")
+    treeFrame = Frame(qviewFrame, bd=5)
+    treeFrame.grid(row=1, column=0, sticky="nsew")
 
     # Define columns for the treeview
     columns = ("qid", "q", "qcat", "qdif")
 
     # Create a treeview with the defined columns
-    tree = ttk.Treeview(treeFrame, columns=columns, show="headings", height=10)
+    tree = ttk.Treeview(treeFrame, columns=columns, show="headings", height=8)
 
     # Set headers
     tree.heading("qid", text="ID", anchor="w")
@@ -162,9 +167,9 @@ def questionView():
 
     # Set the columns
     tree.column("qid", width=40, anchor="w")
-    tree.column("q", width=820, anchor="w")
-    tree.column("qcat", width=120, anchor="w")
-    tree.column("qdif", width=100, anchor="w")
+    tree.column("q", width=750, anchor="w")
+    tree.column("qcat", width=230, anchor="w")
+    tree.column("qdif", width=60, anchor="w")
 
     tree.grid(row=0, column=0, sticky="nsew")
 
@@ -193,7 +198,7 @@ def questionView():
 
     # Create a Frame inside the qview Frame to display answers
     answerFrame = Frame(qviewFrame, bd=2)
-    answerFrame.grid(row=1, column=0, pady=5, padx=5, sticky="nsew")
+    answerFrame.grid(row=2, column=0, pady=5, padx=5, sticky="nsew")
 
     # Get all question IDs
     c.execute("SELECT question_id FROM Questions")
@@ -665,23 +670,27 @@ def questionModify():
     global header_qmodify
     header_qmodify = create_header_label(root, "Modify Questions")
 
+    # Create a Frame for the sort dropdown menu
+    sortFrame = Frame(qmodifyFrame, bd=1)
+    sortFrame.grid(row=0, column=0, padx=10, sticky="nsew")
+
     # DROPDOWN: Add sorting selection
     sort_var = StringVar()
     sort_var.set("ID")  # default sort
     sort_var.trace("w", on_sort_change)
 
-    sort_dropdown = create_dropdown_ver(header_qmodify, ["ID", "Title", "Category", "Difficulty"], sort_var, row=0, col=0,
+    sort_dropdown = create_dropdown_hor(sortFrame, ["ID", "Title", "Category", "Difficulty"], sort_var, row=0, col=0,
                                         cspan=2, state="readonly",
                                         text="Sort questions by:")
 
     treeFrame = Frame(qmodifyFrame, bd=5)
-    treeFrame.grid(row=0, column=0, sticky="nsew")
+    treeFrame.grid(row=1, column=0, sticky="nsew")
 
     # Define columns for the treeview
     columns = ("qid", "q", "qcat", "qdif")
 
     # Create a treeview with the defined columns
-    tree = ttk.Treeview(treeFrame, columns=columns, show="headings", height=7)
+    tree = ttk.Treeview(treeFrame, columns=columns, show="headings", height=5)
 
     # Set headers
     tree.heading("qid", text="ID", anchor="w")
@@ -691,9 +700,9 @@ def questionModify():
 
     # Set the columns
     tree.column("qid", width=40, anchor="w")
-    tree.column("q", width=820, anchor="w")
-    tree.column("qcat", width=120, anchor="w")
-    tree.column("qdif", width=100, anchor="w")
+    tree.column("q", width=750, anchor="w")
+    tree.column("qcat", width=230, anchor="w")
+    tree.column("qdif", width=60, anchor="w")
 
     tree.grid(row=0, column=0, sticky="nsew")
 
@@ -710,7 +719,7 @@ def questionModify():
     refresh_tree()
 
     modFrame = Frame(qmodifyFrame, bd=2)
-    modFrame.grid(row=1, column=0, pady=5, padx=5, sticky="nsew")
+    modFrame.grid(row=2, column=0, pady=5, padx=5, sticky="nsew")
 
     modFrame.grid_columnconfigure(1, weight=1)  # Expands second column
 
@@ -857,36 +866,41 @@ def questionDelete():
     global header_qdelete
     header_qdelete = create_header_label(root, "Delete Questions")
 
+    # Create a Frame for the sort dropdown menu
+    sortFrame = Frame(qdeleteFrame, bd=1)
+    sortFrame.grid(row=0, column=0, padx=10, sticky="nsew")
 
     # DROPDOWN: Add sorting selection
     sort_var = StringVar()
     sort_var.set("ID")  # default sort
     sort_var.trace("w", on_sort_change)
 
-    sort_dropdown = create_dropdown_ver(header_qdelete, ["ID", "Title", "Category", "Difficulty"], sort_var, row=0,
+    sort_dropdown = create_dropdown_hor(sortFrame, ["ID", "Title", "Category", "Difficulty"], sort_var, row=0,
                                         col=0,
                                         cspan=2, state="readonly",
                                         text="Sort questions by:")
 
 
     treeFrame = Frame(qdeleteFrame, bd=10)
-    treeFrame.grid(row=0, column=0, sticky="nsew")
+    treeFrame.grid(row=1, column=0, sticky="nsew")
 
     # Define columns for the treeview
-    columns = ("qid", "q", "qcat")
+    columns = ("qid", "q", "qcat", "qdif")
 
     # Create a treeview with the defined columns
-    tree = ttk.Treeview(treeFrame, columns=columns, show="headings", height=10)
+    tree = ttk.Treeview(treeFrame, columns=columns, show="headings", height=15)
 
     # Set headers
     tree.heading("qid", text="ID", anchor="w")
     tree.heading("q", text="Question", anchor="w")
     tree.heading("qcat", text="Category", anchor="w")
+    tree.heading("qdif", text="Difficulty", anchor="w")
 
     # Set the columns
     tree.column("qid", width=40, anchor="w")
-    tree.column("q", width=800, anchor="w")
-    tree.column("qcat", width=120, anchor="w")
+    tree.column("q", width=750, anchor="w")
+    tree.column("qcat", width=230, anchor="w")
+    tree.column("qdif", width=60, anchor="w")
 
     tree.grid(row=0, column=0, sticky="nsew")
 
@@ -901,7 +915,7 @@ def questionDelete():
 
     # Query Questions Table for all Questions
     c.execute("""
-                SELECT q.question_id, q.question, qc.category_name
+                SELECT q.question_id, q.question, qc.category_name, q.question_difficulty
                 FROM Questions q
                 JOIN Question_Categories qc ON q.category_id = qc.category_id
                 ORDER BY q.question_id
@@ -913,7 +927,7 @@ def questionDelete():
         tree.insert("", "end", values=row)
 
     delFrame = Frame(qdeleteFrame, bd=2)
-    delFrame.grid(row=1, column=0, pady=5, padx=5, sticky="nsew")
+    delFrame.grid(row=2, column=0, pady=5, padx=5, sticky="nsew")
 
     # Commit Changes
     cnx.commit()
@@ -1064,28 +1078,27 @@ def testView():
 
         # Build the ORDER BY clause based on the selected sort order
         if sort_order == "ID":
-            order_by = "q.question_id"
+            order_by = "t.test_id"
         elif sort_order == "Type":
-            order_by = "q.question"
+            order_by = "tot.test_name"
         elif sort_order == "Title":
-            order_by = "qc.category_name"
+            order_by = "t.test_title"
         elif sort_order == "Time":
-            order_by = "q.question_difficulty"
-        elif sort_order == "# of Questions":
-            order_by = "q.question_difficulty"
+            order_by = "t.test_time"
         else:
-            order_by = "q.question_id"  # Fallback
+            order_by = "t.test_id"  # Fallback
 
         c.execute(f"""
-                SELECT q.question_id, q.question, qc.category_name, q.question_difficulty
-                FROM Questions q
-                JOIN Question_Categories qc ON q.category_id = qc.category_id
+                SELECT t.test_id, tot.test_name, t.test_title, t.test_time
+                FROM Test t
+                JOIN Types_Of_Test tot ON t.test_type = tot.test_type
                 ORDER BY {order_by}
             """)
         results = c.fetchall()
 
         for row in results:
-            tree.insert("", "end", values=row)
+            num_questions = countQuestionsTestID(row[0])
+            tree.insert("", "end", values=row + (num_questions,))
 
         cnx.commit()
         cnx.close()
@@ -1106,19 +1119,21 @@ def testView():
     global header_tview
     header_tview = create_header_label(root, "Test Overview")
 
+    # Create a Frame for the sort dropdown menu
+    sortFrame = Frame(tviewFrame, bd=1)
+    sortFrame.grid(row=0, column=0, padx=10, sticky="nsew")
+
     # DROPDOWN: Add sorting selection
     sort_var = StringVar()
     sort_var.set("ID")  # default sort
     sort_var.trace("w", on_sort_change)
 
-    sort_dropdown = create_dropdown_ver(header_tview, ["ID", "Type", "Title", "Time", "# of Questions"], sort_var, row=0,
-                                        col=0,
-                                        cspan=2, state="readonly",
-                                        text="Sort questions by:")
+    sort_dropdown_test = create_dropdown_hor(sortFrame, ["ID", "Type", "Title", "Time"], sort_var, 0, 0, 2, state="readonly",
+                                        text="Sort test by:")
 
     #Create a Frame for the treeview
-    treeFrame = Frame(tviewFrame, bd=10)
-    treeFrame.grid(row=0, column=0, sticky="nsew")
+    treeFrame = Frame(tviewFrame, bd=5)
+    treeFrame.grid(row=1, column=0, sticky="nsew")
 
     # Define columns for the treeview
     columns = ("tid", "ttype", "ttitle", "ttime", "numq")
@@ -1181,7 +1196,7 @@ def testView():
 
     # Create a Frame for displaying questions
     questionFrame = Frame(tviewFrame, bd=2)
-    questionFrame.grid(row=1, column=0, pady=5, padx=5, sticky='nsew')
+    questionFrame.grid(row=2, column=0, pady=5, padx=5, sticky='nsew')
 
     # Get all test IDs
     c.execute("SELECT test_id FROM Test")
@@ -1317,7 +1332,7 @@ def testMake():
                 selected_questions.discard(qid)
             updateQuestionCounter()
 
-        for i, (q_id, q_text, q_diff) in enumerate(questions, start=1):
+        for i, (q_id, q_text, qc_id, q_diff) in enumerate(questions, start=1):
             var = IntVar(value=1 if q_id in selected_questions else 0)
 
             # Keep track of checkboxes
@@ -1541,12 +1556,56 @@ def testModify():
     # Variables to track selected questions
     selected_questions = set()
 
+    # Define tree at the function level so it's accessible to all nested functions
+    tree = None
+
+    # Sort the tree view
+    def load_categories(sort_order):
+        # Use the tree variable from the outer scope
+        nonlocal tree
+
+        if tree:  # Make sure tree is defined before trying to use it
+            for item in tree.get_children():
+                tree.delete(item)
+
+            cnx = get_db_connection()
+            c = cnx.cursor()
+
+            # Build the ORDER BY clause based on the selected sort order
+            if sort_order == "ID":
+                order_by = "t.test_id"
+            elif sort_order == "Type":
+                order_by = "tot.test_name"
+            elif sort_order == "Title":
+                order_by = "t.test_title"
+            elif sort_order == "Time":
+                order_by = "t.test_time"
+            else:
+                order_by = "t.test_id"  # Fallback
+
+            c.execute(f"""
+                        SELECT t.test_id, tot.test_name, t.test_title, t.test_time
+                        FROM Test t
+                        JOIN Types_Of_Test tot ON t.test_type = tot.test_type
+                        ORDER BY {order_by}
+                    """)
+            results = c.fetchall()
+
+            for row in results:
+                tree.insert("", "end", values=row)
+
+            cnx.commit()
+            cnx.close()
+
+    def on_sort_change(*args):
+        selected_sort = sort_var.get()
+        load_categories(selected_sort)
+
     # Realtime counter of selected questions
     def updateQuestionCounter():
         question_counter_label.config(text=f"Questions selected: {len(selected_questions)}")
 
     def submitChange():
-
         # Validate that the title is entered
         if not title.get().strip():
             messagebox.showerror("Error", "There is no title submitted.")
@@ -1635,8 +1694,7 @@ def testModify():
             cnx.close()
 
     def question_canvas():
-
-          # Clear previous questions
+        # Clear previous questions
         for widget in scrollable_frame.winfo_children():
             widget.destroy()
 
@@ -1671,7 +1729,8 @@ def testModify():
             shortened_qtitle = q_text[:70] + "..." if len(q_text) > 70 else q_text
 
             ttk.Checkbutton(scrollable_frame, text=shortened_qtitle, variable=var,
-                        command=lambda q=q_id, v=var: toggle_question(q, v)).grid(row=i, column=0, sticky="w", padx=5)
+                            command=lambda q=q_id, v=var: toggle_question(q, v)).grid(row=i, column=0, sticky="w",
+                                                                                      padx=5)
             Label(scrollable_frame, text=q_diff).grid(row=i, column=1, sticky="e", padx=5)
 
         cnx.close()
@@ -1760,7 +1819,8 @@ def testModify():
             shortened_qtitle = q_text[:70] + "..." if len(q_text) > 70 else q_text
 
             ttk.Checkbutton(scrollable_frame, text=shortened_qtitle, variable=var,
-                        command=lambda q=q_id, v=var: toggle_question(q, v)).grid(row=i, column=0, sticky="w", padx=5)
+                            command=lambda q=q_id, v=var: toggle_question(q, v)).grid(row=i, column=0, sticky="w",
+                                                                                      padx=5)
             Label(scrollable_frame, text=q_diff).grid(row=i, column=3, sticky="e", padx=5)
 
         # Update question counter to reflect initially selected questions
@@ -1774,6 +1834,7 @@ def testModify():
         columns = ("tid", "ttype", "ttitle")
 
         # Create a treeview with the defined columns
+        nonlocal tree  # Use the tree from the outer scope
         tree = ttk.Treeview(modify_frame, columns=columns, show="headings", height=6)
 
         # Set headers
@@ -1815,7 +1876,6 @@ def testModify():
             tree.insert("", "end", values=row)
 
         cnx.commit()
-
         cnx.close()
 
         return ids
@@ -1835,16 +1895,29 @@ def testModify():
     global header_tmodify
     header_tmodify = create_header_label(root, "Modify Tests")
 
-    modify_frame = Frame(tmodifyFrame, bd=2)
-    modify_frame.grid(row=0, column=0, sticky="nsew")
+    # Create a Frame for the sort dropdown menu
+    sortFrame = Frame(tmodifyFrame, bd=1)
+    sortFrame.grid(row=0, column=0, padx=10, sticky="nsew")
 
-    #Create a Frame for question category dropdown
+    # DROPDOWN: Add sorting selection
+    sort_var = StringVar()
+    sort_var.set("ID")  # default sort
+    sort_var.trace("w", on_sort_change)
+
+    sort_dropdown_test = create_dropdown_hor(sortFrame, ["ID", "Type", "Title", "Time"], sort_var, 0, 0, 2,
+                                             state="readonly",
+                                             text="Sort test by:")
+
+    modify_frame = Frame(tmodifyFrame, bd=2)
+    modify_frame.grid(row=1, column=0, sticky="nsew")
+
+    # Create a Frame for question category dropdown
     question_category_frame = Frame(tmodifyFrame, bd=2)
-    question_category_frame.grid(row=1, column=0)
+    question_category_frame.grid(row=2, column=0)
 
     # Create a Frame for a scrollable canvas with questions
     question_frame = LabelFrame(tmodifyFrame, text="")
-    question_frame.grid(row=2, column=0, sticky="nw", columnspan=2)
+    question_frame.grid(row=3, column=0, sticky="nw", columnspan=2)
 
     # Create Canvas
     canvas = Canvas(question_frame, width=600, height=200)
@@ -1858,7 +1931,6 @@ def testModify():
     scrollable_frame = Frame(canvas)
     canvas.create_window((0, 0), window=scrollable_frame, anchor="nw", width=600)
     scrollable_frame.grid_columnconfigure(0, weight=1)
-
 
     def on_frame_configure(event):
         canvas.config(scrollregion=canvas.bbox("all"))
@@ -1916,7 +1988,6 @@ def testModify():
     test_type_dropdown = create_dropdown_hor(modify_frame, test_name, type_var, 1, 3, 3, "readonly",
                                              "   Current test type: ")
 
-
     # Label and text box for test title
     Label(modify_frame, text="Test Title:").grid(row=2, column=3, sticky="w", padx=10)
     title = ttk.Entry(modify_frame, width=50)
@@ -1926,10 +1997,14 @@ def testModify():
     time = ttk.Entry(modify_frame, width=10)
     time.grid(row=4, column=4, columnspan=2, sticky="e")
 
-    ttk.Button(modify_frame, text="Modify Test", command=submitChange, style="Accent.TButton").grid(row=4, column=6, pady=10)
+    ttk.Button(modify_frame, text="Modify Test", command=submitChange, style="Accent.TButton").grid(row=4, column=6,
+                                                                                                    pady=10)
 
     global back_btn_tmodify
     back_btn_tmodify = create_back_button(root, backTestModify)
+
+    # Load the initial sorted data
+    load_categories(sort_var.get())
 
     return
 
@@ -1946,6 +2021,45 @@ def backTestDelete():
 
 # Create Function to Delete a Test
 def testDelete():
+    # Sort the tree view
+    def load_categories(sort_order):
+        for item in tree.get_children():
+            tree.delete(item)
+
+        cnx = get_db_connection()
+        c = cnx.cursor()
+
+        # Build the ORDER BY clause based on the selected sort order
+        if sort_order == "ID":
+            order_by = "t.test_id"
+        elif sort_order == "Type":
+            order_by = "tot.test_name"
+        elif sort_order == "Title":
+            order_by = "t.test_title"
+        elif sort_order == "Time":
+            order_by = "t.test_time"
+        else:
+            order_by = "t.test_id"  # Fallback
+
+        c.execute(f"""
+                    SELECT t.test_id, tot.test_name, t.test_title, t.test_time
+                    FROM Test t
+                    JOIN Types_Of_Test tot ON t.test_type = tot.test_type
+                    ORDER BY {order_by}
+                """)
+        results = c.fetchall()
+
+        for row in results:
+            num_questions = countQuestionsTestID(row[0])
+            tree.insert("", "end", values=row + (num_questions,))
+
+        cnx.commit()
+        cnx.close()
+
+    def on_sort_change(*args):
+        selected_sort = sort_var.get()
+        load_categories(selected_sort)
+
     hide_main_menu()
 
     # Create a Frame this option
@@ -1962,9 +2076,22 @@ def testDelete():
     global header_tdelete
     header_tdelete = create_header_label(root, "Delete Tests")
 
+    # Create a Frame for the sort dropdown menu
+    sortFrame = Frame(tdeleteFrame, bd=1)
+    sortFrame.grid(row=0, column=0, padx=10, sticky="nsew")
+
+    # DROPDOWN: Add sorting selection
+    sort_var = StringVar()
+    sort_var.set("ID")  # default sort
+    sort_var.trace("w", on_sort_change)
+
+    sort_dropdown_test = create_dropdown_hor(sortFrame, ["ID", "Type", "Title", "Time"], sort_var, 0, 0, 2,
+                                             state="readonly",
+                                             text="Sort test by:")
+
     # Create a Frame for the treeview
     treeFrame = Frame(tdeleteFrame, bd=10)
-    treeFrame.grid(row=0, column=0, sticky="nsew", columnspan=5)
+    treeFrame.grid(row=1, column=0, sticky="nsew", columnspan=5)
 
     # Define columns for the treeview
     columns = ("tid", "ttype", "ttitle", "ttime", "numq")
@@ -2091,7 +2218,7 @@ def testDelete():
     selected_tid.set(test_ids[0])  # Set the first question ID as default
 
     text = "Select test ID to delete: "
-    test_dropdown = create_dropdown_hor(tdeleteFrame, test_ids, selected_tid, 1, 0, 1, "normal", text)
+    test_dropdown = create_dropdown_hor(tdeleteFrame, test_ids, selected_tid, 2, 0, 1, "normal", text)
 
     # Commit Changes
     cnx.commit()
@@ -2102,7 +2229,7 @@ def testDelete():
     # delete_box = ttk.Entry(tdeleteFrame, width=10)
     # delete_box.grid(row=3, column=1)
     deleteQuestion_btn = ttk.Button(tdeleteFrame, text="Delete Test", command=deleteQuestion, style="Accent.TButton")
-    deleteQuestion_btn.grid(row=1, column=1, sticky="e", padx=10, ipadx=20)
+    deleteQuestion_btn.grid(row=2, column=1, sticky="e", padx=10, ipadx=20)
 
     global back_btn_tdelete
     back_btn_tdelete = create_back_button(root, backTestDelete)
@@ -2122,6 +2249,45 @@ def backTestExtract():
 
 # Create Function to Extract a Test
 def testExtract():
+    # Sort the tree view
+    def load_categories(sort_order):
+        for item in tree.get_children():
+            tree.delete(item)
+
+        cnx = get_db_connection()
+        c = cnx.cursor()
+
+        # Build the ORDER BY clause based on the selected sort order
+        if sort_order == "ID":
+            order_by = "t.test_id"
+        elif sort_order == "Type":
+            order_by = "tot.test_name"
+        elif sort_order == "Title":
+            order_by = "t.test_title"
+        elif sort_order == "Time":
+            order_by = "t.test_time"
+        else:
+            order_by = "t.test_id"  # Fallback
+
+        c.execute(f"""
+                        SELECT t.test_id, tot.test_name, t.test_title, t.test_time
+                        FROM Test t
+                        JOIN Types_Of_Test tot ON t.test_type = tot.test_type
+                        ORDER BY {order_by}
+                    """)
+        results = c.fetchall()
+
+        for row in results:
+            num_questions = countQuestionsTestID(row[0])
+            tree.insert("", "end", values=row + (num_questions,))
+
+        cnx.commit()
+        cnx.close()
+
+    def on_sort_change(*args):
+        selected_sort = sort_var.get()
+        load_categories(selected_sort)
+
     hide_main_menu()
 
     # Show header
@@ -2133,9 +2299,22 @@ def testExtract():
     textractFrame = Frame(root, bd=2)
     textractFrame.grid(row=1, pady=10, padx=20)
 
+    # Create a Frame for the sort dropdown menu
+    sortFrame = Frame(textractFrame, bd=1)
+    sortFrame.grid(row=0, column=0, padx=10, sticky="nsew")
+
+    # DROPDOWN: Add sorting selection
+    sort_var = StringVar()
+    sort_var.set("ID")  # default sort
+    sort_var.trace("w", on_sort_change)
+
+    sort_dropdown_test = create_dropdown_hor(sortFrame, ["ID", "Type", "Title", "Time"], sort_var, 0, 0, 2,
+                                             state="readonly",
+                                             text="Sort test by:")
+
     # Create a Frame for the treeview
     treeFrame = Frame(textractFrame, bd=10)
-    treeFrame.grid(row=0, column=0, sticky="nsew")
+    treeFrame.grid(row=1, column=0, sticky="nsew")
 
     # Define columns for the treeview
     columns = ("tid", "ttype", "ttitle", "ttime", "numq")
@@ -2203,7 +2382,7 @@ def testExtract():
 
     #Create a Frame for extract button and dropdown
     butFrame = Frame(textractFrame, bd=2)
-    butFrame.grid(row=1, column=0, pady=5, padx=5, sticky="nsew")
+    butFrame.grid(row=2, column=0, pady=5, padx=5, sticky="nsew")
 
     # Create a Selection Section for the Test
     # Connect to Database
@@ -2234,7 +2413,7 @@ def testExtract():
     # select_box.grid(row=3, column=1)
     extract_btn = ttk.Button(butFrame, text="Export QTI .zip File for Test",
                              command=lambda: test2qti(test_dropdown.get()), style="Accent.TButton")
-    extract_btn.grid(row=1, column=4, sticky='e', padx=10)
+    extract_btn.grid(row=2, column=4, sticky='e', padx=10)
 
     # Create a Back Button to Hide Current View and Reshow Original View
     global back_btn_textract
