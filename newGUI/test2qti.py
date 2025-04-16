@@ -32,7 +32,8 @@ def test2qti(createTest):
 
         # Write quiz options
         f.write(f"shuffle answers: true\n")
-        f.write(f"show correct answers: true\n")
+        f.write(f"shuffle questions: true\n")
+        # f.write(f"show correct answers: true\n")
         f.write(f"one question at a time: true\n")
         f.write(f"can't go back: true\n")
 

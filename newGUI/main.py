@@ -85,7 +85,6 @@ def backQuestionView():
 
 # Create Question View Function To Query From Questions Table
 def questionView():
-
     # Sort the tree view
     def load_categories(sort_order):
         for item in tree.get_children():
@@ -120,7 +119,6 @@ def questionView():
         cnx.commit()
         cnx.close()
 
-
     def on_sort_change(*args):
         selected_sort = sort_var.get()
         load_categories(selected_sort)
@@ -145,8 +143,9 @@ def questionView():
     sort_var.set("ID")  # default sort
     sort_var.trace("w", on_sort_change)
 
-    sort_dropdown = create_dropdown_hor(sortFrame, ["ID", "Title", "Category", "Difficulty"], sort_var, row=0, col=0, cspan=2, state="readonly",
-                        text="Sort questions by:")
+    sort_dropdown = create_dropdown_hor(sortFrame, ["ID", "Title", "Category", "Difficulty"], sort_var, row=0, col=0,
+                                        cspan=2, state="readonly",
+                                        text="Sort questions by:")
     sort_dropdown.grid(padx=10)
 
     # Create a Frame for the treeview
@@ -208,7 +207,7 @@ def questionView():
     question_ids = sorted(question_ids)
 
     selected_qid = StringVar()
-    selected_qid.set(question_ids[0])  # Set the first question ID as default
+    # selected_qid.set(question_ids[0])  # Set the first question ID as default
 
     text = "Select question ID to display answers: "
     question_dropdown = create_dropdown_hor(answerFrame, question_ids, selected_qid, 1, 1, 2, "normal", text)
@@ -246,7 +245,9 @@ def questionView():
     question_dropdown.bind("<<ComboboxSelected>>", getAnswers)
 
     # Display Labels for answers
-    ttk.Label(answerFrame, text="(Correct) Answer Number 1:", font=("Arial", 10, "bold")).grid(row=4, column=1, columnspan=1, sticky="e", pady=5)
+    ttk.Label(answerFrame, text="(Correct) Answer Number 1:", font=("Arial", 10, "bold")).grid(row=4, column=1,
+                                                                                               columnspan=1, sticky="e",
+                                                                                               pady=5)
     ttk.Label(answerFrame, text="Answer Number 2:").grid(row=5, column=1, columnspan=1, sticky="e", pady=5)
     ttk.Label(answerFrame, text="Answer Number 3:").grid(row=6, column=1, columnspan=1, sticky="e", pady=5)
     ttk.Label(answerFrame, text="Answer Number 4:").grid(row=7, column=1, columnspan=1, sticky="e", pady=5)
@@ -388,7 +389,8 @@ def questionAdd():
     header_qadd = create_header_label(root, "Add Questions")
 
     # Create Labels for the Text Input
-    ttk.Label(qaddFrame, text="Question: ", font=("Arial", 10, "bold"), foreground="#047bf9").grid(row=0, column=2, sticky="e")
+    ttk.Label(qaddFrame, text="Question: ", font=("Arial", 10, "bold"), foreground="#047bf9").grid(row=0, column=2,
+                                                                                                   sticky="e")
     question = ttk.Entry(qaddFrame, width=99)
     question.grid(row=0, column=3, padx=10, pady=15)
 
@@ -417,7 +419,8 @@ def questionAdd():
 
     # ANSWER SECTION
     # Create Labels for the Answer Choices and note the first one is always correct
-    ttk.Label(qaddFrame, text="Answer Number 1 (Correct): ", font=("Arial", 10, "bold")).grid(row=2, column=2, sticky="e", pady=10)
+    ttk.Label(qaddFrame, text="Answer Number 1 (Correct): ", font=("Arial", 10, "bold")).grid(row=2, column=2,
+                                                                                              sticky="e", pady=10)
     ttk.Label(qaddFrame, text="Answer Number 2: ").grid(row=3, column=2, sticky="e", pady=10)
     ttk.Label(qaddFrame, text="Answer Number 3: ").grid(row=4, column=2, sticky="e", pady=10)
     ttk.Label(qaddFrame, text="Answer Number 4: ").grid(row=5, column=2, sticky="e", pady=10)
@@ -732,7 +735,7 @@ def questionModify():
     selected_qid = StringVar()
 
     # Set the first question ID as default
-    selected_qid.set(question_ids[0])
+    # selected_qid.set(question_ids[0])
 
     text = "Select Question ID to be modified:"
     question_dropdown = create_dropdown_ver(modFrame, question_ids, selected_qid, 0, 0, 1, "normal", text)
@@ -744,7 +747,8 @@ def questionModify():
 
     # Create the label and text boxes for the selected question
     # Create Labels for the Text Input
-    Label(modFrame, text="Question: ", foreground="#047bf9", font=("Arial", 10, "bold")).grid(row=0, column=3, sticky='w')
+    Label(modFrame, text="Question: ", foreground="#047bf9", font=("Arial", 10, "bold")).grid(row=0, column=3,
+                                                                                              sticky='w')
     question = ttk.Entry(modFrame, width=110)
     question.grid(row=0, column=4, columnspan=3, sticky='e')
 
@@ -854,7 +858,6 @@ def questionDelete():
         selected_sort = sort_var.get()
         load_categories(selected_sort)
 
-
     hide_main_menu()
 
     # Create a Frame this option
@@ -879,7 +882,6 @@ def questionDelete():
                                         col=0,
                                         cspan=2, state="readonly",
                                         text="Sort questions by:")
-
 
     treeFrame = Frame(qdeleteFrame, bd=10)
     treeFrame.grid(row=1, column=0, sticky="nsew")
@@ -1007,7 +1009,7 @@ def questionDelete():
     selected_qid = StringVar()
 
     # Set the first question ID as default
-    selected_qid.set(question_ids[0])
+    # selected_qid.set(question_ids[0])
 
     text = "Select Question ID to be deleted: "
     question_dropdown = create_dropdown_hor(delFrame, question_ids, selected_qid, 0, 0, 2,
@@ -1107,7 +1109,6 @@ def testView():
         selected_sort = sort_var.get()
         load_categories(selected_sort)
 
-
     hide_main_menu()
 
     # Create a Frame this option
@@ -1128,8 +1129,9 @@ def testView():
     sort_var.set("ID")  # default sort
     sort_var.trace("w", on_sort_change)
 
-    sort_dropdown_test = create_dropdown_hor(sortFrame, ["ID", "Type", "Title", "Time"], sort_var, 0, 0, 2, state="readonly",
-                                        text="Sort test by:")
+    sort_dropdown_test = create_dropdown_hor(sortFrame, ["ID", "Type", "Title", "Time"], sort_var, 0, 0, 2,
+                                             state="readonly",
+                                             text="Sort test by:")
 
     #Create a Frame for the treeview
     treeFrame = Frame(tviewFrame, bd=5)
@@ -1206,7 +1208,7 @@ def testView():
     test_ids = sorted(test_ids)
 
     selected_tid = StringVar()
-    selected_tid.set(test_ids[0])  # Set the first question ID as default
+    # selected_tid.set(test_ids[0])  # Set the first question ID as default
 
     text = "Select test ID to display questions: "
     test_dropdown = create_dropdown_hor(questionFrame, test_ids, selected_tid, 0, 0, 2, "normal", text)
@@ -1301,7 +1303,10 @@ def testMake():
         for widget in scrollable_frame.winfo_children():
             widget.destroy()
 
-        selected_category_id = category_ids[category_dropdown.current()]
+        if category_names:
+            selected_category_id = category_ids[category_dropdown.current()]
+        else:
+            selected_category_id = 0
 
         # Connect to Database
         cnx = get_db_connection()
@@ -1339,7 +1344,8 @@ def testMake():
             checkbox_vars.append(var)
 
             ttk.Checkbutton(scrollable_frame, text=q_text, variable=var,
-                        command=lambda q=q_id, v=var: toggle_question(q, v)).grid(row=i, column=0, columnspan=4, sticky="w", padx=10)
+                            command=lambda q=q_id, v=var: toggle_question(q, v)).grid(row=i, column=0, columnspan=4,
+                                                                                      sticky="w", padx=10)
             Label(scrollable_frame, text=q_diff, anchor="e").grid(row=i, column=4, sticky="e", padx=15)
 
     def addTest():
@@ -1437,7 +1443,6 @@ def testMake():
     canvas.create_window((0, 0), window=scrollable_frame, anchor="nw", width=1000)
     scrollable_frame.grid_columnconfigure(0, weight=1)
 
-
     def on_frame_configure(event):
         canvas.config(scrollregion=canvas.bbox("all"))
 
@@ -1518,20 +1523,23 @@ def testMake():
     category_var = StringVar()
 
     # Set the first category as default
-    category_var.set(category_names[0])
+    # category_var.set(category_names[0])
 
     category_dropdown = create_dropdown_hor(test_frame, category_names, category_var, 2, 0, 2, "readonly",
                                             "Select question category: ")
     category_dropdown.grid(pady=10)
 
-
     category_dropdown.bind("<<ComboboxSelected>>", loadQuestionsForCategory)
-    category_dropdown.current(0)
-
+    if category_names:
+        category_dropdown.current(0)
+    else:
+        category_dropdown.set("")
 
     loadQuestionsForCategory()
 
-    ttk.Button(tmakeFrame, text="Create Test", command=addTest, style="Accent.TButton", width=20).grid(row=3, column=0, sticky="e", pady=15)
+    ttk.Button(tmakeFrame, text="Create Test", command=addTest, style="Accent.TButton", width=20).grid(row=3, column=0,
+                                                                                                       sticky="e",
+                                                                                                       pady=15)
 
     global back_btn_tmake
     back_btn_tmake = create_back_button(root, backTestMake)
@@ -1556,7 +1564,7 @@ def testModify():
     # Variables to track selected questions
     selected_questions = set()
 
-    # Define tree at the function level so it's accessible to all nested functions
+    # Define tree at the function level, so it's accessible to all nested functions
     tree = None
 
     # Sort the tree view
@@ -2215,7 +2223,7 @@ def testDelete():
     test_ids = sorted(test_ids)
 
     selected_tid = StringVar()
-    selected_tid.set(test_ids[0])  # Set the first question ID as default
+    # selected_tid.set(test_ids[0])  # Set the first question ID as default
 
     text = "Select test ID to delete: "
     test_dropdown = create_dropdown_hor(tdeleteFrame, test_ids, selected_tid, 2, 0, 1, "normal", text)
@@ -2399,7 +2407,7 @@ def testExtract():
     test_ids = sorted(test_ids)
 
     selected_tid = StringVar()
-    selected_tid.set(test_ids[0])  # Set the first question ID as default
+    # selected_tid.set(test_ids[0])  # Set the first question ID as default
 
     text = "Select test ID to Export to QTI .zip file: "
     test_dropdown = create_dropdown_hor(butFrame, test_ids, selected_tid, 1, 0, 2, "normal", text)
@@ -2534,13 +2542,13 @@ def questCatAdd():
     global header_qcatadd
     header_qcatadd = create_header_label(root, "Add Question Categories")
 
-
     # DROPDOWN: Add sorting selection
     sort_var = StringVar()
     sort_var.set("ID")  # default sort
     sort_var.trace("w", on_sort_change)
 
-    sort_dropdown = create_dropdown_ver(questCatAddFrame, ["ID", "Title"], sort_var, row=0, col=0, cspan=2, state="readonly", text="Sort categories by:")
+    sort_dropdown = create_dropdown_ver(questCatAddFrame, ["ID", "Title"], sort_var, row=0, col=0, cspan=2,
+                                        state="readonly", text="Sort categories by:")
 
     # Create a treeview for displaying categories
     tree = ttk.Treeview(questCatAddFrame, columns=("tcid", "tcat"), show="headings", height=5)
@@ -2571,7 +2579,6 @@ def questCatAdd():
 
     for row in results:
         tree.insert("", "end", values=(row[0], row[1]))
-
 
     # Commit Changes
     cnx.commit()
@@ -2690,12 +2697,10 @@ def questCatModify():
     create_dropdown_ver(questCatModifyFrame, ["ID", "Title"], sort_var, row=0, col=0, cspan=2, state="readonly",
                         text="Sort categories by:")
 
-
     # Create a treeview for displaying categories
     tree = ttk.Treeview(questCatModifyFrame, columns=("tcid", "tcat"), show="headings", height=5)
     tree.heading("tcid", text="Test Category ID", anchor="w")
     tree.heading("tcat", text="Test Category Title", anchor="w")
-
 
     # Define column width
     tree.column("tcid", width=100)
@@ -2709,7 +2714,6 @@ def questCatModify():
 
     tree.grid(row=2, column=0, columnspan=2, pady=10)
     scrollbar.grid(row=2, column=2, sticky="ns", pady=10)
-
 
     # Create Dropdown Box for Question Category
 
@@ -2727,7 +2731,7 @@ def questCatModify():
     # Insert categories into treeview
     for row in results:
         cat_name.append(row[1])
-        tree.insert("","end", values=(row[0], row[1]))
+        tree.insert("", "end", values=(row[0], row[1]))
 
     # Create dropdown for category selection
     def on_category_select(event):
@@ -2902,7 +2906,6 @@ def questCatDelete():
         cat_name.append(row[1])
         tree.insert("", "end", values=(row[0], row[1]))
 
-
     cate_drop = create_dropdown_hor(questCatDeleteFrame, cat_name, var, 4, 0, 1, "normal",
                                     text="Select a question category")
     cate_drop.grid(padx=10)
@@ -2910,7 +2913,6 @@ def questCatDelete():
     cnx.commit()
     # Close Connection
     cnx.close()
-
 
     # Adjust button position
     delete_questCat_btn = ttk.Button(questCatDeleteFrame, text="Delete Question Category", command=deleteQuestCat,
@@ -3217,7 +3219,6 @@ def testCatModify():
         cat_name.append(row[1])
         tree.insert("", "end", values=(row[0], row[1]))
 
-
     # Create dropdown for category selection
     def on_category_select(event):
         # When a category is selected, populate the entry with its current title
@@ -3230,7 +3231,6 @@ def testCatModify():
     cate_drop.grid(pady=15)
 
     cate_drop.bind('<<ComboboxSelected>>', on_category_select)
-
 
     # Commit Changes
     cnx.commit()
