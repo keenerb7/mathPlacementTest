@@ -1,7 +1,0 @@
-SQL Server Info
-
-Host: sql5.freesqldatabase.com
-Database name: sql5764680
-Database user: sql5764680
-Database password: yK8gNIyhZm
-Port number: 3306
