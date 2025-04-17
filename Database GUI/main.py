@@ -2947,18 +2947,18 @@ deleteQuestCat_btn.grid(row=1, column=2, pady=10, padx=10, ipadx=50, ipady=10, s
 
 def back_test_cat_add():
     show_main_menu()
-    testCatAddFrame.grid_forget()
-    back_btn_testCatAdd.grid_forget()
+    test_cat_add_frame.grid_forget()
+    back_btn_test_cat_add.grid_forget()
     header_tcatadd.grid_forget()
     return
 
 
 def test_cat_add():
     # When refreshing the page, destroy the previous frame
-    if 'testCatAddFrame' in globals():
+    if 'test_cat_add_frame' in globals():
         back_test_cat_add()
 
-    def addNewTestCat():
+    def add_new_test_cat():
         # Making sure the user input a Question Category Title
         if not tctitle_entry.get().strip():
             messagebox.showerror("Error", "Please enter a Test Category Title.")
@@ -3022,9 +3022,9 @@ def test_cat_add():
     hide_main_menu()
 
     # Create a Frame this option
-    global testCatAddFrame
-    testCatAddFrame = Frame(root, bd=2)
-    testCatAddFrame.grid(row=1, pady=10, padx=20)
+    global test_cat_add_frame
+    test_cat_add_frame = Frame(root, bd=2)
+    test_cat_add_frame.grid(row=1, pady=10, padx=20)
 
     global header_tcatadd
     header_tcatadd = create_header_label(root, "Add Test Category")
@@ -3034,11 +3034,11 @@ def test_cat_add():
     sort_var.set("ID")  # default sort
     sort_var.trace("w", on_sort_change)
 
-    create_dropdown_ver(testCatAddFrame, ["ID", "Title"], sort_var, row=0, col=0, cspan=2, state="readonly",
+    create_dropdown_ver(test_cat_add_frame, ["ID", "Title"], sort_var, row=0, col=0, cspan=2, state="readonly",
                         text="Sort categories by:")
 
     # Create a treeview for displaying categories
-    tree = ttk.Treeview(testCatAddFrame, columns=("tcid", "tcat"), show="headings", height=5)
+    tree = ttk.Treeview(test_cat_add_frame, columns=("tcid", "tcat"), show="headings", height=5)
     tree.heading("tcid", text="Test Category ID", anchor="w")
     tree.heading("tcat", text="Test Category Title", anchor="w")
 
@@ -3047,7 +3047,7 @@ def test_cat_add():
     tree.column("tcat", width=300)
 
     # Add a scrollbar to the treeview
-    scrollbar = ttk.Scrollbar(testCatAddFrame, orient="vertical", command=tree.yview)
+    scrollbar = ttk.Scrollbar(test_cat_add_frame, orient="vertical", command=tree.yview)
 
     # Configure tree to use the scrollbar
     tree.configure(yscrollcommand=scrollbar.set)
@@ -3072,7 +3072,7 @@ def test_cat_add():
     # Close Connection
     cnx.close()
 
-    Label(testCatAddFrame, text="Enter new test category title:").grid(row=4, column=0, ipadx=5)
+    Label(test_cat_add_frame, text="Enter new test category title:").grid(row=4, column=0, ipadx=5)
 
     # If we have time, they would like to have a comment section next to the category name
     # this means editing the database and adding category_label in the Questions_Categories table
@@ -3080,16 +3080,16 @@ def test_cat_add():
     #Label(questCatAddFrame, text="Question Type Comment").grid(row=0, column=0, ipadx=5)
 
     # Test Name input
-    tctitle_entry = ttk.Entry(testCatAddFrame, width=50)
+    tctitle_entry = ttk.Entry(test_cat_add_frame, width=50)
     tctitle_entry.grid(row=6, column=0)
 
     # Add Test Button
-    add_testCat_btn = ttk.Button(testCatAddFrame, text="Add New Category", command=addNewTestCat,
+    add_testCat_btn = ttk.Button(test_cat_add_frame, text="Add New Category", command=add_new_test_cat,
                                  style="Accent.TButton")
     add_testCat_btn.grid(row=8, column=0, pady=10)
 
-    global back_btn_testCatAdd
-    back_btn_testCatAdd = create_back_button(root, back_test_cat_add)
+    global back_btn_test_cat_add
+    back_btn_test_cat_add = create_back_button(root, back_test_cat_add)
 
     return
 
@@ -3099,18 +3099,18 @@ def test_cat_add():
 
 def back_test_cat_modify():
     show_main_menu()
-    testCatModifyFrame.grid_forget()
-    back_btn_testCatModify.grid_forget()
+    test_cat_modify_frame.grid_forget()
+    back_btn_test_cat_modify.grid_forget()
     header_tcatadd.grid_forget()
     return
 
 
 def test_cat_modify():
     # When refreshing the page, destroy the previous frame
-    if 'testCatModifyFrame' in globals():
+    if 'test_cat_modify_frame' in globals():
         back_test_cat_modify()
 
-    def submitChanges():
+    def submit_changes():
         # Get the selected category and new title
         selected_category = var.get()
         new_title = qctitle_entry.get().strip()
@@ -3167,9 +3167,9 @@ def test_cat_modify():
     hide_main_menu()
 
     # Create a Frame this option
-    global testCatModifyFrame
-    testCatModifyFrame = Frame(root, bd=2)
-    testCatModifyFrame.grid(row=1, pady=10, padx=20)
+    global test_cat_modify_frame
+    test_cat_modify_frame = Frame(root, bd=2)
+    test_cat_modify_frame.grid(row=1, pady=10, padx=20)
 
     global header_tcatadd
     header_tcatadd = create_header_label(root, "Modify Test Category")
@@ -3179,11 +3179,11 @@ def test_cat_modify():
     sort_var.set("ID")  # default sort
     sort_var.trace("w", on_sort_change)
 
-    create_dropdown_ver(testCatModifyFrame, ["ID", "Title"], sort_var, row=0, col=0, cspan=2, state="readonly",
+    create_dropdown_ver(test_cat_modify_frame, ["ID", "Title"], sort_var, row=0, col=0, cspan=2, state="readonly",
                         text="Sort categories by:")
 
     # Create a treeview for displaying categories
-    tree = ttk.Treeview(testCatModifyFrame, columns=("tcid", "tcat"), show="headings", height=5)
+    tree = ttk.Treeview(test_cat_modify_frame, columns=("tcid", "tcat"), show="headings", height=5)
     tree.heading("tcid", text="Test Category ID", anchor="w")
     tree.heading("tcat", text="Test Category Title", anchor="w")
 
@@ -3192,7 +3192,7 @@ def test_cat_modify():
     tree.column("tcat", width=300)
 
     # Add a scrollbar to the treeview
-    scrollbar = ttk.Scrollbar(testCatModifyFrame, orient="vertical", command=tree.yview)
+    scrollbar = ttk.Scrollbar(test_cat_modify_frame, orient="vertical", command=tree.yview)
 
     # Configure tree to use the scrollbar
     tree.configure(yscrollcommand=scrollbar.set)
@@ -3223,7 +3223,7 @@ def test_cat_modify():
         qctitle_entry.delete(0, END)
         qctitle_entry.insert(0, selected_category)
 
-    cate_drop = create_dropdown_hor(testCatModifyFrame, cat_name, var, 4, 0, 1, "normal",
+    cate_drop = create_dropdown_hor(test_cat_modify_frame, cat_name, var, 4, 0, 1, "normal",
                                     text="Select a Test Category")
     cate_drop.grid(pady=15)
 
@@ -3235,16 +3235,16 @@ def test_cat_modify():
     cnx.close()
 
     # Test Name input
-    qctitle_entry = ttk.Entry(testCatModifyFrame, width=50)
+    qctitle_entry = ttk.Entry(test_cat_modify_frame, width=50)
     qctitle_entry.grid(row=6, column=0, columnspan=2)
 
     # Button to modify
-    modify_testCat_btn = ttk.Button(testCatModifyFrame, text="Modify Test Category Title", command=submitChanges,
+    modify_testCat_btn = ttk.Button(test_cat_modify_frame, text="Modify Test Category Title", command=submit_changes,
                                     style="Accent.TButton")
     modify_testCat_btn.grid(row=7, column=0, columnspan=2, pady=10)
 
-    global back_btn_testCatModify
-    back_btn_testCatModify = create_back_button(root, back_test_cat_modify)
+    global back_btn_test_cat_modify
+    back_btn_test_cat_modify = create_back_button(root, back_test_cat_modify)
 
     return
 
@@ -3254,18 +3254,18 @@ def test_cat_modify():
 
 def back_test_cat_delete():
     show_main_menu()
-    testCatDeleteFrame.grid_forget()
-    back_btn_testCatDelete.grid_forget()
+    test_cat_delete_frame.grid_forget()
+    back_btn_test_cat_delete.grid_forget()
     header_tcatdelete.grid_forget()
     return
 
 
 def test_cat_delete():
     # When refreshing the page, destroy the previous frame
-    if 'testCatDeleteFrame' in globals():
+    if 'test_cat_delete_frame' in globals():
         back_test_cat_delete()
 
-    def deleteTestCat():
+    def delete_test_cat():
 
         # Get the selected category
         selected_category = var.get()
@@ -3340,9 +3340,9 @@ def test_cat_delete():
     hide_main_menu()
 
     # Create a Frame this option
-    global testCatDeleteFrame
-    testCatDeleteFrame = Frame(root, bd=2)
-    testCatDeleteFrame.grid(row=1, pady=10, padx=20)
+    global test_cat_delete_frame
+    test_cat_delete_frame = Frame(root, bd=2)
+    test_cat_delete_frame.grid(row=1, pady=10, padx=20)
 
     global header_tcatdelete
     header_tcatdelete = create_header_label(root, "Delete Test Category")
@@ -3352,13 +3352,13 @@ def test_cat_delete():
     sort_var.set("ID")  # default sort
     sort_var.trace("w", on_sort_change)
 
-    create_dropdown_ver(testCatDeleteFrame, ["ID", "Title"], sort_var, row=0, col=0, cspan=2, state="readonly",
+    create_dropdown_ver(test_cat_delete_frame, ["ID", "Title"], sort_var, row=0, col=0, cspan=2, state="readonly",
                         text="Sort categories by:")
 
     # Create Dropdown Box for Test Category
 
     # Create a treeview for displaying categories
-    tree = ttk.Treeview(testCatDeleteFrame, columns=("tcid", "tcat"), show="headings", height=5)
+    tree = ttk.Treeview(test_cat_delete_frame, columns=("tcid", "tcat"), show="headings", height=5)
     tree.heading("tcid", text="Test Category ID", anchor="w")
     tree.heading("tcat", text="Test Category Title", anchor="w")
 
@@ -3367,7 +3367,7 @@ def test_cat_delete():
     tree.column("tcat", width=300)
 
     # Add a scrollbar to the treeview
-    scrollbar = ttk.Scrollbar(testCatDeleteFrame, orient="vertical", command=tree.yview)
+    scrollbar = ttk.Scrollbar(test_cat_delete_frame, orient="vertical", command=tree.yview)
 
     # Configure tree to use the scrollbar
     tree.configure(yscrollcommand=scrollbar.set)
@@ -3391,7 +3391,7 @@ def test_cat_delete():
         cat_name.append(row[1])
         tree.insert("", "end", values=(row[0], row[1]))
 
-    cate_drop = create_dropdown_hor(testCatDeleteFrame, cat_name, var, 4, 0, 1, "normal",
+    cate_drop = create_dropdown_hor(test_cat_delete_frame, cat_name, var, 4, 0, 1, "normal",
                                     text="Select a test category: ")
     cate_drop.grid(padx=10)
     # Commit Changes
@@ -3399,12 +3399,12 @@ def test_cat_delete():
     # Close Connection
     cnx.close()
 
-    delete_testCat_btn = ttk.Button(testCatDeleteFrame, text="Delete Question Category", command=deleteTestCat,
+    delete_testCat_btn = ttk.Button(test_cat_delete_frame, text="Delete Question Category", command=delete_test_cat,
                                     style="Accent.TButton")
     delete_testCat_btn.grid(row=5, column=0, pady=10, columnspan=2)
 
-    global back_btn_testCatDelete
-    back_btn_testCatDelete = create_back_button(root, back_test_cat_delete)
+    global back_btn_test_cat_delete
+    back_btn_test_cat_delete = create_back_button(root, back_test_cat_delete)
 
     return
 
