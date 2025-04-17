@@ -12,7 +12,6 @@ db_file = "math_placement_test.db"
 if not os.path.exists(db_file):
     initialize_database()
 
-
 # Create the main window
 root = Tk()
 root.title("University of Findlay Math Department")
@@ -246,8 +245,9 @@ def question_view():
 
     # Display Labels for answers
     ttk.Label(answer_frame, text="(Correct) Answer Number 1:", font=("Arial", 10, "bold")).grid(row=4, column=1,
-                                                                                               columnspan=1, sticky="e",
-                                                                                               pady=5)
+                                                                                                columnspan=1,
+                                                                                                sticky="e",
+                                                                                                pady=5)
     ttk.Label(answer_frame, text="Answer Number 2:").grid(row=5, column=1, columnspan=1, sticky="e", pady=5)
     ttk.Label(answer_frame, text="Answer Number 3:").grid(row=6, column=1, columnspan=1, sticky="e", pady=5)
     ttk.Label(answer_frame, text="Answer Number 4:").grid(row=7, column=1, columnspan=1, sticky="e", pady=5)
@@ -483,11 +483,7 @@ def question_modify():
 
         if question_info:
             # Get Category Name for Drop Down
-<<<<<<< Updated upstream
             cat_name = str(get_category_name(questionInfo[2]))  # Fetch category name
-=======
-            cat_name = str(getCategoryName(question_info[2]))  # Fetch category name
->>>>>>> Stashed changes
             cat_name = cat_name.strip("(),''")
             cate_dropdown.set(cat_name)  # Correctly update dropdown value
 
@@ -751,7 +747,7 @@ def question_modify():
     # Create the label and text boxes for the selected question
     # Create Labels for the Text Input
     Label(mod_frame, text="Question: ", foreground="#047bf9", font=("Arial", 10, "bold")).grid(row=0, column=3,
-                                                                                              sticky='w')
+                                                                                               sticky='w')
     question = ttk.Entry(mod_frame, width=110)
     question.grid(row=0, column=4, columnspan=3, sticky='e')
 
@@ -1100,13 +1096,8 @@ def test_view():
         results = c.fetchall()
 
         for row in results:
-<<<<<<< Updated upstream
             num_questions = count_questions_test_id(row[0])
             tree.insert("", "end", values=row + (num_questions,))
-=======
-            num_questions = countQuestionsTestID(row[0])
-            tview_ttree.insert("", "end", values=row + (num_questions,))
->>>>>>> Stashed changes
 
         cnx.commit()
         cnx.close()
@@ -1543,9 +1534,10 @@ def test_make():
 
     load_questions_for_category()
 
-    ttk.Button(tmake_frame, text="Create Test", command=add_test, style="Accent.TButton", width=20).grid(row=3, column=0,
-                                                                                                        sticky="e",
-                                                                                                        pady=15)
+    ttk.Button(tmake_frame, text="Create Test", command=add_test, style="Accent.TButton", width=20).grid(row=3,
+                                                                                                         column=0,
+                                                                                                         sticky="e",
+                                                                                                         pady=15)
 
     global back_btn_tmake
     back_btn_tmake = create_back_button(root, back_test_make)
@@ -2604,7 +2596,7 @@ def qcat_add():
 
     # Add Test Button
     add_quest_cat_btn = ttk.Button(qcat_add_frame, text="Add New Category", command=add_new_quest_cat,
-                                  style="Accent.TButton")
+                                   style="Accent.TButton")
     add_quest_cat_btn.grid(row=5, column=0, pady=10)
 
     global back_btn_qcat_add
@@ -2761,7 +2753,7 @@ def qcat_modify():
 
     # Button to modify
     mod_qcat_btn = ttk.Button(qcat_modify_frame, text="Modify Question Category Title", command=submit_changes,
-                                     style="Accent.TButton")
+                              style="Accent.TButton")
     mod_qcat_btn.grid(row=7, column=0, columnspan=2, pady=10)
 
     global back_btn_qcat_modify
@@ -2922,7 +2914,7 @@ def qcat_delete():
 
     # Adjust button position
     del_qcat_btn = ttk.Button(qcat_delete_frame, text="Delete Question Category", command=delete_qcat,
-                                     style="Accent.TButton")
+                              style="Accent.TButton")
     del_qcat_btn.grid(row=5, column=0, columnspan=2, pady=10)
 
     global back_btn_qcat_delete
