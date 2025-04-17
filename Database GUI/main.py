@@ -1,4 +1,7 @@
 import os
+
+from PIL.ImageQt import qt_version
+
 from initialize_db import initialize_database
 from test2qti import *
 from tkinter import ttk
@@ -22,13 +25,13 @@ notebook = ttk.Notebook(root)
 notebook.grid(row=1, column=0, rowspan=5, columnspan=4)
 quest_frame = ttk.Frame(notebook)
 test_frame = ttk.Frame(notebook)
-questType_frame = ttk.Frame(notebook)
-testType_frame = ttk.Frame(notebook)
+qtype_frame = ttk.Frame(notebook)
+ttype_frame = ttk.Frame(notebook)
 
 notebook.add(quest_frame, text="Question Options")
 notebook.add(test_frame, text="Test Options")
-notebook.add(questType_frame, text="Question Category Options")
-notebook.add(testType_frame, text="Test Category Options")
+notebook.add(qtype_frame, text="Question Category Options")
+notebook.add(ttype_frame, text="Test Category Options")
 
 # I think we should ask if they want a consistent size or variable zie
 # Without setting the size beforehand it is variable
@@ -40,41 +43,41 @@ root.columnconfigure(0, weight=1)
 # Create a Main Menu Display Functions for Show and Hide
 def show_main_menu():
     notebook.grid(row=1, column=0, rowspan=5, columnspan=4)
-    mainMenu_lbl.grid(row=0, column=0, columnspan=4, padx=10, pady=10, ipadx=50, ipady=10)
+    main_menu_lbl.grid(row=0, column=0, columnspan=4, padx=10, pady=10, ipadx=50, ipady=10)
 
-    viewQuest_btn.grid(row=2, column=0, padx=10, pady=10, ipadx=50, ipady=10, sticky='ew')
-    addQuest_btn.grid(row=2, column=1, padx=10, pady=10, ipadx=50, ipady=10, sticky='ew')
-    modifyQuest_btn.grid(row=2, column=2, padx=10, pady=10, ipadx=50, ipady=10, sticky='ew')
-    deleteQuest_btn.grid(row=2, column=3, padx=10, pady=10, ipadx=50, ipady=10, sticky='ew')
+    view_quest_btn.grid(row=2, column=0, padx=10, pady=10, ipadx=50, ipady=10, sticky='ew')
+    add_quest_btn.grid(row=2, column=1, padx=10, pady=10, ipadx=50, ipady=10, sticky='ew')
+    modify_quest_btn.grid(row=2, column=2, padx=10, pady=10, ipadx=50, ipady=10, sticky='ew')
+    delete_quest_btn.grid(row=2, column=3, padx=10, pady=10, ipadx=50, ipady=10, sticky='ew')
 
     # Test buttons in row 3
-    viewTest_btn.grid(row=2, column=0, pady=10, padx=10, ipadx=50, ipady=10, sticky='ew')
-    makeTest_btn.grid(row=2, column=1, pady=10, padx=10, ipadx=50, ipady=10, sticky='ew')
-    modifyTest_btn.grid(row=2, column=2, pady=10, padx=10, ipadx=50, ipady=10, sticky='ew')
-    deleteTest_btn.grid(row=2, column=3, pady=10, padx=10, ipadx=50, ipady=10, sticky='ew')
-    extractTest_btn.grid(row=3, column=1, columnspan=2, pady=10, padx=10, ipadx=50, ipady=10)
+    view_test_btn.grid(row=2, column=0, pady=10, padx=10, ipadx=50, ipady=10, sticky='ew')
+    make_test_btn.grid(row=2, column=1, pady=10, padx=10, ipadx=50, ipady=10, sticky='ew')
+    modify_test_btn.grid(row=2, column=2, pady=10, padx=10, ipadx=50, ipady=10, sticky='ew')
+    delete_test_btn.grid(row=2, column=3, pady=10, padx=10, ipadx=50, ipady=10, sticky='ew')
+    extract_test_btn.grid(row=3, column=1, columnspan=2, pady=10, padx=10, ipadx=50, ipady=10)
 
 
 def hide_main_menu():
-    mainMenu_lbl.grid_forget()
+    main_menu_lbl.grid_forget()
     notebook.grid_forget()
     # Hide Current Buttons
-    viewQuest_btn.grid_forget()
-    addQuest_btn.grid_forget()
-    modifyQuest_btn.grid_forget()
-    deleteQuest_btn.grid_forget()
-    viewTest_btn.grid_forget()
-    makeTest_btn.grid_forget()
-    modifyTest_btn.grid_forget()
-    deleteTest_btn.grid_forget()
-    extractTest_btn.grid_forget()
+    view_quest_btn.grid_forget()
+    add_quest_btn.grid_forget()
+    modify_quest_btn.grid_forget()
+    delete_quest_btn.grid_forget()
+    view_test_btn.grid_forget()
+    make_test_btn.grid_forget()
+    modify_test_btn.grid_forget()
+    delete_test_btn.grid_forget()
+    extract_test_btn.grid_forget()
 
 
 ######################################Question View#####################################################################
 # Create a Function to Return to Original View from Question View Page
 def back_question_view():
     show_main_menu()
-    qviewFrame.grid_forget()
+    qview_frame.grid_forget()
     back_btn_qview.grid_forget()
     header_qview.grid_forget()
     return
@@ -84,8 +87,8 @@ def back_question_view():
 def question_view():
     # Sort the tree view
     def load_categories(sort_order):
-        for item in tree.get_children():
-            tree.delete(item)
+        for item in qview_tree.get_children():
+            qview_tree.delete(item)
 
         cnx = get_db_connection()
         c = cnx.cursor()
@@ -111,7 +114,7 @@ def question_view():
         results = c.fetchall()
 
         for row in results:
-            tree.insert("", "end", values=row)
+            qview_tree.insert("", "end", values=row)
 
         cnx.commit()
         cnx.close()
@@ -127,52 +130,52 @@ def question_view():
     header_qview = create_header_label(root, "Question Overview")
 
     # Create a Frame this option
-    global qviewFrame
-    qviewFrame = Frame(root, bd=2)
-    qviewFrame.grid(row=1, pady=10, padx=20)
+    global qview_frame
+    qview_frame = Frame(root, bd=2)
+    qview_frame.grid(row=1, pady=10, padx=20)
 
     # Create a Frame for the sort dropdown menu
-    sortFrame = Frame(qviewFrame, bd=1)
-    sortFrame.grid(row=0, column=0, padx=10, sticky="nsew")
+    sort_frame = Frame(qview_frame, bd=1)
+    sort_frame.grid(row=0, column=0, padx=10, sticky="nsew")
 
     # DROPDOWN: Add sorting selection
     sort_var = StringVar()
     sort_var.set("ID")  # default sort
     sort_var.trace("w", on_sort_change)
 
-    sort_dropdown = create_dropdown_hor(sortFrame, ["ID", "Title", "Category", "Difficulty"], sort_var, row=0, col=0,
+    sort_dropdown = create_dropdown_hor(sort_frame, ["ID", "Title", "Category", "Difficulty"], sort_var, row=0, col=0,
                                         cspan=2, state="readonly",
                                         text="Sort questions by:")
     sort_dropdown.grid(padx=10)
 
     # Create a Frame for the treeview
-    treeFrame = Frame(qviewFrame, bd=5)
-    treeFrame.grid(row=1, column=0, sticky="nsew")
+    tree_frame = Frame(qview_frame, bd=5)
+    tree_frame.grid(row=1, column=0, sticky="nsew")
 
     # Define columns for the treeview
     columns = ("qid", "q", "qcat", "qdif")
 
     # Create a treeview with the defined columns
-    tree = ttk.Treeview(treeFrame, columns=columns, show="headings", height=8)
+    qview_tree = ttk.Treeview(tree_frame, columns=columns, show="headings", height=8)
 
     # Set headers
-    tree.heading("qid", text="ID", anchor="w")
-    tree.heading("q", text="Question", anchor="w")
-    tree.heading("qcat", text="Category", anchor="w")
-    tree.heading("qdif", text="Difficulty", anchor="w")
+    qview_tree.heading("qid", text="ID", anchor="w")
+    qview_tree.heading("q", text="Question", anchor="w")
+    qview_tree.heading("qcat", text="Category", anchor="w")
+    qview_tree.heading("qdif", text="Difficulty", anchor="w")
 
     # Set the columns
-    tree.column("qid", width=40, anchor="w")
-    tree.column("q", width=750, anchor="w")
-    tree.column("qcat", width=230, anchor="w")
-    tree.column("qdif", width=60, anchor="w")
+    qview_tree.column("qid", width=40, anchor="w")
+    qview_tree.column("q", width=750, anchor="w")
+    qview_tree.column("qcat", width=230, anchor="w")
+    qview_tree.column("qdif", width=60, anchor="w")
 
-    tree.grid(row=0, column=0, sticky="nsew")
+    qview_tree.grid(row=0, column=0, sticky="nsew")
 
     # Create scrollbar for treeview
-    scrollbar = ttk.Scrollbar(treeFrame, orient="vertical", command=tree.yview)
+    scrollbar = ttk.Scrollbar(tree_frame, orient="vertical", command=qview_tree.yview)
     scrollbar.grid(row=0, column=1, sticky="ns")
-    tree.configure(yscrollcommand=scrollbar.set)
+    qview_tree.configure(yscrollcommand=scrollbar.set)
 
     # Connect to Database
     cnx = get_db_connection()
@@ -190,11 +193,11 @@ def question_view():
 
     # Loop through and display each question
     for row in records:
-        tree.insert("", "end", values=row)
+        qview_tree.insert("", "end", values=row)
 
     # Create a Frame inside the qview Frame to display answers
-    answerFrame = Frame(qviewFrame, bd=2)
-    answerFrame.grid(row=2, column=0, pady=5, padx=5, sticky="nsew")
+    answer_frame = Frame(qview_frame, bd=2)
+    answer_frame.grid(row=2, column=0, pady=5, padx=5, sticky="nsew")
 
     # Get all question IDs
     c.execute("SELECT question_id FROM Questions")
@@ -207,11 +210,11 @@ def question_view():
     # selected_qid.set(question_ids[0])  # Set the first question ID as default
 
     text = "Select question ID to display answers: "
-    question_dropdown = create_dropdown_hor(answerFrame, question_ids, selected_qid, 1, 1, 2, "normal", text)
+    question_dropdown = create_dropdown_hor(answer_frame, question_ids, selected_qid, 1, 1, 2, "normal", text)
     question_dropdown.grid(pady=10)
 
     # Get answers for selected question ID
-    def getAnswers(event=None):
+    def get_answers(event=None):
         # Reconnect to the database
         cnx = get_db_connection()
 
@@ -226,32 +229,32 @@ def question_view():
 
         # Clear previous answers
         for i in range(5):
-            for answer in answerFrame.grid_slaves(row=4 + i, column=4):
+            for answer in answer_frame.grid_slaves(row=4 + i, column=4):
                 answer.grid_forget()
 
         # Display answers
         j = 4
         for answer in answers:
-            Label(answerFrame, text=answer, anchor='w', justify="left").grid(row=j, column=4, sticky="w")
+            Label(answer_frame, text=answer, anchor='w', justify="left").grid(row=j, column=4, sticky="w")
             j += 1
 
         # Close connection and cursor
         c.close()
         cnx.close()
 
-    question_dropdown.bind("<<ComboboxSelected>>", getAnswers)
+    question_dropdown.bind("<<ComboboxSelected>>", get_answers)
 
     # Display Labels for answers
-    ttk.Label(answerFrame, text="(Correct) Answer Number 1:", font=("Arial", 10, "bold")).grid(row=4, column=1,
+    ttk.Label(answer_frame, text="(Correct) Answer Number 1:", font=("Arial", 10, "bold")).grid(row=4, column=1,
                                                                                                columnspan=1, sticky="e",
                                                                                                pady=5)
-    ttk.Label(answerFrame, text="Answer Number 2:").grid(row=5, column=1, columnspan=1, sticky="e", pady=5)
-    ttk.Label(answerFrame, text="Answer Number 3:").grid(row=6, column=1, columnspan=1, sticky="e", pady=5)
-    ttk.Label(answerFrame, text="Answer Number 4:").grid(row=7, column=1, columnspan=1, sticky="e", pady=5)
-    ttk.Label(answerFrame, text="Answer Number 5:").grid(row=8, column=1, columnspan=1, sticky="e", pady=5)
+    ttk.Label(answer_frame, text="Answer Number 2:").grid(row=5, column=1, columnspan=1, sticky="e", pady=5)
+    ttk.Label(answer_frame, text="Answer Number 3:").grid(row=6, column=1, columnspan=1, sticky="e", pady=5)
+    ttk.Label(answer_frame, text="Answer Number 4:").grid(row=7, column=1, columnspan=1, sticky="e", pady=5)
+    ttk.Label(answer_frame, text="Answer Number 5:").grid(row=8, column=1, columnspan=1, sticky="e", pady=5)
 
     # Show answers for the first question as default
-    getAnswers()
+    get_answers()
 
     # Close the connection and cursor
     c.close()
@@ -267,7 +270,7 @@ def question_view():
 # Create a Function to Return to Original View
 def back_question_add():
     show_main_menu()
-    qaddFrame.grid_forget()
+    qadd_frame.grid_forget()
     back_btn_qadd.grid_forget()
     header_qadd.grid_forget()
     return
@@ -276,15 +279,15 @@ def back_question_add():
 # Create Question Add Function to Add Records to Questions Table
 def question_add():
     # Create a Function to Add a Question to the Question Table
-    def addQuestion():
+    def add_question():
         # Validate that there is a question in the form
         if not question.get().strip():
             messagebox.showerror("Error", "There is no Question submitted.")
             return
 
-        valid, texResult = check_latex_validity(f'{question.get()}')
+        valid, tex_result = check_latex_validity(f'{question.get()}')
         if not valid:
-            messagebox.showerror("LaTeX is not valid.", f"Error: {texResult}\nCheck Question.")
+            messagebox.showerror("LaTeX is not valid.", f"Error: {tex_result}\nCheck Question.")
             return
 
         # Validates that there is a selection in the dropdown box
@@ -309,9 +312,9 @@ def question_add():
                 messagebox.showerror("Error", f"Answer {i + 1} is not submitted.")
                 return
 
-            valid, texResult = check_latex_validity(f'{answer}')
+            valid, tex_result = check_latex_validity(f'{answer}')
             if not valid:
-                messagebox.showerror("LaTeX is not valid.", f"Error: {texResult}\nCheck Answer {i + 1}")
+                messagebox.showerror("LaTeX is not valid.", f"Error: {tex_result}\nCheck Answer {i + 1}")
                 return
 
         # Connect to Database
@@ -323,35 +326,35 @@ def question_add():
         try:
             # Find the highest existing question ID and increment
             c.execute("SELECT COALESCE(MAX(question_id), 0) + 1 FROM Questions")
-            newID = c.fetchone()[0]
+            new_id = c.fetchone()[0]
 
             # Find Category ID for the selected Category
             c.execute("SELECT category_id FROM Question_Categories WHERE category_name = ?", (var.get(),))
-            qcatResults = c.fetchone()
+            qcat_results = c.fetchone()
 
-            if not qcatResults:
+            if not qcat_results:
                 messagebox.showerror("Error", "Selected category not found.")
                 cnx.close()
                 return
 
-            cat_id = qcatResults[0]
+            cat_id = qcat_results[0]
 
             # Insert New Question into Questions Table
             c.execute(
                 """INSERT INTO Questions (question_id, question, category_id, question_difficulty) 
                    VALUES (?, ?, ?, ?)""",
-                (newID, question.get(), cat_id, difficulty.get())
+                (new_id, question.get(), cat_id, difficulty.get())
             )
 
             # Insert New Question Choices into Question Choices Table
             letter = ['a', 'b', 'c', 'd', 'e']
             for i in range(5):
-                choice_id = f"{newID}{letter[i]}"
+                choice_id = f"{new_id}{letter[i]}"
                 is_correct = '1' if i == 0 else '0'
                 c.execute("""
                         INSERT INTO Question_Choices (choice_id, question_id, choice_text, is_correct)
                         VALUES (?, ?, ?, ?)""",
-                          (choice_id, newID, answers[i].get(), is_correct))
+                          (choice_id, new_id, answers[i].get(), is_correct))
 
             # Commit Changes
             cnx.commit()
@@ -377,18 +380,18 @@ def question_add():
     hide_main_menu()
 
     # Create a Frame for this option
-    global qaddFrame
-    qaddFrame = Frame(root, bd=2)
-    qaddFrame.grid(row=1, pady=10, padx=20)
+    global qadd_frame
+    qadd_frame = Frame(root, bd=2)
+    qadd_frame.grid(row=1, pady=10, padx=20)
 
     # Show header
     global header_qadd
     header_qadd = create_header_label(root, "Add Questions")
 
     # Create Labels for the Text Input
-    ttk.Label(qaddFrame, text="Question: ", font=("Arial", 10, "bold"), foreground="#047bf9").grid(row=0, column=2,
-                                                                                                   sticky="e")
-    question = ttk.Entry(qaddFrame, width=99)
+    ttk.Label(qadd_frame, text="Question: ", font=("Arial", 10, "bold"), foreground="#047bf9").grid(row=0, column=2,
+                                                                                                    sticky="e")
+    question = ttk.Entry(qadd_frame, width=99)
     question.grid(row=0, column=3, padx=10, pady=15)
 
     # Create Dropdown Box for Question Categories
@@ -403,35 +406,35 @@ def question_add():
     for row in results:
         question_categories.append(row[1])
 
-    cate_drop = create_dropdown_ver(qaddFrame, question_categories, var, 2, 0, 1, "readonly", text="Question Category")
+    cate_drop = create_dropdown_ver(qadd_frame, question_categories, var, 2, 0, 1, "readonly", text="Question Category")
     # Commit Changes
     cnx.commit()
     # Close Connection
     cnx.close()
 
     # Label(qaddFrame, text="Question Category").grid(row=1, column=0, pady=10)
-    ttk.Label(qaddFrame, text="Question Difficulty").grid(row=4, column=0, sticky="w", padx=0, pady=5)
-    difficulty = ttk.Entry(qaddFrame, width=30)
+    ttk.Label(qadd_frame, text="Question Difficulty").grid(row=4, column=0, sticky="w", padx=0, pady=5)
+    difficulty = ttk.Entry(qadd_frame, width=30)
     difficulty.grid(row=5, column=0, padx=0, pady=5)
 
     # ANSWER SECTION
     # Create Labels for the Answer Choices and note the first one is always correct
-    ttk.Label(qaddFrame, text="Answer Number 1 (Correct): ", font=("Arial", 10, "bold")).grid(row=2, column=2,
-                                                                                              sticky="e", pady=10)
-    ttk.Label(qaddFrame, text="Answer Number 2: ").grid(row=3, column=2, sticky="e", pady=10)
-    ttk.Label(qaddFrame, text="Answer Number 3: ").grid(row=4, column=2, sticky="e", pady=10)
-    ttk.Label(qaddFrame, text="Answer Number 4: ").grid(row=5, column=2, sticky="e", pady=10)
-    ttk.Label(qaddFrame, text="Answer Number 5: ").grid(row=6, column=2, sticky="e", pady=10)
+    ttk.Label(qadd_frame, text="Answer Number 1 (Correct): ", font=("Arial", 10, "bold")).grid(row=2, column=2,
+                                                                                               sticky="e", pady=10)
+    ttk.Label(qadd_frame, text="Answer Number 2: ").grid(row=3, column=2, sticky="e", pady=10)
+    ttk.Label(qadd_frame, text="Answer Number 3: ").grid(row=4, column=2, sticky="e", pady=10)
+    ttk.Label(qadd_frame, text="Answer Number 4: ").grid(row=5, column=2, sticky="e", pady=10)
+    ttk.Label(qadd_frame, text="Answer Number 5: ").grid(row=6, column=2, sticky="e", pady=10)
 
     # Create Text Boxes for Each Answer
     answers = []
     for i in range(5):
-        entry = ttk.Entry(qaddFrame, width=99)
+        entry = ttk.Entry(qadd_frame, width=99)
         entry.grid(row=2 + i, column=3, padx=5)
         answers.append(entry)
 
     # Create Add Button to Trigger the Addition of the new Record
-    add_btn = ttk.Button(qaddFrame, text="Add Question", command=addQuestion, width=30, style="Accent.TButton")
+    add_btn = ttk.Button(qadd_frame, text="Add Question", command=add_question, width=30, style="Accent.TButton")
     add_btn.grid(row=8, column=3, padx=10, pady=10)
 
     # Create a Back Button to Hide Current View and Reshow Original View
@@ -444,7 +447,7 @@ def question_add():
 # Create Function to Return to Original View
 def back_question_modify():
     show_main_menu()
-    qmodifyFrame.grid_forget()
+    qmodify_frame.grid_forget()
     back_btn_qmodify.grid_forget()
     header_qmodify.grid_forget()
     return
@@ -454,7 +457,7 @@ def back_question_modify():
 def question_modify():
     def question_selection_dis(event=None):
         # Save the Question ID that we want to change
-        qID = question_dropdown.get()
+        q_id = question_dropdown.get()
 
         # Clear out the old results
         question.delete(0, END)
@@ -468,34 +471,38 @@ def question_modify():
         c = cnx.cursor()
 
         # Fetch question details
-        c.execute("SELECT * FROM Questions WHERE question_id = ?", (qID,))
-        questionInfo = c.fetchone()
+        c.execute("SELECT * FROM Questions WHERE question_id = ?", (q_id,))
+        question_info = c.fetchone()
 
         # Fetch answers for the selected question
-        c.execute("SELECT choice_text FROM Question_Choices WHERE question_id = ?", (qID,))
-        questionAns = c.fetchall()
+        c.execute("SELECT choice_text FROM Question_Choices WHERE question_id = ?", (q_id,))
+        question_ans = c.fetchall()
 
         # Close database connection
         cnx.close()
 
-        if questionInfo:
+        if question_info:
             # Get Category Name for Drop Down
+<<<<<<< Updated upstream
             cat_name = str(get_category_name(questionInfo[2]))  # Fetch category name
+=======
+            cat_name = str(getCategoryName(question_info[2]))  # Fetch category name
+>>>>>>> Stashed changes
             cat_name = cat_name.strip("(),''")
             cate_dropdown.set(cat_name)  # Correctly update dropdown value
 
             # Update the text fields with the retrieved data
-            question.insert(0, questionInfo[1])  # Question text
-            difficulty.insert(0, questionInfo[3])  # Difficulty level
+            question.insert(0, question_info[1])  # Question text
+            difficulty.insert(0, question_info[3])  # Difficulty level
 
             # Update answer choices
-            for i, ans in enumerate(questionAns):
+            for i, ans in enumerate(question_ans):
                 answers[i].insert(0, ans[0])  # Insert the actual text value
 
     def refresh_tree():
         # Clear existing treeview
-        for item in tree.get_children():
-            tree.delete(item)
+        for item in qmodify_tree.get_children():
+            qmodify_tree.delete(item)
 
         # Connect to database and create cursor
         cnx = get_db_connection()
@@ -512,14 +519,13 @@ def question_modify():
 
         # Insert updated records into the treeview
         for row in records:
-            tree.insert("", "end", values=row)
+            qmodify_tree.insert("", "end", values=row)
 
         # Close connection
         cnx.close()
 
     # Create Function to Submit the Changes to the Database
-    # MUST USE THE UPDATE SQL COMMANDS GOODLUCK BUDDY
-    def submitChanges():
+    def submit_changes():
         # Validate that there is a question in the form
         if not question.get().strip():
             messagebox.showerror("Error", "There is no Question submitted.")
@@ -623,8 +629,8 @@ def question_modify():
 
     # Sort the tree view
     def load_categories(sort_order):
-        for item in tree.get_children():
-            tree.delete(item)
+        for item in qmodify_tree.get_children():
+            qmodify_tree.delete(item)
 
         cnx = get_db_connection()
         c = cnx.cursor()
@@ -650,7 +656,7 @@ def question_modify():
         results = c.fetchall()
 
         for row in results:
-            tree.insert("", "end", values=row)
+            qmodify_tree.insert("", "end", values=row)
 
         cnx.commit()
         cnx.close()
@@ -662,53 +668,53 @@ def question_modify():
     hide_main_menu()
 
     # Create a Frame this option
-    global qmodifyFrame
-    qmodifyFrame = Frame(root, bd=2)
-    qmodifyFrame.grid(row=1, pady=10, padx=20)
+    global qmodify_frame
+    qmodify_frame = Frame(root, bd=2)
+    qmodify_frame.grid(row=1, pady=10, padx=20)
 
     # Show header
     global header_qmodify
     header_qmodify = create_header_label(root, "Modify Questions")
 
     # Create a Frame for the sort dropdown menu
-    sortFrame = Frame(qmodifyFrame, bd=1)
-    sortFrame.grid(row=0, column=0, padx=10, sticky="nsew")
+    sort_frame = Frame(qmodify_frame, bd=1)
+    sort_frame.grid(row=0, column=0, padx=10, sticky="nsew")
 
     # DROPDOWN: Add sorting selection
     sort_var = StringVar()
     sort_var.set("ID")  # default sort
     sort_var.trace("w", on_sort_change)
 
-    sort_dropdown = create_dropdown_hor(sortFrame, ["ID", "Title", "Category", "Difficulty"], sort_var, row=0, col=0,
+    sort_dropdown = create_dropdown_hor(sort_frame, ["ID", "Title", "Category", "Difficulty"], sort_var, row=0, col=0,
                                         cspan=2, state="readonly",
                                         text="Sort questions by:")
 
-    treeFrame = Frame(qmodifyFrame, bd=5)
-    treeFrame.grid(row=1, column=0, sticky="nsew")
+    tree_frame = Frame(qmodify_frame, bd=5)
+    tree_frame.grid(row=1, column=0, sticky="nsew")
 
     # Define columns for the treeview
     columns = ("qid", "q", "qcat", "qdif")
 
     # Create a treeview with the defined columns
-    tree = ttk.Treeview(treeFrame, columns=columns, show="headings", height=5)
+    qmodify_tree = ttk.Treeview(tree_frame, columns=columns, show="headings", height=5)
 
     # Set headers
-    tree.heading("qid", text="ID", anchor="w")
-    tree.heading("q", text="Question", anchor="w")
-    tree.heading("qcat", text="Category", anchor="w")
-    tree.heading("qdif", text="Difficulty", anchor="w")
+    qmodify_tree.heading("qid", text="ID", anchor="w")
+    qmodify_tree.heading("q", text="Question", anchor="w")
+    qmodify_tree.heading("qcat", text="Category", anchor="w")
+    qmodify_tree.heading("qdif", text="Difficulty", anchor="w")
 
     # Set the columns
-    tree.column("qid", width=40, anchor="w")
-    tree.column("q", width=750, anchor="w")
-    tree.column("qcat", width=230, anchor="w")
-    tree.column("qdif", width=60, anchor="w")
+    qmodify_tree.column("qid", width=40, anchor="w")
+    qmodify_tree.column("q", width=750, anchor="w")
+    qmodify_tree.column("qcat", width=230, anchor="w")
+    qmodify_tree.column("qdif", width=60, anchor="w")
 
-    tree.grid(row=0, column=0, sticky="nsew")
+    qmodify_tree.grid(row=0, column=0, sticky="nsew")
 
-    scrollbar = ttk.Scrollbar(treeFrame, orient="vertical", command=tree.yview)
+    scrollbar = ttk.Scrollbar(tree_frame, orient="vertical", command=qmodify_tree.yview)
     scrollbar.grid(row=0, column=1, sticky="ns")
-    tree.configure(yscrollcommand=scrollbar.set)
+    qmodify_tree.configure(yscrollcommand=scrollbar.set)
 
     # Connect to Database
     cnx = get_db_connection()
@@ -718,10 +724,10 @@ def question_modify():
     # Create treeview
     refresh_tree()
 
-    modFrame = Frame(qmodifyFrame, bd=2)
-    modFrame.grid(row=2, column=0, pady=5, padx=5, sticky="nsew")
+    mod_frame = Frame(qmodify_frame, bd=2)
+    mod_frame.grid(row=2, column=0, pady=5, padx=5, sticky="nsew")
 
-    modFrame.grid_columnconfigure(1, weight=1)  # Expands second column
+    mod_frame.grid_columnconfigure(1, weight=1)  # Expands second column
 
     # Create a Dropdown option to select the Question to Edit
     c.execute("SELECT question_id FROM Questions")
@@ -735,7 +741,7 @@ def question_modify():
     # selected_qid.set(question_ids[0])
 
     text = "Select Question ID to be modified:"
-    question_dropdown = create_dropdown_ver(modFrame, question_ids, selected_qid, 0, 0, 1, "normal", text)
+    question_dropdown = create_dropdown_ver(mod_frame, question_ids, selected_qid, 0, 0, 1, "normal", text)
 
     # Commit Changes
     cnx.commit()
@@ -744,9 +750,9 @@ def question_modify():
 
     # Create the label and text boxes for the selected question
     # Create Labels for the Text Input
-    Label(modFrame, text="Question: ", foreground="#047bf9", font=("Arial", 10, "bold")).grid(row=0, column=3,
+    Label(mod_frame, text="Question: ", foreground="#047bf9", font=("Arial", 10, "bold")).grid(row=0, column=3,
                                                                                               sticky='w')
-    question = ttk.Entry(modFrame, width=110)
+    question = ttk.Entry(mod_frame, width=110)
     question.grid(row=0, column=4, columnspan=3, sticky='e')
 
     # Create Dropdown Box for Question Categories
@@ -765,29 +771,29 @@ def question_modify():
     for row in results:
         question_categories.append(row[1])
 
-    cate_dropdown = create_dropdown_ver(modFrame, question_categories, var, 2, 0, 1, "readonly",
+    cate_dropdown = create_dropdown_ver(mod_frame, question_categories, var, 2, 0, 1, "readonly",
                                         text="Question Category")
     # Commit Changes
     cnx.commit()
     # Close Connection
     cnx.close()
 
-    Label(modFrame, text="Question Difficulty").grid(row=4, column=0, pady=5, padx=0, sticky='w')
-    difficulty = ttk.Entry(modFrame, width=30)
+    Label(mod_frame, text="Question Difficulty").grid(row=4, column=0, pady=5, padx=0, sticky='w')
+    difficulty = ttk.Entry(mod_frame, width=30)
     difficulty.grid(row=5, column=0, padx=0, pady=5)
 
     # ANSWER SECTION
     # Create Labels for the Answer Choices and note the first one is always correct
-    Label(modFrame, text="Answer Number 1 (Correct): ", font=("Arial", 10, "bold")).grid(row=1, column=4, sticky='e')
-    Label(modFrame, text="Answer Number 2: ").grid(row=2, column=4, sticky='e')
-    Label(modFrame, text="Answer Number 3: ").grid(row=3, column=4, sticky='e')
-    Label(modFrame, text="Answer Number 4: ").grid(row=4, column=4, sticky='e')
-    Label(modFrame, text="Answer Number 5: ").grid(row=5, column=4, sticky='e')
+    Label(mod_frame, text="Answer Number 1 (Correct): ", font=("Arial", 10, "bold")).grid(row=1, column=4, sticky='e')
+    Label(mod_frame, text="Answer Number 2: ").grid(row=2, column=4, sticky='e')
+    Label(mod_frame, text="Answer Number 3: ").grid(row=3, column=4, sticky='e')
+    Label(mod_frame, text="Answer Number 4: ").grid(row=4, column=4, sticky='e')
+    Label(mod_frame, text="Answer Number 5: ").grid(row=5, column=4, sticky='e')
 
     # Create Text Boxes for Each Answer
     answers = []
     for i in range(5):
-        entry = ttk.Entry(modFrame, width=70)
+        entry = ttk.Entry(mod_frame, width=70)
         entry.grid(row=1 + i, column=5, columnspan=3, sticky='e')
         answers.append(entry)
 
@@ -797,7 +803,7 @@ def question_modify():
     # Create Button to Trigger the Submission of Changes
     # Should probably have a message box saying that once these changes are made, there is no going back
     # Create Add Button to Trigger the Addition of the new Record
-    submit_btn = ttk.Button(modFrame, text="Submit Changes", command=submitChanges, style='Accent.TButton', width=25)
+    submit_btn = ttk.Button(mod_frame, text="Submit Changes", command=submit_changes, style='Accent.TButton', width=25)
     submit_btn.grid(row=6, column=6, padx=10, pady=10, sticky='e')
 
     global back_btn_qmodify
@@ -809,7 +815,7 @@ def question_modify():
 # Create a Function to Return to Original View
 def back_question_delete():
     show_main_menu()
-    qdeleteFrame.grid_forget()
+    qdelete_frame.grid_forget()
     back_btn_qdelete.grid_forget()
     header_qdelete.grid_forget()
     return
@@ -819,8 +825,8 @@ def back_question_delete():
 def question_delete():
     # Sort the tree view
     def load_categories(sort_order):
-        for item in tree.get_children():
-            tree.delete(item)
+        for item in qdelete_tree.get_children():
+            qdelete_tree.delete(item)
 
         cnx = get_db_connection()
         c = cnx.cursor()
@@ -846,7 +852,7 @@ def question_delete():
         results = c.fetchall()
 
         for row in results:
-            tree.insert("", "end", values=row)
+            qdelete_tree.insert("", "end", values=row)
 
         cnx.commit()
         cnx.close()
@@ -858,54 +864,54 @@ def question_delete():
     hide_main_menu()
 
     # Create a Frame this option
-    global qdeleteFrame
-    qdeleteFrame = Frame(root, bd=2)
-    qdeleteFrame.grid(row=1, pady=10, padx=20)
+    global qdelete_frame
+    qdelete_frame = Frame(root, bd=2)
+    qdelete_frame.grid(row=1, pady=10, padx=20)
 
     # Show header
     global header_qdelete
     header_qdelete = create_header_label(root, "Delete Questions")
 
     # Create a Frame for the sort dropdown menu
-    sortFrame = Frame(qdeleteFrame, bd=1)
-    sortFrame.grid(row=0, column=0, padx=10, sticky="nsew")
+    sort_frame = Frame(qdelete_frame, bd=1)
+    sort_frame.grid(row=0, column=0, padx=10, sticky="nsew")
 
     # DROPDOWN: Add sorting selection
     sort_var = StringVar()
     sort_var.set("ID")  # default sort
     sort_var.trace("w", on_sort_change)
 
-    sort_dropdown = create_dropdown_hor(sortFrame, ["ID", "Title", "Category", "Difficulty"], sort_var, row=0,
+    sort_dropdown = create_dropdown_hor(sort_frame, ["ID", "Title", "Category", "Difficulty"], sort_var, row=0,
                                         col=0,
                                         cspan=2, state="readonly",
                                         text="Sort questions by:")
 
-    treeFrame = Frame(qdeleteFrame, bd=10)
-    treeFrame.grid(row=1, column=0, sticky="nsew")
+    tree_frame = Frame(qdelete_frame, bd=10)
+    tree_frame.grid(row=1, column=0, sticky="nsew")
 
     # Define columns for the treeview
     columns = ("qid", "q", "qcat", "qdif")
 
     # Create a treeview with the defined columns
-    tree = ttk.Treeview(treeFrame, columns=columns, show="headings", height=15)
+    qdelete_tree = ttk.Treeview(tree_frame, columns=columns, show="headings", height=15)
 
     # Set headers
-    tree.heading("qid", text="ID", anchor="w")
-    tree.heading("q", text="Question", anchor="w")
-    tree.heading("qcat", text="Category", anchor="w")
-    tree.heading("qdif", text="Difficulty", anchor="w")
+    qdelete_tree.heading("qid", text="ID", anchor="w")
+    qdelete_tree.heading("q", text="Question", anchor="w")
+    qdelete_tree.heading("qcat", text="Category", anchor="w")
+    qdelete_tree.heading("qdif", text="Difficulty", anchor="w")
 
     # Set the columns
-    tree.column("qid", width=40, anchor="w")
-    tree.column("q", width=750, anchor="w")
-    tree.column("qcat", width=230, anchor="w")
-    tree.column("qdif", width=60, anchor="w")
+    qdelete_tree.column("qid", width=40, anchor="w")
+    qdelete_tree.column("q", width=750, anchor="w")
+    qdelete_tree.column("qcat", width=230, anchor="w")
+    qdelete_tree.column("qdif", width=60, anchor="w")
 
-    tree.grid(row=0, column=0, sticky="nsew")
+    qdelete_tree.grid(row=0, column=0, sticky="nsew")
 
-    scrollbar = ttk.Scrollbar(treeFrame, orient="vertical", command=tree.yview)
+    scrollbar = ttk.Scrollbar(tree_frame, orient="vertical", command=qdelete_tree.yview)
     scrollbar.grid(row=0, column=1, sticky="ns")
-    tree.configure(yscrollcommand=scrollbar.set)
+    qdelete_tree.configure(yscrollcommand=scrollbar.set)
 
     # Connect to Database
     cnx = get_db_connection()
@@ -923,10 +929,10 @@ def question_delete():
 
     # Loop through and display each question
     for row in records:
-        tree.insert("", "end", values=row)
+        qdelete_tree.insert("", "end", values=row)
 
-    delFrame = Frame(qdeleteFrame, bd=2)
-    delFrame.grid(row=2, column=0, pady=5, padx=5, sticky="nsew")
+    del_frame = Frame(qdelete_frame, bd=2)
+    del_frame.grid(row=2, column=0, pady=5, padx=5, sticky="nsew")
 
     # Commit Changes
     cnx.commit()
@@ -936,7 +942,7 @@ def question_delete():
 
     # Create a Function to Delete the Typed Question ID From the Question Table
     # and to Delete all the Questions Answers in Question Choices
-    def deleteQuestion():
+    def delete_question():
         question_id = question_dropdown.get()
         if messagebox.askyesno("Question",
                                "Are you sure you would like to delete Question ID: " + str(question_id)):
@@ -954,8 +960,8 @@ def question_delete():
 
             # Query Questions in the Test questions table to see if the Question is apart a test
             c.execute("SELECT question_id FROM Test_Questions")
-            usedQuesitons = c.fetchall()
-            if question_id in usedQuesitons:
+            used_questions = c.fetchall()
+            if question_id in used_questions:
                 messagebox.showerror("Error", f"{question_id} is apart of a current Test.")
                 return
 
@@ -986,7 +992,7 @@ def question_delete():
         back_btn_qdelete.grid_forget()
 
         # Refresh the UI to show an updated list of questions
-        qdeleteFrame.destroy()
+        qdelete_frame.destroy()
         back_btn_qdelete.grid_forget()
         header_qdelete.grid_forget()
         question_delete()
@@ -1009,7 +1015,7 @@ def question_delete():
     # selected_qid.set(question_ids[0])
 
     text = "Select Question ID to be deleted: "
-    question_dropdown = create_dropdown_hor(delFrame, question_ids, selected_qid, 0, 0, 2,
+    question_dropdown = create_dropdown_hor(del_frame, question_ids, selected_qid, 0, 0, 2,
                                             "normal", text)
 
     # Commit Changes
@@ -1018,11 +1024,8 @@ def question_delete():
     # Close Connection
     cnx.close()
 
-    # ttk.Label(qdeleteFrame, text="Question ID to Delete: ").grid(row=num_rows_qdelete + 2, column=0, columnspan=2, sticky='w')
-    # delete_box = ttk.Entry(qdeleteFrame, width=10)
-    # delete_box.grid(row=num_rows_qdelete + 2, column=1)
-    deleteQuestion_btn = ttk.Button(delFrame, text="Delete Question", command=deleteQuestion, style="Accent.TButton")
-    deleteQuestion_btn.grid(row=0, column=5, sticky='e', padx=10, ipadx=20)
+    delete_question_btn = ttk.Button(del_frame, text="Delete Question", command=delete_question, style="Accent.TButton")
+    delete_question_btn.grid(row=0, column=5, sticky='e', padx=10, ipadx=20)
 
     # Create a Back Button to Hide Current View and Reshow Original View
     global back_btn_qdelete
@@ -1033,23 +1036,24 @@ def question_delete():
 
 ######################################Question Buttons##################################################################
 # Create Main Menu Label
-mainMenu_lbl = ttk.Label(root, text="Math Placement Test", font=('Verdana', 20), anchor="center")
-mainMenu_lbl.grid(row=0, column=0, columnspan=5, padx=10, pady=10, ipadx=50, ipady=10)
+main_menu_lbl = ttk.Label(root, text="Math Placement Test", font=('Verdana', 20), anchor="center")
+main_menu_lbl.grid(row=0, column=0, columnspan=5, padx=10, pady=10, ipadx=50, ipady=10)
+
 # Create View Question Button
-viewQuest_btn = ttk.Button(quest_frame, text="View Questions", command=question_view, width=13)
-viewQuest_btn.grid(row=1, column=0, columnspan=1, pady=10, padx=10, ipadx=50, ipady=10)
+view_quest_btn = ttk.Button(quest_frame, text="View Questions", command=question_view, width=13)
+view_quest_btn.grid(row=1, column=0, columnspan=1, pady=10, padx=10, ipadx=50, ipady=10)
 
 # Create Add Question Button
-addQuest_btn = ttk.Button(quest_frame, text="Add Questions", command=question_add, width=13)
-addQuest_btn.grid(row=1, column=1, columnspan=1, pady=10, padx=10, ipadx=50, ipady=10)
+add_quest_btn = ttk.Button(quest_frame, text="Add Questions", command=question_add, width=13)
+add_quest_btn.grid(row=1, column=1, columnspan=1, pady=10, padx=10, ipadx=50, ipady=10)
 
 # Create Modify Question Button
-modifyQuest_btn = ttk.Button(quest_frame, text="Modify Questions", command=question_modify, width=13)
-modifyQuest_btn.grid(row=1, column=2, columnspan=1, pady=10, padx=10, ipadx=50, ipady=10)
+modify_quest_btn = ttk.Button(quest_frame, text="Modify Questions", command=question_modify, width=13)
+modify_quest_btn.grid(row=1, column=2, columnspan=1, pady=10, padx=10, ipadx=50, ipady=10)
 
 # Create Delete Question Button
-deleteQuest_btn = ttk.Button(quest_frame, text="Delete Questions", command=question_delete, width=13)
-deleteQuest_btn.grid(row=1, column=3, columnspan=1, pady=10, padx=10, ipadx=50, ipady=10)
+delete_quest_btn = ttk.Button(quest_frame, text="Delete Questions", command=question_delete, width=13)
+delete_quest_btn.grid(row=1, column=3, columnspan=1, pady=10, padx=10, ipadx=50, ipady=10)
 
 
 ########################################################################################################################
@@ -1059,7 +1063,7 @@ deleteQuest_btn.grid(row=1, column=3, columnspan=1, pady=10, padx=10, ipadx=50, 
 ################################################Test View###############################################################
 def back_test_view():
     show_main_menu()
-    tviewFrame.grid_forget()
+    tview_frame.grid_forget()
     back_btn_tview.grid_forget()
     header_tview.grid_forget()
     return
@@ -1069,8 +1073,8 @@ def back_test_view():
 def test_view():
     # Sort the tree view
     def load_categories(sort_order):
-        for item in tree.get_children():
-            tree.delete(item)
+        for item in tview_ttree.get_children():
+            tview_ttree.delete(item)
 
         cnx = get_db_connection()
         c = cnx.cursor()
@@ -1096,8 +1100,13 @@ def test_view():
         results = c.fetchall()
 
         for row in results:
+<<<<<<< Updated upstream
             num_questions = count_questions_test_id(row[0])
             tree.insert("", "end", values=row + (num_questions,))
+=======
+            num_questions = countQuestionsTestID(row[0])
+            tview_ttree.insert("", "end", values=row + (num_questions,))
+>>>>>>> Stashed changes
 
         cnx.commit()
         cnx.close()
@@ -1109,56 +1118,56 @@ def test_view():
     hide_main_menu()
 
     # Create a Frame this option
-    global tviewFrame
-    tviewFrame = Frame(root, bd=2)
-    tviewFrame.grid(row=1, pady=10, padx=20)
+    global tview_frame
+    tview_frame = Frame(root, bd=2)
+    tview_frame.grid(row=1, pady=10, padx=20)
 
     # Show header
     global header_tview
     header_tview = create_header_label(root, "Test Overview")
 
     # Create a Frame for the sort dropdown menu
-    sortFrame = Frame(tviewFrame, bd=1)
-    sortFrame.grid(row=0, column=0, padx=10, sticky="nsew")
+    sort_frame = Frame(tview_frame, bd=1)
+    sort_frame.grid(row=0, column=0, padx=10, sticky="nsew")
 
     # DROPDOWN: Add sorting selection
     sort_var = StringVar()
     sort_var.set("ID")  # default sort
     sort_var.trace("w", on_sort_change)
 
-    sort_dropdown_test = create_dropdown_hor(sortFrame, ["ID", "Type", "Title", "Time"], sort_var, 0, 0, 2,
+    sort_dropdown_test = create_dropdown_hor(sort_frame, ["ID", "Type", "Title", "Time"], sort_var, 0, 0, 2,
                                              state="readonly",
                                              text="Sort test by:")
 
     #Create a Frame for the treeview
-    treeFrame = Frame(tviewFrame, bd=5)
-    treeFrame.grid(row=1, column=0, sticky="nsew")
+    tree_frame = Frame(tview_frame, bd=5)
+    tree_frame.grid(row=1, column=0, sticky="nsew")
 
     # Define columns for the treeview
     columns = ("tid", "ttype", "ttitle", "ttime", "numq")
 
     # Create a treeview with the defined columns
-    tree = ttk.Treeview(treeFrame, columns=columns, show="headings", height=6)
+    tview_ttree = ttk.Treeview(tree_frame, columns=columns, show="headings", height=6)
 
     # Set headers
-    tree.heading("tid", text="ID", anchor="w")
-    tree.heading("ttype", text="Type", anchor="w")
-    tree.heading("ttitle", text="Title", anchor="w")
-    tree.heading("ttime", text="Time", anchor="w")
-    tree.heading("numq", text="# of Questions", anchor="w")
+    tview_ttree.heading("tid", text="ID", anchor="w")
+    tview_ttree.heading("ttype", text="Type", anchor="w")
+    tview_ttree.heading("ttitle", text="Title", anchor="w")
+    tview_ttree.heading("ttime", text="Time", anchor="w")
+    tview_ttree.heading("numq", text="# of Questions", anchor="w")
 
     # Set the columns
-    tree.column("tid", width=40, anchor="w")
-    tree.column("ttype", width=200, anchor="w")
-    tree.column("ttitle", width=620, anchor="w")
-    tree.column("ttime", width=100, anchor="w")
-    tree.column("numq", width=100, anchor="w")
+    tview_ttree.column("tid", width=40, anchor="w")
+    tview_ttree.column("ttype", width=200, anchor="w")
+    tview_ttree.column("ttitle", width=620, anchor="w")
+    tview_ttree.column("ttime", width=100, anchor="w")
+    tview_ttree.column("numq", width=100, anchor="w")
 
-    tree.grid(row=0, column=0, sticky="nsew")
+    tview_ttree.grid(row=0, column=0, sticky="nsew")
 
-    scrollbar = ttk.Scrollbar(treeFrame, orient="vertical", command=tree.yview)
-    scrollbar.grid(row=0, column=1, sticky="ns")
-    tree.configure(yscrollcommand=scrollbar.set)
+    t_scrollbar = ttk.Scrollbar(tree_frame, orient="vertical", command=tview_ttree.yview)
+    t_scrollbar.grid(row=0, column=1, sticky="ns")
+    tview_ttree.configure(yscrollcommand=t_scrollbar.set)
 
     # Connect to Database
     cnx = get_db_connection()
@@ -1176,7 +1185,7 @@ def test_view():
 
     records = c.fetchall()
 
-    def countQuestions(t_id):
+    def count_questions(t_id):
         # Query Test Questions table for count of questions
         c.execute("SELECT COUNT(question_id) AS num_questions FROM Test_Questions WHERE test_id = ?", (t_id,))
 
@@ -1190,12 +1199,12 @@ def test_view():
 
     # Loop through and display each question in the treeview
     for row in records:
-        num_questions = countQuestions(row[0])
-        tree.insert("", "end", values=row + (num_questions,))
+        num_questions = count_questions(row[0])
+        tview_ttree.insert("", "end", values=row + (num_questions,))
 
     # Create a Frame for displaying questions
-    questionFrame = Frame(tviewFrame, bd=2)
-    questionFrame.grid(row=2, column=0, pady=5, padx=5, sticky='nsew')
+    question_frame = Frame(tview_frame, bd=2)
+    question_frame.grid(row=2, column=0, pady=5, padx=5, sticky='nsew')
 
     # Get all test IDs
     c.execute("SELECT test_id FROM Test")
@@ -1208,40 +1217,40 @@ def test_view():
     # selected_tid.set(test_ids[0])  # Set the first question ID as default
 
     text = "Select test ID to display questions: "
-    test_dropdown = create_dropdown_hor(questionFrame, test_ids, selected_tid, 0, 0, 2, "normal", text)
+    test_dropdown = create_dropdown_hor(question_frame, test_ids, selected_tid, 0, 0, 2, "normal", text)
 
     # Get answers for selected question ID
-    def getQuestions(event=None):
+    def get_questions(event=None):
         # Reconnect to the database
         cnx = get_db_connection()
 
         # Create cursor
         c = cnx.cursor()
 
-        qTreeFrame = Frame(questionFrame, bd=10)
-        qTreeFrame.grid(row=1, column=0, sticky="nsew", columnspan=5)
+        qtree_frame = Frame(question_frame, bd=10)
+        qtree_frame.grid(row=1, column=0, sticky="nsew", columnspan=5)
 
-        qColumns = ("qid", "q", "qcat", "qdif")
+        q_columns = ("qid", "q", "qcat", "qdif")
 
-        qTree = ttk.Treeview(qTreeFrame, columns=qColumns, show="headings", height=5)
+        tview_qtree = ttk.Treeview(qtree_frame, columns=q_columns, show="headings", height=5)
 
         # Set headers
-        qTree.heading("qid", text="ID", anchor="w")
-        qTree.heading("q", text="Question", anchor="w")
-        qTree.heading("qcat", text="Category", anchor="w")
-        qTree.heading("qdif", text="Difficulty", anchor="w")
+        tview_qtree.heading("qid", text="ID", anchor="w")
+        tview_qtree.heading("q", text="Question", anchor="w")
+        tview_qtree.heading("qcat", text="Category", anchor="w")
+        tview_qtree.heading("qdif", text="Difficulty", anchor="w")
 
         # Set the columns
-        qTree.column("qid", width=40, anchor="w")
-        qTree.column("q", width=800, anchor="w")
-        qTree.column("qcat", width=120, anchor="w")
-        qTree.column("qdif", width=100, anchor="w")
+        tview_qtree.column("qid", width=40, anchor="w")
+        tview_qtree.column("q", width=800, anchor="w")
+        tview_qtree.column("qcat", width=120, anchor="w")
+        tview_qtree.column("qdif", width=100, anchor="w")
 
-        qTree.grid(row=0, column=0, sticky="nsew")
+        tview_qtree.grid(row=0, column=0, sticky="nsew")
 
-        scrollbar = ttk.Scrollbar(qTreeFrame, orient="vertical", command=qTree.yview)
-        scrollbar.grid(row=0, column=1, sticky="ns")
-        qTree.configure(yscrollcommand=scrollbar.set)
+        q_scrollbar = ttk.Scrollbar(qtree_frame, orient="vertical", command=tview_qtree.yview)
+        q_scrollbar.grid(row=0, column=1, sticky="ns")
+        tview_qtree.configure(yscrollcommand=q_scrollbar.set)
 
         # Get the selected question ID
         selected_test_id = selected_tid.get()
@@ -1256,20 +1265,20 @@ def test_view():
         c.execute(query, (selected_test_id,))
         questions = c.fetchall()
 
-        for row in qTree.get_children():
-            qTree.delete(row)
+        for row in tview_qtree.get_children():
+            tview_qtree.delete(row)
 
         for item in questions:
-            qTree.insert("", "end", values=item)
+            tview_qtree.insert("", "end", values=item)
 
         # Close connection and cursor
         c.close()
         cnx.close()
 
-    test_dropdown.bind("<<ComboboxSelected>>", getQuestions)
+    test_dropdown.bind("<<ComboboxSelected>>", get_questions)
 
     # Show questions for the first test as default
-    getQuestions()
+    get_questions()
 
     global back_btn_tview
     back_btn_tview = create_back_button(root, back_test_view)
@@ -1279,7 +1288,7 @@ def test_view():
 ###################################################Test Make############################################################
 def back_test_make():
     show_main_menu()
-    tmakeFrame.grid_forget()
+    tmake_frame.grid_forget()
     back_btn_tmake.grid_forget()
     header_tmake.grid_forget()
     return
@@ -1291,11 +1300,11 @@ def test_make():
     selected_questions = set()
 
     # Realtime counter of selected questions
-    def updateQuestionCounter():
+    def update_question_counter():
         question_counter_label.config(text=f"Questions selected: {len(selected_questions)}")
 
     # Load all questions for each category on screen
-    def loadQuestionsForCategory(event=None):
+    def load_questions_for_category(event=None):
         # Clear previous questions
         for widget in scrollable_frame.winfo_children():
             widget.destroy()
@@ -1332,7 +1341,7 @@ def test_make():
                 selected_questions.add(qid)
             else:
                 selected_questions.discard(qid)
-            updateQuestionCounter()
+            update_question_counter()
 
         for i, (q_id, q_text, qc_id, q_diff) in enumerate(questions, start=1):
             var = IntVar(value=1 if q_id in selected_questions else 0)
@@ -1345,7 +1354,7 @@ def test_make():
                                                                                       sticky="w", padx=10)
             Label(scrollable_frame, text=q_diff, anchor="e").grid(row=i, column=4, sticky="e", padx=15)
 
-    def addTest():
+    def add_test():
         if not var.get().strip():
             messagebox.showerror("Error", "Please enter a Test Type.")
             return
@@ -1399,7 +1408,7 @@ def test_make():
             ttitle_entry.delete(0, END)
             ttime_entry.delete(0, END)
             selected_questions.clear()
-            updateQuestionCounter()
+            update_question_counter()
 
             # Reset all checkboxes
             for box in checkbox_vars:
@@ -1414,18 +1423,18 @@ def test_make():
 
     hide_main_menu()
 
-    global tmakeFrame
-    tmakeFrame = Frame(root, bd=2)
-    tmakeFrame.grid(row=1, pady=10, padx=20)
+    global tmake_frame
+    tmake_frame = Frame(root, bd=2)
+    tmake_frame.grid(row=1, pady=10, padx=20)
 
     global header_tmake
     header_tmake = create_header_label(root, "Create Tests")
 
-    test_frame = Frame(tmakeFrame)
+    test_frame = Frame(tmake_frame)
     test_frame.grid(row=0, column=0, sticky="nsew")
     test_frame.columnconfigure(5, weight=1)
 
-    question_frame = LabelFrame(tmakeFrame, text="")
+    question_frame = LabelFrame(tmake_frame, text="")
     question_frame.grid(row=2, column=0, sticky="nsew")
 
     canvas = Canvas(question_frame, width=1000)
@@ -1526,17 +1535,17 @@ def test_make():
                                             "Select question category: ")
     category_dropdown.grid(pady=10)
 
-    category_dropdown.bind("<<ComboboxSelected>>", loadQuestionsForCategory)
+    category_dropdown.bind("<<ComboboxSelected>>", load_questions_for_category)
     if category_names:
         category_dropdown.current(0)
     else:
         category_dropdown.set("")
 
-    loadQuestionsForCategory()
+    load_questions_for_category()
 
-    ttk.Button(tmakeFrame, text="Create Test", command=addTest, style="Accent.TButton", width=20).grid(row=3, column=0,
-                                                                                                       sticky="e",
-                                                                                                       pady=15)
+    ttk.Button(tmake_frame, text="Create Test", command=add_test, style="Accent.TButton", width=20).grid(row=3, column=0,
+                                                                                                        sticky="e",
+                                                                                                        pady=15)
 
     global back_btn_tmake
     back_btn_tmake = create_back_button(root, back_test_make)
@@ -1547,7 +1556,7 @@ def test_make():
 #################################################Test Modify############################################################
 def back_test_modify():
     show_main_menu()
-    tmodifyFrame.grid_forget()
+    tmodify_frame.grid_forget()
     back_btn_tmodify.grid_forget()
     header_tmodify.grid_forget()
     return
@@ -1555,23 +1564,23 @@ def back_test_modify():
 
 def test_modify():
     # When refreshing the page, destroy the previous frame
-    if 'tmodifyFrame' in globals():
+    if 'tmodify_frame' in globals():
         back_test_modify()
 
     # Variables to track selected questions
     selected_questions = set()
 
     # Define tree at the function level, so it's accessible to all nested functions
-    tree = None
+    tmodify_tree = None
 
     # Sort the tree view
     def load_categories(sort_order):
         # Use the tree variable from the outer scope
-        nonlocal tree
+        nonlocal tmodify_tree
 
-        if tree:  # Make sure tree is defined before trying to use it
-            for item in tree.get_children():
-                tree.delete(item)
+        if tmodify_tree:  # Make sure tree is defined before trying to use it
+            for item in tmodify_tree.get_children():
+                tmodify_tree.delete(item)
 
             cnx = get_db_connection()
             c = cnx.cursor()
@@ -1597,7 +1606,7 @@ def test_modify():
             results = c.fetchall()
 
             for row in results:
-                tree.insert("", "end", values=row)
+                tmodify_tree.insert("", "end", values=row)
 
             cnx.commit()
             cnx.close()
@@ -1839,24 +1848,24 @@ def test_modify():
         columns = ("tid", "ttype", "ttitle")
 
         # Create a treeview with the defined columns
-        nonlocal tree  # Use the tree from the outer scope
-        tree = ttk.Treeview(modify_frame, columns=columns, show="headings", height=6)
+        nonlocal tmodify_tree  # Use the tree from the outer scope
+        tmodify_tree = ttk.Treeview(modify_frame, columns=columns, show="headings", height=6)
 
         # Set headers
-        tree.heading("tid", text="ID", anchor="w")
-        tree.heading("ttype", text="Type", anchor="w")
-        tree.heading("ttitle", text="Title", anchor="w")
+        tmodify_tree.heading("tid", text="ID", anchor="w")
+        tmodify_tree.heading("ttype", text="Type", anchor="w")
+        tmodify_tree.heading("ttitle", text="Title", anchor="w")
 
         # Set the columns
-        tree.column("tid", width=50, anchor="w")
-        tree.column("ttype", width=220, anchor="w")
-        tree.column("ttitle", width=250, anchor="w")
+        tmodify_tree.column("tid", width=50, anchor="w")
+        tmodify_tree.column("ttype", width=220, anchor="w")
+        tmodify_tree.column("ttitle", width=250, anchor="w")
 
-        tree.grid(row=0, column=0, sticky="nsew", columnspan=3, rowspan=5)
+        tmodify_tree.grid(row=0, column=0, sticky="nsew", columnspan=3, rowspan=5)
 
-        scrollbar = ttk.Scrollbar(modify_frame, orient="vertical", command=tree.yview)
+        scrollbar = ttk.Scrollbar(modify_frame, orient="vertical", command=tmodify_tree.yview)
         scrollbar.grid(row=0, column=2, sticky="nse", rowspan=5)
-        tree.configure(yscrollcommand=scrollbar.set)
+        tmodify_tree.configure(yscrollcommand=scrollbar.set)
 
         # Connect to Database
         cnx = get_db_connection()
@@ -1878,7 +1887,7 @@ def test_modify():
         # Loop through and display each question in the treeview
         for row in records:
             ids.append(row[0])
-            tree.insert("", "end", values=row)
+            tmodify_tree.insert("", "end", values=row)
 
         cnx.commit()
         cnx.close()
@@ -1892,16 +1901,16 @@ def test_modify():
     num_rows_qdelete = 0
 
     # Create a Frame
-    global tmodifyFrame
-    tmodifyFrame = Frame(root, bd=2)
-    tmodifyFrame.grid(row=1, pady=10, padx=20)
+    global tmodify_frame
+    tmodify_frame = Frame(root, bd=2)
+    tmodify_frame.grid(row=1, pady=10, padx=20)
 
     # Show header
     global header_tmodify
     header_tmodify = create_header_label(root, "Modify Tests")
 
     # Create a Frame for the sort dropdown menu
-    sortFrame = Frame(tmodifyFrame, bd=1)
+    sortFrame = Frame(tmodify_frame, bd=1)
     sortFrame.grid(row=0, column=0, padx=10, sticky="nsew")
 
     # DROPDOWN: Add sorting selection
@@ -1913,15 +1922,15 @@ def test_modify():
                                              state="readonly",
                                              text="Sort test by:")
 
-    modify_frame = Frame(tmodifyFrame, bd=2)
+    modify_frame = Frame(tmodify_frame, bd=2)
     modify_frame.grid(row=1, column=0, sticky="nsew")
 
     # Create a Frame for question category dropdown
-    question_category_frame = Frame(tmodifyFrame, bd=2)
+    question_category_frame = Frame(tmodify_frame, bd=2)
     question_category_frame.grid(row=2, column=0)
 
     # Create a Frame for a scrollable canvas with questions
-    question_frame = LabelFrame(tmodifyFrame, text="")
+    question_frame = LabelFrame(tmodify_frame, text="")
     question_frame.grid(row=3, column=0, sticky="nw", columnspan=2)
 
     # Create Canvas
@@ -1966,7 +1975,7 @@ def test_modify():
 
     # QUESTIONS FRAME
 
-    category_frame = Frame(tmodifyFrame)
+    category_frame = Frame(tmodify_frame)
     category_frame.grid(row=1, column=3, columnspan=1, sticky="w")
 
     cnx = get_db_connection()
@@ -2429,44 +2438,44 @@ def test_extract():
 
 ##############################################Test Buttons##############################################################
 # Create View Test Button
-viewTest_btn = ttk.Button(test_frame, text="View Test", command=test_view, width=13)
-viewTest_btn.grid(row=1, column=0, pady=10, padx=10, ipadx=50, ipady=10, sticky='ew')
+view_test_btn = ttk.Button(test_frame, text="View Test", command=test_view, width=13)
+view_test_btn.grid(row=1, column=0, pady=10, padx=10, ipadx=50, ipady=10, sticky='ew')
 
 # Create Add Test Button
-makeTest_btn = ttk.Button(test_frame, text="Make Test", command=test_make, width=13)
-makeTest_btn.grid(row=1, column=1, pady=10, padx=10, ipadx=50, ipady=10, sticky='ew')
+make_test_btn = ttk.Button(test_frame, text="Make Test", command=test_make, width=13)
+make_test_btn.grid(row=1, column=1, pady=10, padx=10, ipadx=50, ipady=10, sticky='ew')
 
 # Create Modify Test Button
-modifyTest_btn = ttk.Button(test_frame, text="Modify Test", command=test_modify, width=13)
-modifyTest_btn.grid(row=1, column=2, pady=10, padx=10, ipadx=50, ipady=10, sticky='ew')
+modify_test_btn = ttk.Button(test_frame, text="Modify Test", command=test_modify, width=13)
+modify_test_btn.grid(row=1, column=2, pady=10, padx=10, ipadx=50, ipady=10, sticky='ew')
 
 # Create Delete Test Button
-deleteTest_btn = ttk.Button(test_frame, text="Delete Test", command=test_delete, width=13)
-deleteTest_btn.grid(row=1, column=3, pady=10, padx=10, ipadx=50, ipady=10, sticky='ew')
+delete_test_btn = ttk.Button(test_frame, text="Delete Test", command=test_delete, width=13)
+delete_test_btn.grid(row=1, column=3, pady=10, padx=10, ipadx=50, ipady=10, sticky='ew')
 
 # Create Extract Test Button
-extractTest_btn = ttk.Button(test_frame, text="Extract Test", command=test_extract, width=13)
-extractTest_btn.grid(row=2, column=1, columnspan=2, pady=10, padx=10, ipadx=50, ipady=10)
+extract_test_btn = ttk.Button(test_frame, text="Extract Test", command=test_extract, width=13)
+extract_test_btn.grid(row=2, column=1, columnspan=2, pady=10, padx=10, ipadx=50, ipady=10)
 
 
 ########################################################################################################################
 ################################### This Section is Question Type Options ##############################################
 ########################################################################################################################
 ######################################## Question Option Add ###########################################################
-def back_quest_cat_add():
+def back_qcat_add():
     show_main_menu()
-    questCatAddFrame.grid_forget()
-    back_btn_questCatAdd.grid_forget()
-    header_qcatadd.grid_forget()
+    qcat_add_frame.grid_forget()
+    back_btn_qcat_add.grid_forget()
+    header_qcat_add.grid_forget()
     return
 
 
-def quest_cat_add():
+def qcat_add():
     # When refreshing the page, destroy the previous frame
-    if 'questCatAddFrame' in globals():
-        back_quest_cat_add()
+    if 'qcat_add_frame' in globals():
+        back_qcat_add()
 
-    def addNewQuestCat():
+    def add_new_quest_cat():
 
         # Making sure the user input a Question Category Title
         if not qctitle_entry.get().strip():
@@ -2497,7 +2506,7 @@ def quest_cat_add():
             qctitle_entry.delete(0, END)
 
             # Refresh the UI
-            quest_cat_add()
+            qcat_add()
 
         except Exception as e:
             messagebox.showerror("Database Error", str(e))
@@ -2506,8 +2515,8 @@ def quest_cat_add():
             cnx.close()
 
     def load_categories(sort_order):
-        for item in tree.get_children():
-            tree.delete(item)
+        for item in qcat_add_tree.get_children():
+            qcat_add_tree.delete(item)
 
         cnx = get_db_connection()
         c = cnx.cursor()
@@ -2519,7 +2528,7 @@ def quest_cat_add():
 
         results = c.fetchall()
         for row in results:
-            tree.insert("", "end", values=(row[0], row[1]))
+            qcat_add_tree.insert("", "end", values=(row[0], row[1]))
 
         cnx.commit()
         cnx.close()
@@ -2531,38 +2540,38 @@ def quest_cat_add():
     hide_main_menu()
 
     # Create a Frame this option
-    global questCatAddFrame
-    questCatAddFrame = Frame(root, bd=2)
-    questCatAddFrame.grid(row=1, pady=10, padx=20)
+    global qcat_add_frame
+    qcat_add_frame = Frame(root, bd=2)
+    qcat_add_frame.grid(row=1, pady=10, padx=20)
 
     # Show header
-    global header_qcatadd
-    header_qcatadd = create_header_label(root, "Add Question Categories")
+    global header_qcat_add
+    header_qcat_add = create_header_label(root, "Add Question Categories")
 
     # DROPDOWN: Add sorting selection
     sort_var = StringVar()
     sort_var.set("ID")  # default sort
     sort_var.trace("w", on_sort_change)
 
-    sort_dropdown = create_dropdown_ver(questCatAddFrame, ["ID", "Title"], sort_var, row=0, col=0, cspan=2,
+    sort_dropdown = create_dropdown_ver(qcat_add_frame, ["ID", "Title"], sort_var, row=0, col=0, cspan=2,
                                         state="readonly", text="Sort categories by:")
 
     # Create a treeview for displaying categories
-    tree = ttk.Treeview(questCatAddFrame, columns=("tcid", "tcat"), show="headings", height=5)
-    tree.heading("tcid", text="Test Category ID", anchor="w")
-    tree.heading("tcat", text="Test Category Title", anchor="w")
+    qcat_add_tree = ttk.Treeview(qcat_add_frame, columns=("tcid", "tcat"), show="headings", height=5)
+    qcat_add_tree.heading("tcid", text="Test Category ID", anchor="w")
+    qcat_add_tree.heading("tcat", text="Test Category Title", anchor="w")
 
     # Define column width
-    tree.column("tcid", width=100)
-    tree.column("tcat", width=300)
+    qcat_add_tree.column("tcid", width=100)
+    qcat_add_tree.column("tcat", width=300)
 
     # Add a scrollbar to the treeview
-    scrollbar = ttk.Scrollbar(questCatAddFrame, orient="vertical", command=tree.yview)
+    scrollbar = ttk.Scrollbar(qcat_add_frame, orient="vertical", command=qcat_add_tree.yview)
 
     # Configure tree to use the scrollbar
-    tree.configure(yscrollcommand=scrollbar.set)
+    qcat_add_tree.configure(yscrollcommand=scrollbar.set)
 
-    tree.grid(row=2, column=0, columnspan=2, pady=10)
+    qcat_add_tree.grid(row=2, column=0, columnspan=2, pady=10)
     scrollbar.grid(row=2, column=2, sticky="ns", pady=10)
 
     # Connect to Database
@@ -2575,14 +2584,14 @@ def quest_cat_add():
     results = c.fetchall()
 
     for row in results:
-        tree.insert("", "end", values=(row[0], row[1]))
+        qcat_add_tree.insert("", "end", values=(row[0], row[1]))
 
     # Commit Changes
     cnx.commit()
     # Close Connection
     cnx.close()
 
-    Label(questCatAddFrame, text="Question Category Name").grid(row=3, column=0, ipadx=5)
+    Label(qcat_add_frame, text="Question Category Name").grid(row=3, column=0, ipadx=5)
 
     # If we have time, they would like to have a comment section next to the category name
     # this means editing the database and adding category_label in the Questions_Categories table
@@ -2590,16 +2599,16 @@ def quest_cat_add():
     #Label(questCatAddFrame, text="Question Type Comment").grid(row=0, column=0, ipadx=5)
 
     # Test Name input
-    qctitle_entry = ttk.Entry(questCatAddFrame, width=50)
+    qctitle_entry = ttk.Entry(qcat_add_frame, width=50)
     qctitle_entry.grid(row=4, column=0)
 
     # Add Test Button
-    add_questCat_btn = ttk.Button(questCatAddFrame, text="Add New Category", command=addNewQuestCat,
+    add_quest_cat_btn = ttk.Button(qcat_add_frame, text="Add New Category", command=add_new_quest_cat,
                                   style="Accent.TButton")
-    add_questCat_btn.grid(row=5, column=0, pady=10)
+    add_quest_cat_btn.grid(row=5, column=0, pady=10)
 
-    global back_btn_questCatAdd
-    back_btn_questCatAdd = create_back_button(root, back_quest_cat_add)
+    global back_btn_qcat_add
+    back_btn_qcat_add = create_back_button(root, back_qcat_add)
 
     return
 
@@ -2609,22 +2618,22 @@ def quest_cat_add():
 
 def back_quest_cat_modify():
     show_main_menu()
-    questCatModifyFrame.grid_forget()
-    back_btn_questCatModify.grid_forget()
-    header_qcatmodify.grid_forget()
+    qcat_modify_frame.grid_forget()
+    back_btn_qcat_modify.grid_forget()
+    header_qcat_modify.grid_forget()
     return
 
 
-def quest_cat_modify():
+def qcat_modify():
     # When refreshing the page, destroy the previous frame
-    if 'questCatModifyFrame' in globals():
+    if 'qcat_modify_frame' in globals():
         back_quest_cat_modify()
 
-    def submitChanges():
+    def submit_changes():
 
         # Get the selected category and new title
         selected_category = var.get()
-        new_title = qctitle_entry.get().strip()
+        new_title = qcat_title_entry.get().strip()
 
         if not selected_category:
             messagebox.showerror("Error", "Please select a category")
@@ -2645,7 +2654,7 @@ def quest_cat_modify():
             messagebox.showinfo("Success", f"Category '{selected_category}' updated to '{new_title}'")
 
             # Refresh the UI
-            quest_cat_modify()
+            qcat_modify()
 
         except Exception as e:
             messagebox.showerror("Error", f"Failed to update category: {str(e)}")
@@ -2654,8 +2663,8 @@ def quest_cat_modify():
             cnx.close()
 
     def load_categories(sort_order):
-        for item in tree.get_children():
-            tree.delete(item)
+        for item in qcat_modify_tree.get_children():
+            qcat_modify_tree.delete(item)
 
         cnx = get_db_connection()
         c = cnx.cursor()
@@ -2667,7 +2676,7 @@ def quest_cat_modify():
 
         results = c.fetchall()
         for row in results:
-            tree.insert("", "end", values=(row[0], row[1]))
+            qcat_modify_tree.insert("", "end", values=(row[0], row[1]))
 
         cnx.commit()
         cnx.close()
@@ -2679,37 +2688,37 @@ def quest_cat_modify():
     hide_main_menu()
 
     # Create a Frame this option
-    global questCatModifyFrame
-    questCatModifyFrame = Frame(root, bd=2)
-    questCatModifyFrame.grid(row=1, pady=10, padx=20)
+    global qcat_modify_frame
+    qcat_modify_frame = Frame(root, bd=2)
+    qcat_modify_frame.grid(row=1, pady=10, padx=20)
 
-    global header_qcatmodify
-    header_qcatmodify = create_header_label(root, "Modify Question Categories")
+    global header_qcat_modify
+    header_qcat_modify = create_header_label(root, "Modify Question Categories")
 
     # DROPDOWN: Add sorting selection
     sort_var = StringVar()
     sort_var.set("ID")  # default sort
     sort_var.trace("w", on_sort_change)
 
-    create_dropdown_ver(questCatModifyFrame, ["ID", "Title"], sort_var, row=0, col=0, cspan=2, state="readonly",
+    create_dropdown_ver(qcat_modify_frame, ["ID", "Title"], sort_var, row=0, col=0, cspan=2, state="readonly",
                         text="Sort categories by:")
 
     # Create a treeview for displaying categories
-    tree = ttk.Treeview(questCatModifyFrame, columns=("tcid", "tcat"), show="headings", height=5)
-    tree.heading("tcid", text="Test Category ID", anchor="w")
-    tree.heading("tcat", text="Test Category Title", anchor="w")
+    qcat_modify_tree = ttk.Treeview(qcat_modify_frame, columns=("tcid", "tcat"), show="headings", height=5)
+    qcat_modify_tree.heading("tcid", text="Test Category ID", anchor="w")
+    qcat_modify_tree.heading("tcat", text="Test Category Title", anchor="w")
 
     # Define column width
-    tree.column("tcid", width=100)
-    tree.column("tcat", width=300)
+    qcat_modify_tree.column("tcid", width=100)
+    qcat_modify_tree.column("tcat", width=300)
 
     # Add a scrollbar to the treeview
-    scrollbar = ttk.Scrollbar(questCatModifyFrame, orient="vertical", command=tree.yview)
+    scrollbar = ttk.Scrollbar(qcat_modify_frame, orient="vertical", command=qcat_modify_tree.yview)
 
     # Configure tree to use the scrollbar
-    tree.configure(yscrollcommand=scrollbar.set)
+    qcat_modify_tree.configure(yscrollcommand=scrollbar.set)
 
-    tree.grid(row=2, column=0, columnspan=2, pady=10)
+    qcat_modify_tree.grid(row=2, column=0, columnspan=2, pady=10)
     scrollbar.grid(row=2, column=2, sticky="ns", pady=10)
 
     # Create Dropdown Box for Question Category
@@ -2728,16 +2737,16 @@ def quest_cat_modify():
     # Insert categories into treeview
     for row in results:
         cat_name.append(row[1])
-        tree.insert("", "end", values=(row[0], row[1]))
+        qcat_modify_tree.insert("", "end", values=(row[0], row[1]))
 
     # Create dropdown for category selection
     def on_category_select(event):
         # When a category is selected, populate the entry with its current title
         selected_category = var.get()
-        qctitle_entry.delete(0, END)
-        qctitle_entry.insert(0, selected_category)
+        qcat_title_entry.delete(0, END)
+        qcat_title_entry.insert(0, selected_category)
 
-    cate_drop = create_dropdown_hor(questCatModifyFrame, cat_name, var, 4, 0, 1, "normal",
+    cate_drop = create_dropdown_hor(qcat_modify_frame, cat_name, var, 4, 0, 1, "normal",
                                     text="Select a Question Category")
     cate_drop.bind('<<ComboboxSelected>>', on_category_select)
 
@@ -2747,16 +2756,16 @@ def quest_cat_modify():
     cnx.close()
 
     # Test Name input
-    qctitle_entry = ttk.Entry(questCatModifyFrame, width=50)
-    qctitle_entry.grid(row=6, column=0, columnspan=2)
+    qcat_title_entry = ttk.Entry(qcat_modify_frame, width=50)
+    qcat_title_entry.grid(row=6, column=0, columnspan=2)
 
     # Button to modify
-    modify_questCat_btn = ttk.Button(questCatModifyFrame, text="Modify Question Category Title", command=submitChanges,
+    mod_qcat_btn = ttk.Button(qcat_modify_frame, text="Modify Question Category Title", command=submit_changes,
                                      style="Accent.TButton")
-    modify_questCat_btn.grid(row=7, column=0, columnspan=2, pady=10)
+    mod_qcat_btn.grid(row=7, column=0, columnspan=2, pady=10)
 
-    global back_btn_questCatModify
-    back_btn_questCatModify = create_back_button(root, back_quest_cat_modify)
+    global back_btn_qcat_modify
+    back_btn_qcat_modify = create_back_button(root, back_quest_cat_modify)
 
     return
 
@@ -2764,20 +2773,20 @@ def quest_cat_modify():
 ######################################## Question Option Delete ########################################################
 
 
-def back_quest_cat_delete():
+def back_qcat_delete():
     show_main_menu()
-    questCatDeleteFrame.grid_forget()
-    back_btn_questCatDelete.grid_forget()
-    header_qcatdelete.grid_forget()
+    qcat_delete_frame.grid_forget()
+    back_btn_qcat_delete.grid_forget()
+    header_qcat_delete.grid_forget()
     return
 
 
-def quest_cat_delete():
+def qcat_delete():
     # When refreshing the page, destroy the previous frame
-    if 'questCatDeleteFrame' in globals():
-        back_quest_cat_delete()
+    if 'qcat_delete_frame' in globals():
+        back_qcat_delete()
 
-    def deleteQuestCat():
+    def delete_qcat():
 
         # Get the selected category
         selected_category = var.get()
@@ -2818,7 +2827,7 @@ def quest_cat_delete():
                 var.set('')
 
                 # Refresh the UI
-                quest_cat_delete()
+                qcat_delete()
 
             except Exception as e:
                 messagebox.showerror("Error", f"An error occurred: {str(e)}")
@@ -2827,8 +2836,8 @@ def quest_cat_delete():
                 cnx.close()
 
     def load_categories(sort_order):
-        for item in tree.get_children():
-            tree.delete(item)
+        for item in qcat_delete_tree.get_children():
+            qcat_delete_tree.delete(item)
 
         cnx = get_db_connection()
         c = cnx.cursor()
@@ -2840,7 +2849,7 @@ def quest_cat_delete():
 
         results = c.fetchall()
         for row in results:
-            tree.insert("", "end", values=(row[0], row[1]))
+            qcat_delete_tree.insert("", "end", values=(row[0], row[1]))
 
         cnx.commit()
         cnx.close()
@@ -2852,39 +2861,39 @@ def quest_cat_delete():
     hide_main_menu()
 
     # Create a Frame this option
-    global questCatDeleteFrame
-    questCatDeleteFrame = Frame(root, bd=2)
-    questCatDeleteFrame.grid(row=1, pady=10, padx=20)
+    global qcat_delete_frame
+    qcat_delete_frame = Frame(root, bd=2)
+    qcat_delete_frame.grid(row=1, pady=10, padx=20)
 
-    global header_qcatdelete
-    header_qcatdelete = create_header_label(root, "Delete Question Categories")
+    global header_qcat_delete
+    header_qcat_delete = create_header_label(root, "Delete Question Categories")
 
     # DROPDOWN: Add sorting selection
     sort_var = StringVar()
     sort_var.set("ID")  # default sort
     sort_var.trace("w", on_sort_change)
 
-    create_dropdown_ver(questCatDeleteFrame, ["ID", "Title"], sort_var, row=0, col=0, cspan=2, state="readonly",
+    create_dropdown_ver(qcat_delete_frame, ["ID", "Title"], sort_var, row=0, col=0, cspan=2, state="readonly",
                         text="Sort categories by:")
 
     # Create Dropdown Box for Test Category
 
     # Create a treeview for displaying categories
-    tree = ttk.Treeview(questCatDeleteFrame, columns=("tcid", "tcat"), show="headings", height=5)
-    tree.heading("tcid", text="Test Category ID", anchor="w")
-    tree.heading("tcat", text="Test Category Title", anchor="w")
+    qcat_delete_tree = ttk.Treeview(qcat_delete_frame, columns=("tcid", "tcat"), show="headings", height=5)
+    qcat_delete_tree.heading("tcid", text="Test Category ID", anchor="w")
+    qcat_delete_tree.heading("tcat", text="Test Category Title", anchor="w")
 
     # Define column width
-    tree.column("tcid", width=100)
-    tree.column("tcat", width=300)
+    qcat_delete_tree.column("tcid", width=100)
+    qcat_delete_tree.column("tcat", width=300)
 
     # Add a scrollbar to the treeview
-    scrollbar = ttk.Scrollbar(questCatDeleteFrame, orient="vertical", command=tree.yview)
+    scrollbar = ttk.Scrollbar(qcat_delete_frame, orient="vertical", command=qcat_delete_tree.yview)
 
     # Configure tree to use the scrollbar
-    tree.configure(yscrollcommand=scrollbar.set)
+    qcat_delete_tree.configure(yscrollcommand=scrollbar.set)
 
-    tree.grid(row=2, column=0, columnspan=2, pady=10)
+    qcat_delete_tree.grid(row=2, column=0, columnspan=2, pady=10)
     scrollbar.grid(row=2, column=2, sticky="ns", pady=10)
 
     # Connect to Database
@@ -2901,9 +2910,9 @@ def quest_cat_delete():
 
     for row in results:
         cat_name.append(row[1])
-        tree.insert("", "end", values=(row[0], row[1]))
+        qcat_delete_tree.insert("", "end", values=(row[0], row[1]))
 
-    cate_drop = create_dropdown_hor(questCatDeleteFrame, cat_name, var, 4, 0, 1, "normal",
+    cate_drop = create_dropdown_hor(qcat_delete_frame, cat_name, var, 4, 0, 1, "normal",
                                     text="Select a question category")
     cate_drop.grid(padx=10)
     # Commit Changes
@@ -2912,12 +2921,12 @@ def quest_cat_delete():
     cnx.close()
 
     # Adjust button position
-    delete_questCat_btn = ttk.Button(questCatDeleteFrame, text="Delete Question Category", command=deleteQuestCat,
+    del_qcat_btn = ttk.Button(qcat_delete_frame, text="Delete Question Category", command=delete_qcat,
                                      style="Accent.TButton")
-    delete_questCat_btn.grid(row=5, column=0, columnspan=2, pady=10)
+    del_qcat_btn.grid(row=5, column=0, columnspan=2, pady=10)
 
-    global back_btn_questCatDelete
-    back_btn_questCatDelete = create_back_button(root, back_quest_cat_delete)
+    global back_btn_qcat_delete
+    back_btn_qcat_delete = create_back_button(root, back_qcat_delete)
 
     return
 
@@ -2925,16 +2934,16 @@ def quest_cat_delete():
 ################################################ Question Options Buttons ##############################################
 
 # Create Add Question Option Button
-addQuestCat_btn = ttk.Button(questType_frame, text="Add Question Category", command=quest_cat_add, width=13)
-addQuestCat_btn.grid(row=1, column=0, pady=10, padx=10, ipadx=50, ipady=10, sticky='ew')
+add_qcat_btn = ttk.Button(qtype_frame, text="Add Question Category", command=qcat_add, width=13)
+add_qcat_btn.grid(row=1, column=0, pady=10, padx=10, ipadx=50, ipady=10, sticky='ew')
 
 # Create Modify Question Option Button
-modifyQuestCat_btn = ttk.Button(questType_frame, text="Modify Question Category", command=quest_cat_modify, width=13)
-modifyQuestCat_btn.grid(row=1, column=1, pady=10, padx=10, ipadx=50, ipady=10, sticky='ew')
+modify_qcat_btn = ttk.Button(qtype_frame, text="Modify Question Category", command=qcat_modify, width=13)
+modify_qcat_btn.grid(row=1, column=1, pady=10, padx=10, ipadx=50, ipady=10, sticky='ew')
 
 # Create Delete Question Option Button
-deleteQuestCat_btn = ttk.Button(questType_frame, text="Delete Question Category", command=quest_cat_delete, width=13)
-deleteQuestCat_btn.grid(row=1, column=2, pady=10, padx=10, ipadx=50, ipady=10, sticky='ew')
+delete_qcat_btn = ttk.Button(qtype_frame, text="Delete Question Category", command=qcat_delete, width=13)
+delete_qcat_btn.grid(row=1, column=2, pady=10, padx=10, ipadx=50, ipady=10, sticky='ew')
 
 
 ########################################################################################################################
@@ -3412,15 +3421,15 @@ def test_cat_delete():
 ################################################ Test Options Buttons ##################################################
 
 # Create Add Question Option Button
-addTestCat_btn = ttk.Button(testType_frame, text="Add Test Category", command=test_cat_add, width=13)
+addTestCat_btn = ttk.Button(ttype_frame, text="Add Test Category", command=test_cat_add, width=13)
 addTestCat_btn.grid(row=1, column=0, pady=10, padx=10, ipadx=50, ipady=10, sticky='ew')
 
 # Create Delete Question Option Button
-deleteTestCat_btn = ttk.Button(testType_frame, text="Modify Test Category", command=test_cat_modify, width=13)
+deleteTestCat_btn = ttk.Button(ttype_frame, text="Modify Test Category", command=test_cat_modify, width=13)
 deleteTestCat_btn.grid(row=1, column=1, pady=10, padx=10, ipadx=50, ipady=10, sticky='ew')
 
 # Create Delete Question Option Button
-deleteTestCat_btn = ttk.Button(testType_frame, text="Delete Test Category", command=test_cat_delete, width=13)
+deleteTestCat_btn = ttk.Button(ttype_frame, text="Delete Test Category", command=test_cat_delete, width=13)
 deleteTestCat_btn.grid(row=1, column=2, pady=10, padx=10, ipadx=50, ipady=10, sticky='ew')
 
 ########################################################################################################################
