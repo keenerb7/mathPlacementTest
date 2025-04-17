@@ -7,11 +7,8 @@ from latexCheck import *
 # Check if the database file exists
 db_file = "math_placement_test.db"
 if not os.path.exists(db_file):
-    print(f"Database file '{db_file}' not found. Initializing database...")
     initialize_database()
-    print(f"Database '{db_file}' has been created.")
-else:
-    print(f"Database file '{db_file}' found.")
+
 
 # Create the main window
 root = Tk()
@@ -483,7 +480,7 @@ def questionModify():
 
         if questionInfo:
             # Get Category Name for Drop Down
-            cat_name = str(getCategoryName(questionInfo[2]))  # Fetch category name
+            cat_name = str(get_category_name(questionInfo[2]))  # Fetch category name
             cat_name = cat_name.strip("(),''")
             cate_dropdown.set(cat_name)  # Correctly update dropdown value
 
@@ -1099,7 +1096,7 @@ def testView():
         results = c.fetchall()
 
         for row in results:
-            num_questions = countQuestionsTestID(row[0])
+            num_questions = count_questions_test_id(row[0])
             tree.insert("", "end", values=row + (num_questions,))
 
         cnx.commit()
@@ -2058,7 +2055,7 @@ def testDelete():
         results = c.fetchall()
 
         for row in results:
-            num_questions = countQuestionsTestID(row[0])
+            num_questions = count_questions_test_id(row[0])
             tree.insert("", "end", values=row + (num_questions,))
 
         cnx.commit()
@@ -2286,7 +2283,7 @@ def testExtract():
         results = c.fetchall()
 
         for row in results:
-            num_questions = countQuestionsTestID(row[0])
+            num_questions = count_questions_test_id(row[0])
             tree.insert("", "end", values=row + (num_questions,))
 
         cnx.commit()

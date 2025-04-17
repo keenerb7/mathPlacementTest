@@ -9,11 +9,13 @@ def get_db_connection():
     # Connect to SQLite database file
     return sqlite3.connect("math_placement_test.db")
 
+
 # Create a function to make the header
 def create_header_label(parent, headerText):
     lbl = ttk.Label(parent, text=headerText, font=("Arial", 18, "bold"), foreground="#047bf9")
     lbl.grid(row=0, column=0, columnspan=1, padx=30, pady=5, sticky='w')
     return lbl
+
 
 # Create a Function to Make the Back Button
 def create_back_button(parent, command):
@@ -42,7 +44,7 @@ def create_dropdown_ver(parent, options, var, row, col, cspan, state, text="Sele
     return dropdown
 
 
-def countQuestionsTestID(t_id):
+def count_questions_test_id(t_id):
     # Connect to Database
     cnx = get_db_connection()
 
@@ -64,7 +66,7 @@ def countQuestionsTestID(t_id):
     return num_questions
 
 
-def countTests():
+def count_tests():
     # Connect to Database
     cnx = get_db_connection()
 
@@ -87,7 +89,7 @@ def countTests():
     return num_tests
 
 
-def countQuestionsTotal():
+def count_questions_total():
     # Connect to Database
     cnx = get_db_connection()
 
@@ -109,7 +111,7 @@ def countQuestionsTotal():
     return num_questions
 
 
-def getCategoryName(cat_id):
+def get_category_name(cat_id):
     # Connect to Database
     cnx = get_db_connection()
 
