@@ -72,7 +72,7 @@ def hide_main_menu():
 
 ######################################Question View#####################################################################
 # Create a Function to Return to Original View from Question View Page
-def backQuestionView():
+def back_question_view():
     show_main_menu()
     qviewFrame.grid_forget()
     back_btn_qview.grid_forget()
@@ -81,7 +81,7 @@ def backQuestionView():
 
 
 # Create Question View Function To Query From Questions Table
-def questionView():
+def question_view():
     # Sort the tree view
     def load_categories(sort_order):
         for item in tree.get_children():
@@ -259,13 +259,13 @@ def questionView():
 
     # Create a Back Button to Hide Current View and Reshow Original View
     global back_btn_qview
-    back_btn_qview = create_back_button(root, backQuestionView)
+    back_btn_qview = create_back_button(root, back_question_view)
     return
 
 
 ####################################Question Add########################################################################
 # Create a Function to Return to Original View
-def backQuestionAdd():
+def back_question_add():
     show_main_menu()
     qaddFrame.grid_forget()
     back_btn_qadd.grid_forget()
@@ -274,7 +274,7 @@ def backQuestionAdd():
 
 
 # Create Question Add Function to Add Records to Questions Table
-def questionAdd():
+def question_add():
     # Create a Function to Add a Question to the Question Table
     def addQuestion():
         # Validate that there is a question in the form
@@ -436,13 +436,13 @@ def questionAdd():
 
     # Create a Back Button to Hide Current View and Reshow Original View
     global back_btn_qadd
-    back_btn_qadd = create_back_button(root, backQuestionAdd)
+    back_btn_qadd = create_back_button(root, back_question_add)
     return
 
 
 ###############################################Question Modify##########################################################
 # Create Function to Return to Original View
-def backQuestionModify():
+def back_question_modify():
     show_main_menu()
     qmodifyFrame.grid_forget()
     back_btn_qmodify.grid_forget()
@@ -451,7 +451,7 @@ def backQuestionModify():
 
 
 # Create Question Modify Function to Update Records in Question Table
-def questionModify():
+def question_modify():
     def question_selection_dis(event=None):
         # Save the Question ID that we want to change
         qID = question_dropdown.get()
@@ -801,13 +801,13 @@ def questionModify():
     submit_btn.grid(row=6, column=6, padx=10, pady=10, sticky='e')
 
     global back_btn_qmodify
-    back_btn_qmodify = create_back_button(root, backQuestionModify)
+    back_btn_qmodify = create_back_button(root, back_question_modify)
     return
 
 
 ############################################Question Delete#############################################################
 # Create a Function to Return to Original View
-def backQuestionDelete():
+def back_question_delete():
     show_main_menu()
     qdeleteFrame.grid_forget()
     back_btn_qdelete.grid_forget()
@@ -816,7 +816,7 @@ def backQuestionDelete():
 
 
 # Create Question Delete Function to Delete a Record in Question Table
-def questionDelete():
+def question_delete():
     # Sort the tree view
     def load_categories(sort_order):
         for item in tree.get_children():
@@ -989,7 +989,7 @@ def questionDelete():
         qdeleteFrame.destroy()
         back_btn_qdelete.grid_forget()
         header_qdelete.grid_forget()
-        questionDelete()
+        question_delete()
 
     # Connect to Database
     cnx = get_db_connection()
@@ -1026,7 +1026,7 @@ def questionDelete():
 
     # Create a Back Button to Hide Current View and Reshow Original View
     global back_btn_qdelete
-    back_btn_qdelete = create_back_button(root, backQuestionDelete)
+    back_btn_qdelete = create_back_button(root, back_question_delete)
 
     return
 
@@ -1036,19 +1036,19 @@ def questionDelete():
 mainMenu_lbl = ttk.Label(root, text="Math Placement Test", font=('Verdana', 20), anchor="center")
 mainMenu_lbl.grid(row=0, column=0, columnspan=5, padx=10, pady=10, ipadx=50, ipady=10)
 # Create View Question Button
-viewQuest_btn = ttk.Button(quest_frame, text="View Questions", command=questionView, width=13)
+viewQuest_btn = ttk.Button(quest_frame, text="View Questions", command=question_view, width=13)
 viewQuest_btn.grid(row=1, column=0, columnspan=1, pady=10, padx=10, ipadx=50, ipady=10)
 
 # Create Add Question Button
-addQuest_btn = ttk.Button(quest_frame, text="Add Questions", command=questionAdd, width=13)
+addQuest_btn = ttk.Button(quest_frame, text="Add Questions", command=question_add, width=13)
 addQuest_btn.grid(row=1, column=1, columnspan=1, pady=10, padx=10, ipadx=50, ipady=10)
 
 # Create Modify Question Button
-modifyQuest_btn = ttk.Button(quest_frame, text="Modify Questions", command=questionModify, width=13)
+modifyQuest_btn = ttk.Button(quest_frame, text="Modify Questions", command=question_modify, width=13)
 modifyQuest_btn.grid(row=1, column=2, columnspan=1, pady=10, padx=10, ipadx=50, ipady=10)
 
 # Create Delete Question Button
-deleteQuest_btn = ttk.Button(quest_frame, text="Delete Questions", command=questionDelete, width=13)
+deleteQuest_btn = ttk.Button(quest_frame, text="Delete Questions", command=question_delete, width=13)
 deleteQuest_btn.grid(row=1, column=3, columnspan=1, pady=10, padx=10, ipadx=50, ipady=10)
 
 
@@ -1057,7 +1057,7 @@ deleteQuest_btn.grid(row=1, column=3, columnspan=1, pady=10, padx=10, ipadx=50, 
 ########################################################################################################################
 
 ################################################Test View###############################################################
-def backTestView():
+def back_test_view():
     show_main_menu()
     tviewFrame.grid_forget()
     back_btn_tview.grid_forget()
@@ -1066,7 +1066,7 @@ def backTestView():
 
 
 # Create Function to View a Test
-def testView():
+def test_view():
     # Sort the tree view
     def load_categories(sort_order):
         for item in tree.get_children():
@@ -1272,12 +1272,12 @@ def testView():
     getQuestions()
 
     global back_btn_tview
-    back_btn_tview = create_back_button(root, backTestView)
+    back_btn_tview = create_back_button(root, back_test_view)
     return
 
 
 ###################################################Test Make############################################################
-def backTestMake():
+def back_test_make():
     show_main_menu()
     tmakeFrame.grid_forget()
     back_btn_tmake.grid_forget()
@@ -1286,7 +1286,7 @@ def backTestMake():
 
 
 # Create Function to Make a Test
-def testMake():
+def test_make():
     # Variables to track selected questions
     selected_questions = set()
 
@@ -1539,13 +1539,13 @@ def testMake():
                                                                                                        pady=15)
 
     global back_btn_tmake
-    back_btn_tmake = create_back_button(root, backTestMake)
+    back_btn_tmake = create_back_button(root, back_test_make)
 
     return
 
 
 #################################################Test Modify############################################################
-def backTestModify():
+def back_test_modify():
     show_main_menu()
     tmodifyFrame.grid_forget()
     back_btn_tmodify.grid_forget()
@@ -1553,10 +1553,10 @@ def backTestModify():
     return
 
 
-def testModify():
+def test_modify():
     # When refreshing the page, destroy the previous frame
     if 'tmodifyFrame' in globals():
-        backTestModify()
+        back_test_modify()
 
     # Variables to track selected questions
     selected_questions = set()
@@ -1689,7 +1689,7 @@ def testModify():
             cnx.commit()
             messagebox.showinfo("Success", "Test has been successfully updated.")
 
-            testModify()
+            test_modify()
 
         except Exception as e:
             cnx.rollback()
@@ -2006,7 +2006,7 @@ def testModify():
                                                                                                     pady=10)
 
     global back_btn_tmodify
-    back_btn_tmodify = create_back_button(root, backTestModify)
+    back_btn_tmodify = create_back_button(root, back_test_modify)
 
     # Load the initial sorted data
     load_categories(sort_var.get())
@@ -2016,7 +2016,7 @@ def testModify():
 
 ###################################################Test Delete##########################################################
 
-def backTestDelete():
+def back_test_delete():
     show_main_menu()
     tdeleteFrame.grid_forget()
     back_btn_tdelete.grid_forget()
@@ -2025,7 +2025,7 @@ def backTestDelete():
 
 
 # Create Function to Delete a Test
-def testDelete():
+def test_delete():
     # Sort the tree view
     def load_categories(sort_order):
         for item in tree.get_children():
@@ -2201,7 +2201,7 @@ def testDelete():
             tdeleteFrame.grid_forget()
             back_btn_tdelete.grid_forget()
             header_tdelete.grid_forget()
-            testDelete()
+            test_delete()
         else:
             return
 
@@ -2237,14 +2237,14 @@ def testDelete():
     deleteQuestion_btn.grid(row=2, column=1, sticky="e", padx=10, ipadx=20)
 
     global back_btn_tdelete
-    back_btn_tdelete = create_back_button(root, backTestDelete)
+    back_btn_tdelete = create_back_button(root, back_test_delete)
 
     return
 
 
 ##############################################Test Extract##############################################################
 # Create a Function to Return to Original View
-def backTestExtract():
+def back_test_extract():
     show_main_menu()
     textractFrame.grid_forget()
     back_btn_textract.grid_forget()
@@ -2253,7 +2253,7 @@ def backTestExtract():
 
 
 # Create Function to Extract a Test
-def testExtract():
+def test_extract():
     # Sort the tree view
     def load_categories(sort_order):
         for item in tree.get_children():
@@ -2422,30 +2422,30 @@ def testExtract():
 
     # Create a Back Button to Hide Current View and Reshow Original View
     global back_btn_textract
-    back_btn_textract = create_back_button(root, backTestExtract)
+    back_btn_textract = create_back_button(root, back_test_extract)
 
     return
 
 
 ##############################################Test Buttons##############################################################
 # Create View Test Button
-viewTest_btn = ttk.Button(test_frame, text="View Test", command=testView, width=13)
+viewTest_btn = ttk.Button(test_frame, text="View Test", command=test_view, width=13)
 viewTest_btn.grid(row=1, column=0, pady=10, padx=10, ipadx=50, ipady=10, sticky='ew')
 
 # Create Add Test Button
-makeTest_btn = ttk.Button(test_frame, text="Make Test", command=testMake, width=13)
+makeTest_btn = ttk.Button(test_frame, text="Make Test", command=test_make, width=13)
 makeTest_btn.grid(row=1, column=1, pady=10, padx=10, ipadx=50, ipady=10, sticky='ew')
 
 # Create Modify Test Button
-modifyTest_btn = ttk.Button(test_frame, text="Modify Test", command=testModify, width=13)
+modifyTest_btn = ttk.Button(test_frame, text="Modify Test", command=test_modify, width=13)
 modifyTest_btn.grid(row=1, column=2, pady=10, padx=10, ipadx=50, ipady=10, sticky='ew')
 
 # Create Delete Test Button
-deleteTest_btn = ttk.Button(test_frame, text="Delete Test", command=testDelete, width=13)
+deleteTest_btn = ttk.Button(test_frame, text="Delete Test", command=test_delete, width=13)
 deleteTest_btn.grid(row=1, column=3, pady=10, padx=10, ipadx=50, ipady=10, sticky='ew')
 
 # Create Extract Test Button
-extractTest_btn = ttk.Button(test_frame, text="Extract Test", command=testExtract, width=13)
+extractTest_btn = ttk.Button(test_frame, text="Extract Test", command=test_extract, width=13)
 extractTest_btn.grid(row=2, column=1, columnspan=2, pady=10, padx=10, ipadx=50, ipady=10)
 
 
@@ -2453,7 +2453,7 @@ extractTest_btn.grid(row=2, column=1, columnspan=2, pady=10, padx=10, ipadx=50, 
 ################################### This Section is Question Type Options ##############################################
 ########################################################################################################################
 ######################################## Question Option Add ###########################################################
-def backQuestCatAdd():
+def back_quest_cat_add():
     show_main_menu()
     questCatAddFrame.grid_forget()
     back_btn_questCatAdd.grid_forget()
@@ -2461,10 +2461,10 @@ def backQuestCatAdd():
     return
 
 
-def questCatAdd():
+def quest_cat_add():
     # When refreshing the page, destroy the previous frame
     if 'questCatAddFrame' in globals():
-        backQuestCatAdd()
+        back_quest_cat_add()
 
     def addNewQuestCat():
 
@@ -2497,7 +2497,7 @@ def questCatAdd():
             qctitle_entry.delete(0, END)
 
             # Refresh the UI
-            questCatAdd()
+            quest_cat_add()
 
         except Exception as e:
             messagebox.showerror("Database Error", str(e))
@@ -2599,7 +2599,7 @@ def questCatAdd():
     add_questCat_btn.grid(row=5, column=0, pady=10)
 
     global back_btn_questCatAdd
-    back_btn_questCatAdd = create_back_button(root, backQuestCatAdd)
+    back_btn_questCatAdd = create_back_button(root, back_quest_cat_add)
 
     return
 
@@ -2607,7 +2607,7 @@ def questCatAdd():
 ######################################## Question Option Modify ########################################################
 
 
-def backQuestCatModify():
+def back_quest_cat_modify():
     show_main_menu()
     questCatModifyFrame.grid_forget()
     back_btn_questCatModify.grid_forget()
@@ -2615,10 +2615,10 @@ def backQuestCatModify():
     return
 
 
-def questCatModify():
+def quest_cat_modify():
     # When refreshing the page, destroy the previous frame
     if 'questCatModifyFrame' in globals():
-        backQuestCatModify()
+        back_quest_cat_modify()
 
     def submitChanges():
 
@@ -2645,7 +2645,7 @@ def questCatModify():
             messagebox.showinfo("Success", f"Category '{selected_category}' updated to '{new_title}'")
 
             # Refresh the UI
-            questCatModify()
+            quest_cat_modify()
 
         except Exception as e:
             messagebox.showerror("Error", f"Failed to update category: {str(e)}")
@@ -2756,7 +2756,7 @@ def questCatModify():
     modify_questCat_btn.grid(row=7, column=0, columnspan=2, pady=10)
 
     global back_btn_questCatModify
-    back_btn_questCatModify = create_back_button(root, backQuestCatModify)
+    back_btn_questCatModify = create_back_button(root, back_quest_cat_modify)
 
     return
 
@@ -2764,7 +2764,7 @@ def questCatModify():
 ######################################## Question Option Delete ########################################################
 
 
-def backQuestCatDelete():
+def back_quest_cat_delete():
     show_main_menu()
     questCatDeleteFrame.grid_forget()
     back_btn_questCatDelete.grid_forget()
@@ -2772,10 +2772,10 @@ def backQuestCatDelete():
     return
 
 
-def questCatDelete():
+def quest_cat_delete():
     # When refreshing the page, destroy the previous frame
     if 'questCatDeleteFrame' in globals():
-        backQuestCatDelete()
+        back_quest_cat_delete()
 
     def deleteQuestCat():
 
@@ -2818,7 +2818,7 @@ def questCatDelete():
                 var.set('')
 
                 # Refresh the UI
-                questCatDelete()
+                quest_cat_delete()
 
             except Exception as e:
                 messagebox.showerror("Error", f"An error occurred: {str(e)}")
@@ -2917,7 +2917,7 @@ def questCatDelete():
     delete_questCat_btn.grid(row=5, column=0, columnspan=2, pady=10)
 
     global back_btn_questCatDelete
-    back_btn_questCatDelete = create_back_button(root, backQuestCatDelete)
+    back_btn_questCatDelete = create_back_button(root, back_quest_cat_delete)
 
     return
 
@@ -2925,15 +2925,15 @@ def questCatDelete():
 ################################################ Question Options Buttons ##############################################
 
 # Create Add Question Option Button
-addQuestCat_btn = ttk.Button(questType_frame, text="Add Question Category", command=questCatAdd, width=13)
+addQuestCat_btn = ttk.Button(questType_frame, text="Add Question Category", command=quest_cat_add, width=13)
 addQuestCat_btn.grid(row=1, column=0, pady=10, padx=10, ipadx=50, ipady=10, sticky='ew')
 
 # Create Modify Question Option Button
-modifyQuestCat_btn = ttk.Button(questType_frame, text="Modify Question Category", command=questCatModify, width=13)
+modifyQuestCat_btn = ttk.Button(questType_frame, text="Modify Question Category", command=quest_cat_modify, width=13)
 modifyQuestCat_btn.grid(row=1, column=1, pady=10, padx=10, ipadx=50, ipady=10, sticky='ew')
 
 # Create Delete Question Option Button
-deleteQuestCat_btn = ttk.Button(questType_frame, text="Delete Question Category", command=questCatDelete, width=13)
+deleteQuestCat_btn = ttk.Button(questType_frame, text="Delete Question Category", command=quest_cat_delete, width=13)
 deleteQuestCat_btn.grid(row=1, column=2, pady=10, padx=10, ipadx=50, ipady=10, sticky='ew')
 
 
@@ -2945,7 +2945,7 @@ deleteQuestCat_btn.grid(row=1, column=2, pady=10, padx=10, ipadx=50, ipady=10, s
 ######################################## Test Option Add ###############################################################
 
 
-def backTestCatAdd():
+def back_test_cat_add():
     show_main_menu()
     testCatAddFrame.grid_forget()
     back_btn_testCatAdd.grid_forget()
@@ -2953,10 +2953,10 @@ def backTestCatAdd():
     return
 
 
-def testCatAdd():
+def test_cat_add():
     # When refreshing the page, destroy the previous frame
     if 'testCatAddFrame' in globals():
-        backTestCatAdd()
+        back_test_cat_add()
 
     def addNewTestCat():
         # Making sure the user input a Question Category Title
@@ -2988,7 +2988,7 @@ def testCatAdd():
             tctitle_entry.delete(0, END)
 
             # Refresh the UI
-            testCatAdd()
+            test_cat_add()
 
         except Exception as e:
             messagebox.showerror("Database Error", str(e))
@@ -3089,7 +3089,7 @@ def testCatAdd():
     add_testCat_btn.grid(row=8, column=0, pady=10)
 
     global back_btn_testCatAdd
-    back_btn_testCatAdd = create_back_button(root, backTestCatAdd)
+    back_btn_testCatAdd = create_back_button(root, back_test_cat_add)
 
     return
 
@@ -3097,7 +3097,7 @@ def testCatAdd():
 ######################################## Test Option Modify ############################################################
 
 
-def backTestCatModify():
+def back_test_cat_modify():
     show_main_menu()
     testCatModifyFrame.grid_forget()
     back_btn_testCatModify.grid_forget()
@@ -3105,10 +3105,10 @@ def backTestCatModify():
     return
 
 
-def testCatModify():
+def test_cat_modify():
     # When refreshing the page, destroy the previous frame
     if 'testCatModifyFrame' in globals():
-        backTestCatModify()
+        back_test_cat_modify()
 
     def submitChanges():
         # Get the selected category and new title
@@ -3133,7 +3133,7 @@ def testCatModify():
             messagebox.showinfo("Success", f"Test Category '{selected_category}' updated to '{new_title}'")
 
             # Refresh the UI
-            testCatModify()
+            test_cat_modify()
 
         except Exception as e:
             messagebox.showerror("Error", f"Failed to update test category: {str(e)}")
@@ -3244,7 +3244,7 @@ def testCatModify():
     modify_testCat_btn.grid(row=7, column=0, columnspan=2, pady=10)
 
     global back_btn_testCatModify
-    back_btn_testCatModify = create_back_button(root, backTestCatModify)
+    back_btn_testCatModify = create_back_button(root, back_test_cat_modify)
 
     return
 
@@ -3252,7 +3252,7 @@ def testCatModify():
 ######################################## Test Option Delete ############################################################
 
 
-def backTestCatDelete():
+def back_test_cat_delete():
     show_main_menu()
     testCatDeleteFrame.grid_forget()
     back_btn_testCatDelete.grid_forget()
@@ -3260,10 +3260,10 @@ def backTestCatDelete():
     return
 
 
-def testCatDelete():
+def test_cat_delete():
     # When refreshing the page, destroy the previous frame
     if 'testCatDeleteFrame' in globals():
-        backTestCatDelete()
+        back_test_cat_delete()
 
     def deleteTestCat():
 
@@ -3306,7 +3306,7 @@ def testCatDelete():
                 var.set('')
 
                 # Refresh the UI
-                testCatDelete()
+                test_cat_delete()
 
             except Exception as e:
                 messagebox.showerror("Error", f"An error occurred: {str(e)}")
@@ -3404,7 +3404,7 @@ def testCatDelete():
     delete_testCat_btn.grid(row=5, column=0, pady=10, columnspan=2)
 
     global back_btn_testCatDelete
-    back_btn_testCatDelete = create_back_button(root, backTestCatDelete)
+    back_btn_testCatDelete = create_back_button(root, back_test_cat_delete)
 
     return
 
@@ -3412,15 +3412,15 @@ def testCatDelete():
 ################################################ Test Options Buttons ##################################################
 
 # Create Add Question Option Button
-addTestCat_btn = ttk.Button(testType_frame, text="Add Test Category", command=testCatAdd, width=13)
+addTestCat_btn = ttk.Button(testType_frame, text="Add Test Category", command=test_cat_add, width=13)
 addTestCat_btn.grid(row=1, column=0, pady=10, padx=10, ipadx=50, ipady=10, sticky='ew')
 
 # Create Delete Question Option Button
-deleteTestCat_btn = ttk.Button(testType_frame, text="Modify Test Category", command=testCatModify, width=13)
+deleteTestCat_btn = ttk.Button(testType_frame, text="Modify Test Category", command=test_cat_modify, width=13)
 deleteTestCat_btn.grid(row=1, column=1, pady=10, padx=10, ipadx=50, ipady=10, sticky='ew')
 
 # Create Delete Question Option Button
-deleteTestCat_btn = ttk.Button(testType_frame, text="Delete Test Category", command=testCatDelete, width=13)
+deleteTestCat_btn = ttk.Button(testType_frame, text="Delete Test Category", command=test_cat_delete, width=13)
 deleteTestCat_btn.grid(row=1, column=2, pady=10, padx=10, ipadx=50, ipady=10, sticky='ew')
 
 ########################################################################################################################
