@@ -4,13 +4,14 @@ import subprocess
 import re
 from collections import defaultdict
 from tkinter import messagebox, filedialog
+from databaseChoice import *
 
 from mainHelper import *
 
 
-def test2qti(createTest):
+def test2qti(createTest, db_file):
     if messagebox.askokcancel("Confirmation", f"Would you like to Export a QTI .zip file for Test ID: {createTest}?"):
-        cnx = get_db_connection()
+        cnx = connect_to_database(db_file)
 
         cursor = cnx.cursor()
 
@@ -32,8 +33,6 @@ def test2qti(createTest):
 
         # Write quiz options
         f.write(f"shuffle answers: true\n")
-        f.write(f"shuffle questions: true\n")
-        # f.write(f"show correct answers: true\n")
         f.write(f"one question at a time: true\n")
         f.write(f"can't go back: true\n")
 

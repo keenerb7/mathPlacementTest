@@ -5,11 +5,6 @@ from tkinter import ttk
 import sqlite3
 
 
-def get_db_connection():
-    # Connect to SQLite database file
-    return sqlite3.connect("math_placement_test.db")
-
-
 # Create a function to make the header
 def create_header_label(parent, headerText):
     lbl = ttk.Label(parent, text=headerText, font=("Arial", 18, "bold"), foreground="#047bf9")
@@ -46,7 +41,7 @@ def create_dropdown_ver(parent, options, var, row, col, cspan, state, text="Sele
 
 def count_questions_test_id(t_id):
     # Connect to Database
-    cnx = get_db_connection()
+    cnx = connect_to_database(db_file)
 
     # Create a Cursor
     c = cnx.cursor()
@@ -68,7 +63,7 @@ def count_questions_test_id(t_id):
 
 def count_tests():
     # Connect to Database
-    cnx = get_db_connection()
+    cnx = connect_to_database(db_file)
 
     # Create a Cursor
     c = cnx.cursor()
@@ -91,7 +86,7 @@ def count_tests():
 
 def count_questions_total():
     # Connect to Database
-    cnx = get_db_connection()
+    cnx = connect_to_database(db_file)
 
     # Create a Cursor
     c = cnx.cursor()
@@ -113,7 +108,7 @@ def count_questions_total():
 
 def get_category_name(cat_id):
     # Connect to Database
-    cnx = get_db_connection()
+    cnx = connect_to_database(db_file)
 
     # Create a Cursor
     c = cnx.cursor()

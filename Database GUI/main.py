@@ -2,15 +2,14 @@ import os
 
 from PIL.ImageQt import qt_version
 
-from initialize_db import initialize_database
 from test2qti import *
 from tkinter import ttk
 from latexCheck import *
+from databaseChoice import *
 
-# Check if the database file exists
-db_file = "math_placement_test.db"
-if not os.path.exists(db_file):
-    initialize_database()
+
+# Loads the last database chosen
+db_file = startup_database()
 
 # Create the main window
 root = Tk()
@@ -26,14 +25,14 @@ quest_frame = ttk.Frame(notebook)
 test_frame = ttk.Frame(notebook)
 qtype_frame = ttk.Frame(notebook)
 ttype_frame = ttk.Frame(notebook)
+db_frame = ttk.Frame(notebook)
 
 notebook.add(quest_frame, text="Question Options")
 notebook.add(test_frame, text="Test Options")
 notebook.add(qtype_frame, text="Question Category Options")
 notebook.add(ttype_frame, text="Test Category Options")
+notebook.add(db_frame, text="Database File Information")
 
-# I think we should ask if they want a consistent size or variable zie
-# Without setting the size beforehand it is variable
 root.geometry("1200x600")
 root.columnconfigure(0, weight=1)
 
@@ -44,32 +43,10 @@ def show_main_menu():
     notebook.grid(row=1, column=0, rowspan=5, columnspan=4)
     main_menu_lbl.grid(row=0, column=0, columnspan=4, padx=10, pady=10, ipadx=50, ipady=10)
 
-    view_quest_btn.grid(row=2, column=0, padx=10, pady=10, ipadx=50, ipady=10, sticky='ew')
-    add_quest_btn.grid(row=2, column=1, padx=10, pady=10, ipadx=50, ipady=10, sticky='ew')
-    modify_quest_btn.grid(row=2, column=2, padx=10, pady=10, ipadx=50, ipady=10, sticky='ew')
-    delete_quest_btn.grid(row=2, column=3, padx=10, pady=10, ipadx=50, ipady=10, sticky='ew')
-
-    # Test buttons in row 3
-    view_test_btn.grid(row=2, column=0, pady=10, padx=10, ipadx=50, ipady=10, sticky='ew')
-    make_test_btn.grid(row=2, column=1, pady=10, padx=10, ipadx=50, ipady=10, sticky='ew')
-    modify_test_btn.grid(row=2, column=2, pady=10, padx=10, ipadx=50, ipady=10, sticky='ew')
-    delete_test_btn.grid(row=2, column=3, pady=10, padx=10, ipadx=50, ipady=10, sticky='ew')
-    extract_test_btn.grid(row=3, column=1, columnspan=2, pady=10, padx=10, ipadx=50, ipady=10)
-
 
 def hide_main_menu():
     main_menu_lbl.grid_forget()
     notebook.grid_forget()
-    # Hide Current Buttons
-    view_quest_btn.grid_forget()
-    add_quest_btn.grid_forget()
-    modify_quest_btn.grid_forget()
-    delete_quest_btn.grid_forget()
-    view_test_btn.grid_forget()
-    make_test_btn.grid_forget()
-    modify_test_btn.grid_forget()
-    delete_test_btn.grid_forget()
-    extract_test_btn.grid_forget()
 
 
 ######################################Question View#####################################################################
@@ -89,7 +66,7 @@ def question_view():
         for item in qview_tree.get_children():
             qview_tree.delete(item)
 
-        cnx = get_db_connection()
+        cnx = connect_to_database(db_file)
         c = cnx.cursor()
 
         # Build the ORDER BY clause based on the selected sort order
@@ -177,7 +154,7 @@ def question_view():
     qview_tree.configure(yscrollcommand=scrollbar.set)
 
     # Connect to Database
-    cnx = get_db_connection()
+    cnx = connect_to_database(db_file)
     # Create a Cursor
     c = cnx.cursor()
 
@@ -215,7 +192,7 @@ def question_view():
     # Get answers for selected question ID
     def get_answers(event=None):
         # Reconnect to the database
-        cnx = get_db_connection()
+        cnx = connect_to_database(db_file)
 
         # Create cursor
         c = cnx.cursor()
@@ -318,7 +295,7 @@ def question_add():
                 return
 
         # Connect to Database
-        cnx = get_db_connection()
+        cnx = connect_to_database(db_file)
 
         # Create a Cursor
         c = cnx.cursor()
@@ -396,7 +373,7 @@ def question_add():
 
     # Create Dropdown Box for Question Categories
     # Connect to Database
-    cnx = get_db_connection()
+    cnx = connect_to_database(db_file)
     # Create a Cursor
     c = cnx.cursor()
     c.execute("SELECT * FROM Question_Categories")
@@ -467,7 +444,7 @@ def question_modify():
             answers[i].delete(0, END)
 
         # Connect to Database
-        cnx = get_db_connection()
+        cnx = connect_to_database(db_file)
         c = cnx.cursor()
 
         # Fetch question details
@@ -501,7 +478,7 @@ def question_modify():
             qmodify_tree.delete(item)
 
         # Connect to database and create cursor
-        cnx = get_db_connection()
+        cnx = connect_to_database(db_file)
         c = cnx.cursor()
 
         c.execute("""
@@ -560,7 +537,7 @@ def question_modify():
                 return
 
         # Connect to Database
-        cnx = get_db_connection()
+        cnx = connect_to_database(db_file)
 
         # Create a Cursor
         c = cnx.cursor()
@@ -628,7 +605,7 @@ def question_modify():
         for item in qmodify_tree.get_children():
             qmodify_tree.delete(item)
 
-        cnx = get_db_connection()
+        cnx = connect_to_database(db_file)
         c = cnx.cursor()
 
         # Build the ORDER BY clause based on the selected sort order
@@ -713,7 +690,7 @@ def question_modify():
     qmodify_tree.configure(yscrollcommand=scrollbar.set)
 
     # Connect to Database
-    cnx = get_db_connection()
+    cnx = connect_to_database(db_file)
     # Create a Cursor
     c = cnx.cursor()
 
@@ -753,7 +730,7 @@ def question_modify():
 
     # Create Dropdown Box for Question Categories
     # Connect to Database
-    cnx = get_db_connection()
+    cnx = connect_to_database(db_file)
 
     # Create a Cursor
     c = cnx.cursor()
@@ -824,7 +801,7 @@ def question_delete():
         for item in qdelete_tree.get_children():
             qdelete_tree.delete(item)
 
-        cnx = get_db_connection()
+        cnx = connect_to_database(db_file)
         c = cnx.cursor()
 
         # Build the ORDER BY clause based on the selected sort order
@@ -910,7 +887,7 @@ def question_delete():
     qdelete_tree.configure(yscrollcommand=scrollbar.set)
 
     # Connect to Database
-    cnx = get_db_connection()
+    cnx = connect_to_database(db_file)
     # Create a Cursor
     c = cnx.cursor()
 
@@ -943,7 +920,7 @@ def question_delete():
         if messagebox.askyesno("Question",
                                "Are you sure you would like to delete Question ID: " + str(question_id)):
             # Connect to Database
-            cnx = get_db_connection()
+            cnx = connect_to_database(db_file)
             # Create a Cursor
             c = cnx.cursor()
 
@@ -994,7 +971,7 @@ def question_delete():
         question_delete()
 
     # Connect to Database
-    cnx = get_db_connection()
+    cnx = connect_to_database(db_file)
 
     # Create a Cursor
     c = cnx.cursor()
@@ -1072,7 +1049,7 @@ def test_view():
         for item in tview_ttree.get_children():
             tview_ttree.delete(item)
 
-        cnx = get_db_connection()
+        cnx = connect_to_database(db_file)
         c = cnx.cursor()
 
         # Build the ORDER BY clause based on the selected sort order
@@ -1161,7 +1138,7 @@ def test_view():
     tview_ttree.configure(yscrollcommand=t_scrollbar.set)
 
     # Connect to Database
-    cnx = get_db_connection()
+    cnx = connect_to_database(db_file)
 
     # Create a Cursor
     c = cnx.cursor()
@@ -1213,7 +1190,7 @@ def test_view():
     # Get answers for selected question ID
     def get_questions(event=None):
         # Reconnect to the database
-        cnx = get_db_connection()
+        cnx = connect_to_database(db_file)
 
         # Create cursor
         c = cnx.cursor()
@@ -1306,7 +1283,7 @@ def test_make():
             selected_category_id = 0
 
         # Connect to Database
-        cnx = get_db_connection()
+        cnx = connect_to_database(db_file)
         c = cnx.cursor()
 
         # Get questions for the selected category
@@ -1365,7 +1342,7 @@ def test_make():
             return
 
         # Connect to Database
-        cnx = get_db_connection()
+        cnx = connect_to_database(db_file)
         c = cnx.cursor()
 
         try:
@@ -1457,7 +1434,7 @@ def test_make():
     # Finding the test ID
 
     # Connect to database
-    cnx = get_db_connection()
+    cnx = connect_to_database(db_file)
     c = cnx.cursor()
 
     # Get new test ID
@@ -1471,7 +1448,7 @@ def test_make():
     tid_label.grid(row=1, column=0, sticky="w")
 
     # Connect to Database
-    cnx = get_db_connection()
+    cnx = connect_to_database(db_file)
     c = cnx.cursor()
     c.execute("""
         SELECT * FROM Types_Of_Test
@@ -1497,7 +1474,7 @@ def test_make():
     question_counter_label = Label(test_frame, text="Questions selected: 0", font=("Arial", 10, "bold"), anchor="e")
     question_counter_label.grid(row=2, column=4, columnspan=3, sticky="e")
 
-    cnx = get_db_connection()
+    cnx = connect_to_database(db_file)
     c = cnx.cursor()
     c.execute("""SELECT category_id, category_name 
                  FROM Question_Categories 
@@ -1574,7 +1551,7 @@ def test_modify():
             for item in tmodify_tree.get_children():
                 tmodify_tree.delete(item)
 
-            cnx = get_db_connection()
+            cnx = connect_to_database(db_file)
             c = cnx.cursor()
 
             # Build the ORDER BY clause based on the selected sort order
@@ -1647,7 +1624,7 @@ def test_modify():
         new_test_type_name = type_var.get().strip()
 
         # Connect to Database
-        cnx = get_db_connection()
+        cnx = connect_to_database(db_file)
         c = cnx.cursor()
 
         try:
@@ -1705,7 +1682,7 @@ def test_modify():
             widget.destroy()
 
         # Connect to Database
-        cnx = get_db_connection()
+        cnx = connect_to_database(db_file)
         c = cnx.cursor()
 
         # Fetch all the question
@@ -1753,7 +1730,7 @@ def test_modify():
         time.delete(0, END)
 
         # Connect to Database
-        cnx = get_db_connection()
+        cnx = connect_to_database(db_file)
         c = cnx.cursor()
 
         # Fetch test details using the selected title
@@ -1860,7 +1837,7 @@ def test_modify():
         tmodify_tree.configure(yscrollcommand=scrollbar.set)
 
         # Connect to Database
-        cnx = get_db_connection()
+        cnx = connect_to_database(db_file)
 
         # Create a Cursor
         c = cnx.cursor()
@@ -1970,7 +1947,7 @@ def test_modify():
     category_frame = Frame(tmodify_frame)
     category_frame.grid(row=1, column=3, columnspan=1, sticky="w")
 
-    cnx = get_db_connection()
+    cnx = connect_to_database(db_file)
     c = cnx.cursor()
     c.execute("""SELECT test_type, test_name 
                  FROM Types_Of_Test 
@@ -2032,7 +2009,7 @@ def test_delete():
         for item in tree.get_children():
             tree.delete(item)
 
-        cnx = get_db_connection()
+        cnx = connect_to_database(db_file)
         c = cnx.cursor()
 
         # Build the ORDER BY clause based on the selected sort order
@@ -2131,7 +2108,7 @@ def test_delete():
         tree.delete(*tree.get_children())
 
         # Connect to Database
-        cnx = get_db_connection()
+        cnx = connect_to_database(db_file)
 
         # Create a Cursor
         c = cnx.cursor()
@@ -2178,7 +2155,7 @@ def test_delete():
         if messagebox.askyesno("Question",
                                "Are you sure you would like to delete Test ID: " + str(question_id)):
             # Connect to Database
-            cnx = get_db_connection()
+            cnx = connect_to_database(db_file)
             # Create a Cursor
             c = cnx.cursor()
 
@@ -2210,7 +2187,7 @@ def test_delete():
 
     showTestForDelete()
     # Connect to Database
-    cnx = get_db_connection()
+    cnx = connect_to_database(db_file)
     # Create a Cursor
     c = cnx.cursor()
     # Get all test IDs
@@ -2260,7 +2237,7 @@ def test_extract():
         for item in tree.get_children():
             tree.delete(item)
 
-        cnx = get_db_connection()
+        cnx = connect_to_database(db_file)
         c = cnx.cursor()
 
         # Build the ORDER BY clause based on the selected sort order
@@ -2349,7 +2326,7 @@ def test_extract():
     tree.configure(yscrollcommand=scrollbar.set)
 
     # Connect to Database
-    cnx = get_db_connection()
+    cnx = connect_to_database(db_file)
 
     # Create a Cursor
     c = cnx.cursor()
@@ -2392,7 +2369,7 @@ def test_extract():
 
     # Create a Selection Section for the Test
     # Connect to Database
-    cnx = get_db_connection()
+    cnx = connect_to_database(db_file)
 
     # Create a Cursor
     c = cnx.cursor()
@@ -2418,7 +2395,7 @@ def test_extract():
     # select_box = ttk.Entry(butFrame, width=10)
     # select_box.grid(row=3, column=1)
     extract_btn = ttk.Button(butFrame, text="Export QTI .zip File for Test",
-                             command=lambda: test2qti(test_dropdown.get()), style="Accent.TButton")
+                             command=lambda: test2qti(test_dropdown.get(), db_file), style="Accent.TButton")
     extract_btn.grid(row=2, column=4, sticky='e', padx=10)
 
     # Create a Back Button to Hide Current View and Reshow Original View
@@ -2475,7 +2452,7 @@ def qcat_add():
             return
 
         # Connect to Database
-        cnx = get_db_connection()
+        cnx = connect_to_database(db_file)
         c = cnx.cursor()
 
         try:
@@ -2510,7 +2487,7 @@ def qcat_add():
         for item in qcat_add_tree.get_children():
             qcat_add_tree.delete(item)
 
-        cnx = get_db_connection()
+        cnx = connect_to_database(db_file)
         c = cnx.cursor()
 
         if sort_order == "ID":
@@ -2567,7 +2544,7 @@ def qcat_add():
     scrollbar.grid(row=2, column=2, sticky="ns", pady=10)
 
     # Connect to Database
-    cnx = get_db_connection()
+    cnx = connect_to_database(db_file)
 
     # Create a Cursor
     c = cnx.cursor()
@@ -2635,7 +2612,7 @@ def qcat_modify():
             messagebox.showerror("Error", "Please write a title")
 
         # Connect to Database
-        cnx = get_db_connection()
+        cnx = connect_to_database(db_file)
         c = cnx.cursor()
 
         try:
@@ -2658,7 +2635,7 @@ def qcat_modify():
         for item in qcat_modify_tree.get_children():
             qcat_modify_tree.delete(item)
 
-        cnx = get_db_connection()
+        cnx = connect_to_database(db_file)
         c = cnx.cursor()
 
         if sort_order == "ID":
@@ -2716,7 +2693,7 @@ def qcat_modify():
     # Create Dropdown Box for Question Category
 
     # Connect to Database
-    cnx = get_db_connection()
+    cnx = connect_to_database(db_file)
 
     # Create a Cursor
     c = cnx.cursor()
@@ -2795,7 +2772,7 @@ def qcat_delete():
 
         if confirm:
             # Connect to Database
-            cnx = get_db_connection()
+            cnx = connect_to_database(db_file)
             c = cnx.cursor()
 
             try:
@@ -2831,7 +2808,7 @@ def qcat_delete():
         for item in qcat_delete_tree.get_children():
             qcat_delete_tree.delete(item)
 
-        cnx = get_db_connection()
+        cnx = connect_to_database(db_file)
         c = cnx.cursor()
 
         if sort_order == "ID":
@@ -2889,7 +2866,7 @@ def qcat_delete():
     scrollbar.grid(row=2, column=2, sticky="ns", pady=10)
 
     # Connect to Database
-    cnx = get_db_connection()
+    cnx = connect_to_database(db_file)
 
     # Create a Cursor
     c = cnx.cursor()
@@ -2966,7 +2943,7 @@ def test_cat_add():
             return
 
         # Connect to Database
-        cnx = get_db_connection()
+        cnx = connect_to_database(db_file)
         c = cnx.cursor()
 
         try:
@@ -3001,7 +2978,7 @@ def test_cat_add():
         for item in tree.get_children():
             tree.delete(item)
 
-        cnx = get_db_connection()
+        cnx = connect_to_database(db_file)
         c = cnx.cursor()
 
         if sort_order == "ID":
@@ -3057,7 +3034,7 @@ def test_cat_add():
     scrollbar.grid(row=2, column=2, sticky="ns", pady=10)
 
     # Connect to Database
-    cnx = get_db_connection()
+    cnx = connect_to_database(db_file)
 
     # Create a Cursor
     c = cnx.cursor()
@@ -3124,7 +3101,7 @@ def test_cat_modify():
             messagebox.showerror("Error", "Please write a title")
 
         # Connect to Database
-        cnx = get_db_connection()
+        cnx = connect_to_database(db_file)
         c = cnx.cursor()
 
         try:
@@ -3146,7 +3123,7 @@ def test_cat_modify():
         for item in tree.get_children():
             tree.delete(item)
 
-        cnx = get_db_connection()
+        cnx = connect_to_database(db_file)
         c = cnx.cursor()
 
         if sort_order == "ID":
@@ -3202,7 +3179,7 @@ def test_cat_modify():
     scrollbar.grid(row=2, column=2, sticky="ns", pady=10)
 
     # Connect to Database
-    cnx = get_db_connection()
+    cnx = connect_to_database(db_file)
 
     # Create a Cursor
     c = cnx.cursor()
@@ -3283,7 +3260,7 @@ def test_cat_delete():
 
         if confirm:
             # Connect to Database
-            cnx = get_db_connection()
+            cnx = connect_to_database(db_file)
             c = cnx.cursor()
 
             try:
@@ -3319,7 +3296,7 @@ def test_cat_delete():
         for item in tree.get_children():
             tree.delete(item)
 
-        cnx = get_db_connection()
+        cnx = connect_to_database(db_file)
         c = cnx.cursor()
 
         if sort_order == "ID":
@@ -3377,7 +3354,7 @@ def test_cat_delete():
     scrollbar.grid(row=2, column=2, sticky="ns", pady=10)
 
     # Connect to Database
-    cnx = get_db_connection()
+    cnx = connect_to_database(db_file)
 
     # Create a Cursor
     c = cnx.cursor()
@@ -3426,6 +3403,36 @@ deleteTestCat_btn.grid(row=1, column=2, pady=10, padx=10, ipadx=50, ipady=10, st
 
 ########################################################################################################################
 
+
+def select_db():
+    temp_path1 = select_database()
+    global db_file
+    db_file, file_name = get_current_db_info()
+    database_file_label.config(text=f"Current database: {db_path}\nFile name: {file_name}")  # Refresh the label with the new info
+    return
+
+
+def create_db():
+    select_database(save=True)
+    global db_file
+    db_file, file_name = get_current_db_info()
+    database_file_label.config(text=f"Current database: {db_path}\nFile name: {file_name}")
+    initialize_database(db_file)
+    return
+
+
+# Create a label for the current file name
+db_path, file_name = get_current_db_info()
+database_file_label = ttk.Label(db_frame, text=f"Current database: {db_path}\nFile name: {file_name}")
+database_file_label.grid(row=1, column=0, pady=10, padx=10, ipadx=50, ipady=10, sticky='ew')
+
+# Create Select New Database Button
+select_db_btn = ttk.Button(db_frame, text="Select Database", command=select_db, width=13)
+select_db_btn.grid(row=2, column=0, pady=10, padx=10, ipadx=50, ipady=10, sticky='ew')
+
+# Create Create New Database Button
+create_db_btn = ttk.Button(db_frame, text="Create Database", command=create_db, width=13)
+create_db_btn.grid(row=3, column=0, pady=10, padx=10, ipadx=50, ipady=10, sticky='ew')
 
 # Run the main event loop
 root.mainloop()
