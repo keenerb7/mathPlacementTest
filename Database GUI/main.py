@@ -264,22 +264,22 @@ def question_add():
 
         valid, tex_result = check_latex_validity(f'{question.get()}')
         if not valid:
-            messagebox.showerror("LaTeX is not valid.", f"Error: {tex_result}\nCheck Question.")
+            messagebox.showerror("LaTeX is not valid.", f"Error: {tex_result}\nCheck question.")
             return
 
         # Validates that there is a selection in the dropdown box
         if len(var.get()) == 0:
-            messagebox.showerror("Error", "There is no Question Category Selected.")
+            messagebox.showerror("Error", "There is no 'Question Category' selected.")
             return
 
-        # Validate that there is a difficulty input
+        # Validate that there is a 'Difficulty' input
         if not difficulty.get().strip():
-            messagebox.showerror("Error", "There is no Question Difficulty submitted.")
+            messagebox.showerror("Error", "There is no 'Question Difficulty' submitted.")
             return
 
-        # Validate that Difficulty is a number
+        # Validate that 'Difficulty' is a number
         if difficulty.get().isalpha():
-            messagebox.showerror("Error", "Please enter an integer for Question Difficulty.")
+            messagebox.showerror("Error", "Please enter an integer for 'Question Difficulty'.")
             return
 
         # Validate that each answer is not empty and properly latex formatted
@@ -291,7 +291,7 @@ def question_add():
 
             valid, tex_result = check_latex_validity(f'{answer}')
             if not valid:
-                messagebox.showerror("LaTeX is not valid.", f"Error: {tex_result}\nCheck Answer {i + 1}")
+                messagebox.showerror("LaTeX is not valid.", f"Error: {tex_result}\nCheck answer {i + 1}")
                 return
 
         # Connect to Database
