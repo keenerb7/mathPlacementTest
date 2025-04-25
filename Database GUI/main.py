@@ -1176,7 +1176,7 @@ def test_view():
                                              text="Sort test by:")
 
     #Create a Frame for the treeview
-    tree_frame = Frame(tview_frame, bd=5)
+    tree_frame = Frame(tview_frame, bd=10)
     tree_frame.grid(row=1, column=0, sticky="nsew")
 
     # Define columns for the treeview
@@ -1239,8 +1239,8 @@ def test_view():
         tview_ttree.insert("", "end", values=row + (num_questions,))
 
     # Create a Frame for displaying questions
-    question_frame = Frame(tview_frame, bd=2)
-    question_frame.grid(row=2, column=0, pady=5, padx=5, sticky='nsew')
+    question_frame = Frame(tview_frame, bd=5)
+    question_frame.grid(row=2, column=0, pady=5, sticky='nsew')
 
     # Get all test IDs
     c.execute("SELECT test_id FROM Test")
@@ -1263,7 +1263,7 @@ def test_view():
         # Create cursor
         c = cnx.cursor()
 
-        qtree_frame = Frame(question_frame, bd=10)
+        qtree_frame = Frame(question_frame, bd=5)
         qtree_frame.grid(row=1, column=0, sticky="nsew", columnspan=5)
 
         q_columns = ("qid", "q", "qcat", "qdif")
@@ -2679,8 +2679,13 @@ def qcat_add():
 
 ######################################## Question Option Modify ########################################################
 
+<<<<<<< Updated upstream
 # Back Button for Question Type Modify
 def back_quest_cat_modify():
+=======
+
+def back_qcat_modify():
+>>>>>>> Stashed changes
     show_main_menu()
     qcat_modify_frame.grid_forget()
     back_btn_qcat_modify.grid_forget()
@@ -2692,7 +2697,7 @@ def back_quest_cat_modify():
 def qcat_modify():
     # When refreshing the page, destroy the previous frame
     if 'qcat_modify_frame' in globals():
-        back_quest_cat_modify()
+        back_qcat_modify()
 
     # Function to handle the submission of changes
     def submit_changes():
@@ -2834,7 +2839,7 @@ def qcat_modify():
     mod_qcat_btn.grid(row=7, column=0, columnspan=2, pady=10)
 
     global back_btn_qcat_modify
-    back_btn_qcat_modify = create_back_button(root, back_quest_cat_modify)
+    back_btn_qcat_modify = create_back_button(root, back_qcat_modify)
 
     return
 
@@ -3027,19 +3032,29 @@ delete_qcat_btn.grid(row=1, column=2, pady=10, padx=10, ipadx=50, ipady=10, stic
 
 ######################################## Test Option Add ###############################################################
 
+<<<<<<< Updated upstream
 # Back Button for Test Type Add
 def back_test_cat_add():
+=======
+
+def back_tcat_add():
+>>>>>>> Stashed changes
     show_main_menu()
     test_cat_add_frame.grid_forget()
     back_btn_test_cat_add.grid_forget()
     header_tcatadd.grid_forget()
     return
 
+<<<<<<< Updated upstream
 # Displays a tree view of test categories with an option to add new categories.
 def test_cat_add():
+=======
+
+def tcat_add():
+>>>>>>> Stashed changes
     # When refreshing the page, destroy the previous frame
     if 'test_cat_add_frame' in globals():
-        back_test_cat_add()
+        back_tcat_add()
 
     def add_new_test_cat():
         # Making sure the user input a Question Category Title
@@ -3071,7 +3086,7 @@ def test_cat_add():
             tctitle_entry.delete(0, END)
 
             # Refresh the UI
-            test_cat_add()
+            tcat_add()
 
         except Exception as e:
             messagebox.showerror("Database Error", str(e))
@@ -3174,26 +3189,36 @@ def test_cat_add():
     add_testCat_btn.grid(row=8, column=0, pady=10)
 
     global back_btn_test_cat_add
-    back_btn_test_cat_add = create_back_button(root, back_test_cat_add)
+    back_btn_test_cat_add = create_back_button(root, back_tcat_add)
 
     return
 
 
 ######################################## Test Option Modify ############################################################
 
+<<<<<<< Updated upstream
 # Back Button for Test Type Modify
 def back_test_cat_modify():
+=======
+
+def back_tcat_modify():
+>>>>>>> Stashed changes
     show_main_menu()
     test_cat_modify_frame.grid_forget()
     back_btn_test_cat_modify.grid_forget()
     header_tcatadd.grid_forget()
     return
 
+<<<<<<< Updated upstream
 # Displays a tree view of test categories with an option to modify existing categories.
 def test_cat_modify():
+=======
+
+def tcat_modify():
+>>>>>>> Stashed changes
     # When refreshing the page, destroy the previous frame
     if 'test_cat_modify_frame' in globals():
-        back_test_cat_modify()
+        back_tcat_modify()
 
     def submit_changes():
         # Get the selected category and new title
@@ -3218,7 +3243,7 @@ def test_cat_modify():
             messagebox.showinfo("Success", f"Test Category '{selected_category}' updated to '{new_title}'")
 
             # Refresh the UI
-            test_cat_modify()
+            tcat_modify()
 
         except Exception as e:
             messagebox.showerror("Error", f"Failed to update test category: {str(e)}")
@@ -3332,26 +3357,36 @@ def test_cat_modify():
     modify_testCat_btn.grid(row=7, column=0, columnspan=2, pady=10)
 
     global back_btn_test_cat_modify
-    back_btn_test_cat_modify = create_back_button(root, back_test_cat_modify)
+    back_btn_test_cat_modify = create_back_button(root, back_tcat_modify)
 
     return
 
 
 ######################################## Test Option Delete ############################################################
 
+<<<<<<< Updated upstream
 # Back Button for Test Type Delete
 def back_test_cat_delete():
+=======
+
+def back_tcat_delete():
+>>>>>>> Stashed changes
     show_main_menu()
     test_cat_delete_frame.grid_forget()
     back_btn_test_cat_delete.grid_forget()
     header_tcatdelete.grid_forget()
     return
 
+<<<<<<< Updated upstream
 # Displays a tree view of test categories with an option to delete selected categories.
 def test_cat_delete():
+=======
+
+def tcat_delete():
+>>>>>>> Stashed changes
     # When refreshing the page, destroy the previous frame
     if 'test_cat_delete_frame' in globals():
-        back_test_cat_delete()
+        back_tcat_delete()
 
     def delete_test_cat():
 
@@ -3394,7 +3429,7 @@ def test_cat_delete():
                 var.set('')
 
                 # Refresh the UI
-                test_cat_delete()
+                tcat_delete()
 
             except Exception as e:
                 messagebox.showerror("Error", f"An error occurred: {str(e)}")
@@ -3495,7 +3530,7 @@ def test_cat_delete():
     delete_testCat_btn.grid(row=5, column=0, pady=10, columnspan=2)
 
     global back_btn_test_cat_delete
-    back_btn_test_cat_delete = create_back_button(root, back_test_cat_delete)
+    back_btn_test_cat_delete = create_back_button(root, back_tcat_delete)
 
     return
 
@@ -3503,15 +3538,15 @@ def test_cat_delete():
 ################################################ Test Options Buttons ##################################################
 
 # Create Add Question Option Button
-addTestCat_btn = ttk.Button(ttype_frame, text="Add Test Category", command=test_cat_add, width=13)
+addTestCat_btn = ttk.Button(ttype_frame, text="Add Test Category", command=tcat_add, width=13)
 addTestCat_btn.grid(row=1, column=0, pady=10, padx=10, ipadx=50, ipady=10, sticky='ew')
 
 # Create Delete Question Option Button
-deleteTestCat_btn = ttk.Button(ttype_frame, text="Modify Test Category", command=test_cat_modify, width=13)
+deleteTestCat_btn = ttk.Button(ttype_frame, text="Modify Test Category", command=tcat_modify, width=13)
 deleteTestCat_btn.grid(row=1, column=1, pady=10, padx=10, ipadx=50, ipady=10, sticky='ew')
 
 # Create Delete Question Option Button
-deleteTestCat_btn = ttk.Button(ttype_frame, text="Delete Test Category", command=test_cat_delete, width=13)
+deleteTestCat_btn = ttk.Button(ttype_frame, text="Delete Test Category", command=tcat_delete, width=13)
 deleteTestCat_btn.grid(row=1, column=2, pady=10, padx=10, ipadx=50, ipady=10, sticky='ew')
 
 
@@ -3557,7 +3592,7 @@ database_file_label.grid(row=1, column=0, pady=10, padx=10, ipadx=50, ipady=10, 
 select_db_btn = ttk.Button(db_frame, text="Select Database", command=select_db, width=13)
 select_db_btn.grid(row=2, column=0, pady=10, padx=10, ipadx=50, ipady=10, sticky='ew')
 
-# Create Create New Database Button
+# Create New Database Button
 create_db_btn = ttk.Button(db_frame, text="Create Database", command=create_db, width=13)
 create_db_btn.grid(row=3, column=0, pady=10, padx=10, ipadx=50, ipady=10, sticky='ew')
 
