@@ -2618,12 +2618,12 @@ def qcat_add():
 
     # Create a dropdown for sorting
     sort_dropdown = create_dropdown_ver(qcat_add_frame, ["ID", "Title"], sort_var, row=0, col=0, cspan=2,
-                                        state="readonly", text="Sort categories by:")
+                                        state="readonly", text="Sort question categories by:")
 
     # Create a treeview for displaying categories
     qcat_add_tree = ttk.Treeview(qcat_add_frame, columns=("tcid", "tcat"), show="headings", height=5)
-    qcat_add_tree.heading("tcid", text="Test Category ID", anchor="w")
-    qcat_add_tree.heading("tcat", text="Test Category Title", anchor="w")
+    qcat_add_tree.heading("tcid", text="ID", anchor="w")
+    qcat_add_tree.heading("tcat", text="Title", anchor="w")
 
     # Define column width
     qcat_add_tree.column("tcid", width=100)
@@ -2678,14 +2678,7 @@ def qcat_add():
 
 
 ######################################## Question Option Modify ########################################################
-
-<<<<<<< Updated upstream
-# Back Button for Question Type Modify
-def back_quest_cat_modify():
-=======
-
 def back_qcat_modify():
->>>>>>> Stashed changes
     show_main_menu()
     qcat_modify_frame.grid_forget()
     back_btn_qcat_modify.grid_forget()
@@ -2774,12 +2767,12 @@ def qcat_modify():
     sort_var.trace("w", on_sort_change)
 
     create_dropdown_ver(qcat_modify_frame, ["ID", "Title"], sort_var, row=0, col=0, cspan=2, state="readonly",
-                        text="Sort categories by:")
+                        text="Sort question categories by:")
 
     # Create a treeview for displaying categories
     qcat_modify_tree = ttk.Treeview(qcat_modify_frame, columns=("tcid", "tcat"), show="headings", height=5)
-    qcat_modify_tree.heading("tcid", text="Test Category ID", anchor="w")
-    qcat_modify_tree.heading("tcat", text="Test Category Title", anchor="w")
+    qcat_modify_tree.heading("tcid", text="ID", anchor="w")
+    qcat_modify_tree.heading("tcat", text="Title", anchor="w")
 
     # Define column width
     qcat_modify_tree.column("tcid", width=100)
@@ -2831,7 +2824,7 @@ def qcat_modify():
 
     # Test Name input
     qcat_title_entry = ttk.Entry(qcat_modify_frame, width=50)
-    qcat_title_entry.grid(row=6, column=0, columnspan=2)
+    qcat_title_entry.grid(row=6, column=0, columnspan=2, pady=10)
 
     # Button to modify
     mod_qcat_btn = ttk.Button(qcat_modify_frame, text="Modify Question Category Title", command=submit_changes,
@@ -2952,14 +2945,14 @@ def qcat_delete():
 
     # Create a dropdown for sorting
     create_dropdown_ver(qcat_delete_frame, ["ID", "Title"], sort_var, row=0, col=0, cspan=2, state="readonly",
-                        text="Sort categories by:")
+                        text="Sort question categories by:")
 
     # Create Dropdown Box for Test Category
 
     # Create a treeview for displaying categories
     qcat_delete_tree = ttk.Treeview(qcat_delete_frame, columns=("tcid", "tcat"), show="headings", height=5)
-    qcat_delete_tree.heading("tcid", text="Test Category ID", anchor="w")
-    qcat_delete_tree.heading("tcat", text="Test Category Title", anchor="w")
+    qcat_delete_tree.heading("tcid", text="ID", anchor="w")
+    qcat_delete_tree.heading("tcat", text="Title", anchor="w")
 
     # Define column width
     qcat_delete_tree.column("tcid", width=100)
@@ -3031,27 +3024,14 @@ delete_qcat_btn.grid(row=1, column=2, pady=10, padx=10, ipadx=50, ipady=10, stic
 
 
 ######################################## Test Option Add ###############################################################
-
-<<<<<<< Updated upstream
-# Back Button for Test Type Add
-def back_test_cat_add():
-=======
-
 def back_tcat_add():
->>>>>>> Stashed changes
     show_main_menu()
     test_cat_add_frame.grid_forget()
     back_btn_test_cat_add.grid_forget()
     header_tcatadd.grid_forget()
     return
 
-<<<<<<< Updated upstream
-# Displays a tree view of test categories with an option to add new categories.
-def test_cat_add():
-=======
-
 def tcat_add():
->>>>>>> Stashed changes
     # When refreshing the page, destroy the previous frame
     if 'test_cat_add_frame' in globals():
         back_tcat_add()
@@ -3135,12 +3115,12 @@ def tcat_add():
     sort_var.trace("w", on_sort_change)
 
     create_dropdown_ver(test_cat_add_frame, ["ID", "Title"], sort_var, row=0, col=0, cspan=2, state="readonly",
-                        text="Sort categories by:")
+                        text="Sort test categories by:")
 
     # Create a treeview for displaying categories
     tree = ttk.Treeview(test_cat_add_frame, columns=("tcid", "tcat"), show="headings", height=5)
-    tree.heading("tcid", text="Test Category ID", anchor="w")
-    tree.heading("tcat", text="Test Category Title", anchor="w")
+    tree.heading("tcid", text="ID", anchor="w")
+    tree.heading("tcat", text="Title", anchor="w")
 
     # Define column width
     tree.column("tcid", width=100)
@@ -3195,27 +3175,14 @@ def tcat_add():
 
 
 ######################################## Test Option Modify ############################################################
-
-<<<<<<< Updated upstream
-# Back Button for Test Type Modify
-def back_test_cat_modify():
-=======
-
 def back_tcat_modify():
->>>>>>> Stashed changes
     show_main_menu()
     test_cat_modify_frame.grid_forget()
     back_btn_test_cat_modify.grid_forget()
     header_tcatadd.grid_forget()
     return
 
-<<<<<<< Updated upstream
-# Displays a tree view of test categories with an option to modify existing categories.
-def test_cat_modify():
-=======
-
 def tcat_modify():
->>>>>>> Stashed changes
     # When refreshing the page, destroy the previous frame
     if 'test_cat_modify_frame' in globals():
         back_tcat_modify()
@@ -3293,12 +3260,12 @@ def tcat_modify():
 
     # Create a dropdown for sorting
     create_dropdown_ver(test_cat_modify_frame, ["ID", "Title"], sort_var, row=0, col=0, cspan=2, state="readonly",
-                        text="Sort categories by:")
+                        text="Sort test categories by:")
 
     # Create a treeview for displaying categories
     tree = ttk.Treeview(test_cat_modify_frame, columns=("tcid", "tcat"), show="headings", height=5)
-    tree.heading("tcid", text="Test Category ID", anchor="w")
-    tree.heading("tcat", text="Test Category Title", anchor="w")
+    tree.heading("tcid", text="ID", anchor="w")
+    tree.heading("tcat", text="Title", anchor="w")
 
     # Define column width
     tree.column("tcid", width=100)
@@ -3337,7 +3304,7 @@ def tcat_modify():
         qctitle_entry.insert(0, selected_category)
 
     cate_drop = create_dropdown_hor(test_cat_modify_frame, cat_name, var, 4, 0, 1, "normal",
-                                    text="Select a Test Category")
+                                    text="Select a test category")
     cate_drop.grid(pady=15)
 
     cate_drop.bind('<<ComboboxSelected>>', on_category_select)
@@ -3349,7 +3316,7 @@ def tcat_modify():
 
     # Test Name input
     qctitle_entry = ttk.Entry(test_cat_modify_frame, width=50)
-    qctitle_entry.grid(row=6, column=0, columnspan=2)
+    qctitle_entry.grid(row=6, column=0, columnspan=2, pady=5)
 
     # Button to modify
     modify_testCat_btn = ttk.Button(test_cat_modify_frame, text="Modify Test Category Title", command=submit_changes,
@@ -3363,27 +3330,14 @@ def tcat_modify():
 
 
 ######################################## Test Option Delete ############################################################
-
-<<<<<<< Updated upstream
-# Back Button for Test Type Delete
-def back_test_cat_delete():
-=======
-
 def back_tcat_delete():
->>>>>>> Stashed changes
     show_main_menu()
     test_cat_delete_frame.grid_forget()
     back_btn_test_cat_delete.grid_forget()
     header_tcatdelete.grid_forget()
     return
 
-<<<<<<< Updated upstream
-# Displays a tree view of test categories with an option to delete selected categories.
-def test_cat_delete():
-=======
-
 def tcat_delete():
->>>>>>> Stashed changes
     # When refreshing the page, destroy the previous frame
     if 'test_cat_delete_frame' in globals():
         back_tcat_delete()
@@ -3416,7 +3370,7 @@ def tcat_delete():
                 # Delete tests associated with this category
                 c.execute("DELETE FROM Test WHERE test_type = ?", (category_id,))
 
-                # Then delete the category from Question_Categories
+                # Then delete the category from Types_Of_Test
                 c.execute("DELETE FROM Types_Of_Test WHERE test_type = ?", (category_id,))
 
                 # Commit changes
@@ -3479,14 +3433,14 @@ def tcat_delete():
 
     # Create a dropdown for sorting 
     create_dropdown_ver(test_cat_delete_frame, ["ID", "Title"], sort_var, row=0, col=0, cspan=2, state="readonly",
-                        text="Sort categories by:")
+                        text="Sort test categories by:")
 
     # Create Dropdown Box for Test Category
 
     # Create a treeview for displaying categories
     tree = ttk.Treeview(test_cat_delete_frame, columns=("tcid", "tcat"), show="headings", height=5)
-    tree.heading("tcid", text="Test Category ID", anchor="w")
-    tree.heading("tcat", text="Test Category Title", anchor="w")
+    tree.heading("tcid", text="ID", anchor="w")
+    tree.heading("tcat", text="Title", anchor="w")
 
     # Define column width
     tree.column("tcid", width=100)
@@ -3552,7 +3506,7 @@ deleteTestCat_btn.grid(row=1, column=2, pady=10, padx=10, ipadx=50, ipady=10, st
 
 
 ########################################################################################################################
-############################################ Database File Informations ################################################
+############################################ Database File Information #################################################
 ########################################################################################################################
 
 
