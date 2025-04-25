@@ -2,18 +2,21 @@ from tkinter import filedialog
 import json
 import os
 import sqlite3
+
+# Config file to store the last database path
 CONFIG_FILE = "config.json"
 
 
 def initialize_database(file=None):
 
+    # Connect to the specified database file or create a default one
     if file is None:
         conn = sqlite3.connect("default.db")
     else:
         conn = sqlite3.connect(file)
     c = conn.cursor()
 
-    # Create tables
+    # Create tables if they do not exist
     c.execute("""
         CREATE TABLE IF NOT EXISTS Question_Categories (
             category_id INTEGER PRIMARY KEY,
@@ -73,18 +76,21 @@ def connect_to_database(database_file):
 
 def select_database(save=False):
     if save:
+        # Open a save dialog to create or overwrite a database file
         filepath = filedialog.asksaveasfilename(
             title="Create or Overwrite SQLite Database",
             defaultextension=".db",
             filetypes=[("SQLite DB", "*.db"), ("All Files", "*.*")]
         )
     else:
+        # Open a dialog to select an existing database file
         filepath = filedialog.askopenfilename(
             title="Select SQLite Database File",
             filetypes=[("SQLite DB", "*.db"), ("All Files", "*.*")]
         )
 
     if filepath:
+        # Save the selected database path and connect to it
         save_last_db_path(filepath)
         connect_to_database(filepath)
 
@@ -106,6 +112,9 @@ def load_last_db_path():
 
 def startup_database():
     last_db = load_last_db_path()
+
+    # Connect to the last used database if it exists
+    # Otherwise, create a new default database
     if last_db and os.path.exists(last_db):
         connect_to_database(last_db)
         return last_db

@@ -1,3 +1,86 @@
+"""
+
+Authors:
+    - Bruce Keener II
+    - Matteo Filippi
+    - Mille Berg 
+
+Date: March 23, 2025
+Last Updated: 25 April 2025
+
+Project: Math Placement Test Database GUI
+
+Description:
+This project is a GUI application designed for the University of Findlay Math Department 
+to manage a math placement test system. The application allows users to Create, Read, Update, Delete
+questions, tests, and their respective categories. It also provides functionality to export tests in QTI 
+(Question and Test Interoperability) format for integration with learning management systems like Canvas.
+
+Features:
+1. **Question Management**:
+   - Add, view, modify, and delete questions.
+   - Associate questions with categories and difficulty levels.
+   - Validate LaTeX formatting for question and answer inputs.
+   
+   Functions:
+    - `question_view`: Displays all questions in a tree view with sorting options.
+    - `question_add`: Allows users to add new questions with answers and categories.
+    - `question_modify`: Enables users to modify existing questions and their answers.
+    - `question_delete`: Allows users to delete questions from the database.
+
+
+2. **Test Management**:
+   - Create, view, modify, and delete tests.
+   - Associate tests with categories and manage their questions.
+   - Export tests to QTI .zip files.
+
+   Functions:
+    - `test_view`: Displays all tests in a tree view with sorting options.
+    - `test_add`: Allows users to add new tests with questions and categories.
+    - `test_modify`: Enables users to modify existing tests and their questions.
+    - `test_delete`: Allows users to delete tests from the database.
+    - `export_tests`: Exports selected tests to QTI format.
+
+3. **Category Management**:
+   - Add, modify, and delete question and test categories.
+
+   Functions:
+
+    For Question Categories:
+    - `question_category_view`: Displays all question categories in a tree view.
+    - `question_category_add`: Allows users to add new question categories.
+    - `question_category_modify`: Enables users to modify existing question categories.
+    - `question_category_delete`: Allows users to delete question categories.
+
+    For Test Categories:
+    - `test_category_view`: Displays all test categories in a tree view.
+    - `test_category_add`: Allows users to add new test categories.
+    - `test_category_modify`: Enables users to modify existing test categories.
+    - `test_category_delete`: Allows users to delete test categories.
+
+4. **Database Management**:
+   - Select or create a database file.
+   - Initialize the database with required tables and schema.
+
+   Functions:
+    - `select_db`: Allows users to select a database file.
+    - `create_db`: Allows users to create a new database file.
+
+5. **User Interface**:
+   - Built using Tkinter.
+   - Dropdown menus, tree views, and input validation.
+
+Integration:
+- The application integrates with SQLite for database management.
+- `test2qti`: Handles the export of tests to QTI format.
+- `latexCheck`: Validates LaTeX formatting for questions and answers.
+- `databaseChoice`: Manages database selection and initialization.
+
+Dependencies:
+- Python 3.9 or newer
+- `tkinter`: For building the graphical user interface.
+"""
+
 import os
 
 from PIL.ImageQt import qt_version
@@ -33,6 +116,8 @@ notebook.add(qtype_frame, text="Question Category Options")
 notebook.add(ttype_frame, text="Test Category Options")
 notebook.add(db_frame, text="Database File Information")
 
+
+# Fixed size for the main window
 root.geometry("1200x600")
 root.columnconfigure(0, weight=1)
 
@@ -460,7 +545,7 @@ def question_modify():
 
         if question_info:
             # Get Category Name for Drop Down
-            cat_name = str(get_category_name(questionInfo[2]))  # Fetch category name
+            cat_name = str(get_category_name(question_info[2]))  # Fetch category name
             cat_name = cat_name.strip("(),''")
             cate_dropdown.set(cat_name)  # Correctly update dropdown value
 
@@ -1033,7 +1118,7 @@ delete_quest_btn.grid(row=1, column=3, columnspan=1, pady=10, padx=10, ipadx=50,
 ################################### This Section is the Test Section ###################################################
 ########################################################################################################################
 
-################################################Test View###############################################################
+################################################ Test View #############################################################
 def back_test_view():
     show_main_menu()
     tview_frame.grid_forget()
@@ -3401,9 +3486,14 @@ deleteTestCat_btn.grid(row=1, column=1, pady=10, padx=10, ipadx=50, ipady=10, st
 deleteTestCat_btn = ttk.Button(ttype_frame, text="Delete Test Category", command=test_cat_delete, width=13)
 deleteTestCat_btn.grid(row=1, column=2, pady=10, padx=10, ipadx=50, ipady=10, sticky='ew')
 
+
+
+########################################################################################################################
+############################################ Database File Informations ################################################
 ########################################################################################################################
 
 
+################################################ Select Database #######################################################
 def select_db():
     temp_path1 = select_database()
     global db_file
@@ -3412,6 +3502,8 @@ def select_db():
     return
 
 
+################################################ Create Database #######################################################
+
 def create_db():
     select_database(save=True)
     global db_file
@@ -3419,6 +3511,8 @@ def create_db():
     database_file_label.config(text=f"Current database: {db_path}\nFile name: {file_name}")
     initialize_database(db_file)
     return
+
+################################# Database File Informations Labels and Buttons ########################################
 
 
 # Create a label for the current file name
@@ -3433,6 +3527,8 @@ select_db_btn.grid(row=2, column=0, pady=10, padx=10, ipadx=50, ipady=10, sticky
 # Create Create New Database Button
 create_db_btn = ttk.Button(db_frame, text="Create Database", command=create_db, width=13)
 create_db_btn.grid(row=3, column=0, pady=10, padx=10, ipadx=50, ipady=10, sticky='ew')
+
+
 
 # Run the main event loop
 root.mainloop()
