@@ -21,50 +21,18 @@ Features:
    - Add, view, modify, and delete questions.
    - Associate questions with categories and difficulty levels.
    - Validate LaTeX formatting for question and answer inputs.
-   
-   Functions:
-    - `question_view`: Displays all questions in a tree view with sorting options.
-    - `question_add`: Allows users to add new questions with answers and categories.
-    - `question_modify`: Enables users to modify existing questions and their answers.
-    - `question_delete`: Allows users to delete questions from the database.
-
 
 2. **Test Management**:
    - Create, view, modify, and delete tests.
    - Associate tests with categories and manage their questions.
    - Export tests to QTI .zip files.
 
-   Functions:
-    - `test_view`: Displays all tests in a tree view with sorting options.
-    - `test_add`: Allows users to add new tests with questions and categories.
-    - `test_modify`: Enables users to modify existing tests and their questions.
-    - `test_delete`: Allows users to delete tests from the database.
-    - `export_tests`: Exports selected tests to QTI format.
-
 3. **Category Management**:
    - Add, modify, and delete question and test categories.
-
-   Functions:
-
-    For Question Categories:
-    - `question_category_view`: Displays all question categories in a tree view.
-    - `question_category_add`: Allows users to add new question categories.
-    - `question_category_modify`: Enables users to modify existing question categories.
-    - `question_category_delete`: Allows users to delete question categories.
-
-    For Test Categories:
-    - `test_category_view`: Displays all test categories in a tree view.
-    - `test_category_add`: Allows users to add new test categories.
-    - `test_category_modify`: Enables users to modify existing test categories.
-    - `test_category_delete`: Allows users to delete test categories.
 
 4. **Database Management**:
    - Select or create a database file.
    - Initialize the database with required tables and schema.
-
-   Functions:
-    - `select_db`: Allows users to select a database file.
-    - `create_db`: Allows users to create a new database file.
 
 5. **User Interface**:
    - Built using Tkinter.
@@ -128,13 +96,15 @@ def show_main_menu():
     notebook.grid(row=1, column=0, rowspan=5, columnspan=4)
     main_menu_lbl.grid(row=0, column=0, columnspan=4, padx=10, pady=10, ipadx=50, ipady=10)
 
-
+# Create a Function to Hide the Main Menu
 def hide_main_menu():
     main_menu_lbl.grid_forget()
     notebook.grid_forget()
 
 
 ######################################Question View#####################################################################
+
+
 # Create a Function to Return to Original View from Question View Page
 def back_question_view():
     show_main_menu()
@@ -145,6 +115,7 @@ def back_question_view():
 
 
 # Create Question View Function To Query From Questions Table
+# Displays all questions in a tree view with sorting options.
 def question_view():
     # Sort the tree view
     def load_categories(sort_order):
@@ -204,6 +175,7 @@ def question_view():
     sort_var.set("ID")  # default sort
     sort_var.trace("w", on_sort_change)
 
+    # Create a dropdown menu for sorting
     sort_dropdown = create_dropdown_hor(sort_frame, ["ID", "Title", "Category", "Difficulty"], sort_var, row=0, col=0,
                                         cspan=2, state="readonly",
                                         text="Sort questions by:")
@@ -339,6 +311,7 @@ def back_question_add():
 
 
 # Create Question Add Function to Add Records to Questions Table
+# Displays a form to add new questions with answers and categories.
 def question_add():
     # Create a Function to Add a Question to the Question Table
     def add_question():
@@ -468,7 +441,9 @@ def question_add():
     for row in results:
         question_categories.append(row[1])
 
+    # Create a Dropdown option to select the Question Category
     cate_drop = create_dropdown_ver(qadd_frame, question_categories, var, 2, 0, 1, "readonly", text="Question Category")
+    
     # Commit Changes
     cnx.commit()
     # Close Connection
@@ -516,7 +491,10 @@ def back_question_modify():
 
 
 # Create Question Modify Function to Update Records in Question Table
+# Displays a form to modify existing questions and their answers.
 def question_modify():
+
+    # Create Function to Select the Question ID to be Modified
     def question_selection_dis(event=None):
         # Save the Question ID that we want to change
         q_id = question_dropdown.get()
@@ -557,6 +535,7 @@ def question_modify():
             for i, ans in enumerate(question_ans):
                 answers[i].insert(0, ans[0])  # Insert the actual text value
 
+    # Create Function to Refresh the Treeview with Updated Questions
     def refresh_tree():
         # Clear existing treeview
         for item in qmodify_tree.get_children():
@@ -743,6 +722,7 @@ def question_modify():
     sort_var.set("ID")  # default sort
     sort_var.trace("w", on_sort_change)
 
+    # Create a dropdown menu for sorting
     sort_dropdown = create_dropdown_hor(sort_frame, ["ID", "Title", "Category", "Difficulty"], sort_var, row=0, col=0,
                                         cspan=2, state="readonly",
                                         text="Sort questions by:")
@@ -879,7 +859,7 @@ def back_question_delete():
     return
 
 
-# Create Question Delete Function to Delete a Record in Question Table
+# Displays a tree view of questions with an option to delete selected questions.
 def question_delete():
     # Sort the tree view
     def load_categories(sort_order):
@@ -939,6 +919,7 @@ def question_delete():
     sort_var.set("ID")  # default sort
     sort_var.trace("w", on_sort_change)
 
+    # Create a dropdown menu for sorting
     sort_dropdown = create_dropdown_hor(sort_frame, ["ID", "Title", "Category", "Difficulty"], sort_var, row=0,
                                         col=0,
                                         cspan=2, state="readonly",
@@ -1119,6 +1100,8 @@ delete_quest_btn.grid(row=1, column=3, columnspan=1, pady=10, padx=10, ipadx=50,
 ########################################################################################################################
 
 ################################################ Test View #############################################################
+
+# Create Function to Return to Original View
 def back_test_view():
     show_main_menu()
     tview_frame.grid_forget()
@@ -1127,7 +1110,7 @@ def back_test_view():
     return
 
 
-# Create Function to View a Test
+# Displays a tree view of tests with an option to view questions for each test.
 def test_view():
     # Sort the tree view
     def load_categories(sort_order):
@@ -1339,6 +1322,8 @@ def test_view():
 
 
 ###################################################Test Make############################################################
+
+# Create Function to Return to Original View
 def back_test_make():
     show_main_menu()
     tmake_frame.grid_forget()
@@ -1347,7 +1332,7 @@ def back_test_make():
     return
 
 
-# Create Function to Make a Test
+# Displays a tree view of questions with an option to select questions for the test.
 def test_make():
     # Variables to track selected questions
     selected_questions = set()
@@ -1476,6 +1461,7 @@ def test_make():
 
     hide_main_menu()
 
+    # Create a Frame for test make
     global tmake_frame
     tmake_frame = Frame(root, bd=2)
     tmake_frame.grid(row=1, pady=10, padx=20)
@@ -1584,6 +1570,7 @@ def test_make():
     # Set the first category as default
     # category_var.set(category_names[0])
 
+    # Create a dropdown menu for selecting the question category
     category_dropdown = create_dropdown_hor(test_frame, category_names, category_var, 2, 0, 2, "readonly",
                                             "Select question category: ")
     category_dropdown.grid(pady=10)
@@ -1608,6 +1595,8 @@ def test_make():
 
 
 #################################################Test Modify############################################################
+
+# Create Function to Return to Original View
 def back_test_modify():
     show_main_menu()
     tmodify_frame.grid_forget()
@@ -1615,7 +1604,11 @@ def back_test_modify():
     header_tmodify.grid_forget()
     return
 
-
+# Displays a tree view of tests with an option to modify selected tests.
+# Allows the user to change the test title, time, and type.
+# Also allows the user to select questions for the test.
+# The selected questions are stored in a set to avoid duplicates.
+# The function also includes a counter to show how many questions are selected.
 def test_modify():
     # When refreshing the page, destroy the previous frame
     if 'tmodify_frame' in globals():
@@ -1672,6 +1665,7 @@ def test_modify():
     # Realtime counter of selected questions
     def updateQuestionCounter():
         question_counter_label.config(text=f"Questions selected: {len(selected_questions)}")
+
 
     def submitChange():
         # Validate that the title is entered
@@ -1972,6 +1966,7 @@ def test_modify():
     sort_var.set("ID")  # default sort
     sort_var.trace("w", on_sort_change)
 
+    # Create a dropdown for sorting
     sort_dropdown_test = create_dropdown_hor(sortFrame, ["ID", "Type", "Title", "Time"], sort_var, 0, 0, 2,
                                              state="readonly",
                                              text="Sort test by:")
@@ -2079,6 +2074,8 @@ def test_modify():
 
 ###################################################Test Delete##########################################################
 
+
+# Create Function to Return to Original View
 def back_test_delete():
     show_main_menu()
     tdeleteFrame.grid_forget()
@@ -2087,7 +2084,8 @@ def back_test_delete():
     return
 
 
-# Create Function to Delete a Test
+# Displays a tree view of tests with an option to delete selected tests.
+# Allows the user to select a test and delete it from the database.
 def test_delete():
     # Sort the tree view
     def load_categories(sort_order):
@@ -2153,6 +2151,7 @@ def test_delete():
     sort_var.set("ID")  # default sort
     sort_var.trace("w", on_sort_change)
 
+    # Create a dropdown for sorting
     sort_dropdown_test = create_dropdown_hor(sortFrame, ["ID", "Type", "Title", "Time"], sort_var, 0, 0, 2,
                                              state="readonly",
                                              text="Sort test by:")
@@ -2306,6 +2305,7 @@ def test_delete():
 
 
 ##############################################Test Extract##############################################################
+
 # Create a Function to Return to Original View
 def back_test_extract():
     show_main_menu()
@@ -2315,7 +2315,9 @@ def back_test_extract():
     return
 
 
-# Create Function to Extract a Test
+# Displays a tree view of tests with an option to extract selected tests.
+# Extracts the selected tests to a QTI folder.
+# Allows the user to select a test and extract it to a QTI folder.
 def test_extract():
     # Sort the tree view
     def load_categories(sort_order):
@@ -2376,6 +2378,7 @@ def test_extract():
     sort_var.set("ID")  # default sort
     sort_var.trace("w", on_sort_change)
 
+    # Create a dropdown for sorting
     sort_dropdown_test = create_dropdown_hor(sortFrame, ["ID", "Type", "Title", "Time"], sort_var, 0, 0, 2,
                                              state="readonly",
                                              text="Sort test by:")
@@ -2516,6 +2519,8 @@ extract_test_btn.grid(row=2, column=1, columnspan=2, pady=10, padx=10, ipadx=50,
 ################################### This Section is Question Type Options ##############################################
 ########################################################################################################################
 ######################################## Question Option Add ###########################################################
+
+# Back Button for Question Type Add
 def back_qcat_add():
     show_main_menu()
     qcat_add_frame.grid_forget()
@@ -2524,6 +2529,7 @@ def back_qcat_add():
     return
 
 
+# Displays a tree view of question categories with an option to add new categories.
 def qcat_add():
     # When refreshing the page, destroy the previous frame
     if 'qcat_add_frame' in globals():
@@ -2568,6 +2574,8 @@ def qcat_add():
         finally:
             cnx.close()
 
+
+    # Function to load categories into the treeview based on the selected sort order
     def load_categories(sort_order):
         for item in qcat_add_tree.get_children():
             qcat_add_tree.delete(item)
@@ -2587,6 +2595,7 @@ def qcat_add():
         cnx.commit()
         cnx.close()
 
+    # Function to handle sort order change
     def on_sort_change(*args):
         selected_sort = sort_var.get()
         load_categories(selected_sort)
@@ -2607,6 +2616,7 @@ def qcat_add():
     sort_var.set("ID")  # default sort
     sort_var.trace("w", on_sort_change)
 
+    # Create a dropdown for sorting
     sort_dropdown = create_dropdown_ver(qcat_add_frame, ["ID", "Title"], sort_var, row=0, col=0, cspan=2,
                                         state="readonly", text="Sort categories by:")
 
@@ -2669,7 +2679,7 @@ def qcat_add():
 
 ######################################## Question Option Modify ########################################################
 
-
+# Back Button for Question Type Modify
 def back_quest_cat_modify():
     show_main_menu()
     qcat_modify_frame.grid_forget()
@@ -2677,12 +2687,14 @@ def back_quest_cat_modify():
     header_qcat_modify.grid_forget()
     return
 
-
+# Displays a tree view of question categories with an option to modify existing categories.
+# Allows the user to select a category and modify its title.
 def qcat_modify():
     # When refreshing the page, destroy the previous frame
     if 'qcat_modify_frame' in globals():
         back_quest_cat_modify()
 
+    # Function to handle the submission of changes
     def submit_changes():
 
         # Get the selected category and new title
@@ -2716,6 +2728,7 @@ def qcat_modify():
             # Close Connection
             cnx.close()
 
+    # Function to load categories into the treeview based on the selected sort order
     def load_categories(sort_order):
         for item in qcat_modify_tree.get_children():
             qcat_modify_tree.delete(item)
@@ -2735,6 +2748,7 @@ def qcat_modify():
         cnx.commit()
         cnx.close()
 
+    # Function to handle sort order change
     def on_sort_change(*args):
         selected_sort = sort_var.get()
         load_categories(selected_sort)
@@ -2800,6 +2814,7 @@ def qcat_modify():
         qcat_title_entry.delete(0, END)
         qcat_title_entry.insert(0, selected_category)
 
+    # Create a dropdown for selecting the category to modify
     cate_drop = create_dropdown_hor(qcat_modify_frame, cat_name, var, 4, 0, 1, "normal",
                                     text="Select a Question Category")
     cate_drop.bind('<<ComboboxSelected>>', on_category_select)
@@ -2826,7 +2841,7 @@ def qcat_modify():
 
 ######################################## Question Option Delete ########################################################
 
-
+# Back Button for Question Type Delete
 def back_qcat_delete():
     show_main_menu()
     qcat_delete_frame.grid_forget()
@@ -2834,7 +2849,8 @@ def back_qcat_delete():
     header_qcat_delete.grid_forget()
     return
 
-
+# Displays a tree view of question categories with an option to delete selected categories.
+# Deletes the selected category and all associated questions.
 def qcat_delete():
     # When refreshing the page, destroy the previous frame
     if 'qcat_delete_frame' in globals():
@@ -2889,6 +2905,7 @@ def qcat_delete():
             finally:
                 cnx.close()
 
+    # Function to load categories into the treeview based on the selected sort order
     def load_categories(sort_order):
         for item in qcat_delete_tree.get_children():
             qcat_delete_tree.delete(item)
@@ -2908,6 +2925,7 @@ def qcat_delete():
         cnx.commit()
         cnx.close()
 
+    # Function to handle sort order change
     def on_sort_change(*args):
         selected_sort = sort_var.get()
         load_categories(selected_sort)
@@ -2927,6 +2945,7 @@ def qcat_delete():
     sort_var.set("ID")  # default sort
     sort_var.trace("w", on_sort_change)
 
+    # Create a dropdown for sorting
     create_dropdown_ver(qcat_delete_frame, ["ID", "Title"], sort_var, row=0, col=0, cspan=2, state="readonly",
                         text="Sort categories by:")
 
@@ -2966,6 +2985,7 @@ def qcat_delete():
         cat_name.append(row[1])
         qcat_delete_tree.insert("", "end", values=(row[0], row[1]))
 
+    # Create dropdown for category selection
     cate_drop = create_dropdown_hor(qcat_delete_frame, cat_name, var, 4, 0, 1, "normal",
                                     text="Select a question category")
     cate_drop.grid(padx=10)
@@ -3007,7 +3027,7 @@ delete_qcat_btn.grid(row=1, column=2, pady=10, padx=10, ipadx=50, ipady=10, stic
 
 ######################################## Test Option Add ###############################################################
 
-
+# Back Button for Test Type Add
 def back_test_cat_add():
     show_main_menu()
     test_cat_add_frame.grid_forget()
@@ -3015,7 +3035,7 @@ def back_test_cat_add():
     header_tcatadd.grid_forget()
     return
 
-
+# Displays a tree view of test categories with an option to add new categories.
 def test_cat_add():
     # When refreshing the page, destroy the previous frame
     if 'test_cat_add_frame' in globals():
@@ -3059,6 +3079,7 @@ def test_cat_add():
         finally:
             cnx.close()
 
+    # Function to load categories into the treeview based on the selected sort order
     def load_categories(sort_order):
         for item in tree.get_children():
             tree.delete(item)
@@ -3078,6 +3099,7 @@ def test_cat_add():
         cnx.commit()
         cnx.close()
 
+    # Function to handle sort order change
     def on_sort_change(*args):
         selected_sort = sort_var.get()
         load_categories(selected_sort)
@@ -3159,7 +3181,7 @@ def test_cat_add():
 
 ######################################## Test Option Modify ############################################################
 
-
+# Back Button for Test Type Modify
 def back_test_cat_modify():
     show_main_menu()
     test_cat_modify_frame.grid_forget()
@@ -3167,7 +3189,7 @@ def back_test_cat_modify():
     header_tcatadd.grid_forget()
     return
 
-
+# Displays a tree view of test categories with an option to modify existing categories.
 def test_cat_modify():
     # When refreshing the page, destroy the previous frame
     if 'test_cat_modify_frame' in globals():
@@ -3204,6 +3226,7 @@ def test_cat_modify():
             # Close Connection
             cnx.close()
 
+    # Function to load categories into the treeview based on the selected sort order
     def load_categories(sort_order):
         for item in tree.get_children():
             tree.delete(item)
@@ -3223,6 +3246,7 @@ def test_cat_modify():
         cnx.commit()
         cnx.close()
 
+    # Function to handle sort order change
     def on_sort_change(*args):
         selected_sort = sort_var.get()
         load_categories(selected_sort)
@@ -3242,6 +3266,7 @@ def test_cat_modify():
     sort_var.set("ID")  # default sort
     sort_var.trace("w", on_sort_change)
 
+    # Create a dropdown for sorting
     create_dropdown_ver(test_cat_modify_frame, ["ID", "Title"], sort_var, row=0, col=0, cspan=2, state="readonly",
                         text="Sort categories by:")
 
@@ -3314,7 +3339,7 @@ def test_cat_modify():
 
 ######################################## Test Option Delete ############################################################
 
-
+# Back Button for Test Type Delete
 def back_test_cat_delete():
     show_main_menu()
     test_cat_delete_frame.grid_forget()
@@ -3322,7 +3347,7 @@ def back_test_cat_delete():
     header_tcatdelete.grid_forget()
     return
 
-
+# Displays a tree view of test categories with an option to delete selected categories.
 def test_cat_delete():
     # When refreshing the page, destroy the previous frame
     if 'test_cat_delete_frame' in globals():
@@ -3377,6 +3402,7 @@ def test_cat_delete():
             finally:
                 cnx.close()
 
+    # Function to load categories into the treeview based on the selected sort order
     def load_categories(sort_order):
         for item in tree.get_children():
             tree.delete(item)
@@ -3396,6 +3422,7 @@ def test_cat_delete():
         cnx.commit()
         cnx.close()
 
+    # Function to handle sort order change
     def on_sort_change(*args):
         selected_sort = sort_var.get()
         load_categories(selected_sort)
@@ -3415,6 +3442,7 @@ def test_cat_delete():
     sort_var.set("ID")  # default sort
     sort_var.trace("w", on_sort_change)
 
+    # Create a dropdown for sorting 
     create_dropdown_ver(test_cat_delete_frame, ["ID", "Title"], sort_var, row=0, col=0, cspan=2, state="readonly",
                         text="Sort categories by:")
 
@@ -3494,6 +3522,9 @@ deleteTestCat_btn.grid(row=1, column=2, pady=10, padx=10, ipadx=50, ipady=10, st
 
 
 ################################################ Select Database #######################################################
+
+
+# Selects a database file using a file dialog and updates the label with the selected database information.
 def select_db():
     temp_path1 = select_database()
     global db_file
@@ -3504,6 +3535,8 @@ def select_db():
 
 ################################################ Create Database #######################################################
 
+
+# Creates a new database file using a file dialog and initializes the database.
 def create_db():
     select_database(save=True)
     global db_file
