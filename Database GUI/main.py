@@ -3037,7 +3037,7 @@ def tcat_add():
         back_tcat_add()
 
     def add_new_test_cat():
-        # Making sure the user input a Question Category Title
+        # Making sure the user input a Test Category Category Title
         if not tctitle_entry.get().strip():
             messagebox.showerror("Error", "Please enter a Test Category Title.")
             return
@@ -3060,7 +3060,7 @@ def tcat_add():
 
             # Commit Changes
             cnx.commit()
-            messagebox.showinfo("Success", f"Question category {new_testCat_id} added successfully!")
+            messagebox.showinfo("Success", f"Test category {new_testCat_id} added successfully!")
 
             # Clear input field
             tctitle_entry.delete(0, END)
@@ -3471,6 +3471,7 @@ def tcat_delete():
         cat_name.append(row[1])
         tree.insert("", "end", values=(row[0], row[1]))
 
+    # Create dropdown for category selection
     cate_drop = create_dropdown_hor(test_cat_delete_frame, cat_name, var, 4, 0, 1, "normal",
                                     text="Select a test category: ")
     cate_drop.grid(padx=10)
@@ -3479,7 +3480,7 @@ def tcat_delete():
     # Close Connection
     cnx.close()
 
-    delete_testCat_btn = ttk.Button(test_cat_delete_frame, text="Delete Question Category", command=delete_test_cat,
+    delete_testCat_btn = ttk.Button(test_cat_delete_frame, text="Delete Test Category", command=delete_test_cat,
                                     style="Accent.TButton")
     delete_testCat_btn.grid(row=5, column=0, pady=10, columnspan=2)
 
